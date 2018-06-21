@@ -113,7 +113,7 @@ public class OBDReceiveRun {
         if (messageEvent.getFlag() == OBDDataMessage.CONNECT_STATE_FLAG) {
             if (messageEvent.isConnect()) {
                 Log.d(TAG, "connect: 串口连接成功！！！");
-                mHandler.sendEmptyMessageDelayed(LOOP_GET_PID, 1000);//获取PID数据
+               // mHandler.sendEmptyMessageDelayed(LOOP_GET_PID, 1000);//获取PID数据
             } else {
                 Log.d(TAG, "connect: 串口连接失败！！！");
                 mHandler.sendEmptyMessageDelayed(PORT_CONNECT_FLAG, 3000);//3s重连

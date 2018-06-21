@@ -168,6 +168,7 @@ public class SerialPortIOManage {
 //                    mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, BinaryToHexString(mBuffer,read)));
 //                    int read = mInputStream.read(mBuffer, mReadOff, mBuffer.length - mReadOff);
                     int read = mInputStream.read(mBuffer);
+                    mReadOff = read;
                     Log.d(TAG, "read:"+read+"   数据读取: "+new String(mBuffer,0,read,"UTF-8"));
 //                    mReadOff += read;
 //                    Log.d(TAG, "数据读取: "+new String(mBuffer,0,mReadOff,"UTF-8"));
