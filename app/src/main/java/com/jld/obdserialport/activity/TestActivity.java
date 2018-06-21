@@ -89,6 +89,7 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d(TAG, "onCreate");
+        Log.d(TAG, "onCreate");
         mHandler = new MyHandler(this);
         initView();
         EventBus.getDefault().register(this);

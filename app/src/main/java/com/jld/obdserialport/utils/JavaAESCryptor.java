@@ -15,7 +15,6 @@ public class JavaAESCryptor {
 	/**
 	 * 加密
 	 * 
-	 * @param encryptStr
 	 * @return
 	 */
 	public static byte[] encrypt(byte[] src,final String key) throws Exception {
@@ -29,9 +28,7 @@ public class JavaAESCryptor {
 	/**
 	 * 解密
 	 * 
-	 * @param decryptStr
 	 * @return
-	 * @throws Exception
 	 */
 	public static byte[] decrypt(byte[] src,final String key)  throws Exception  {
 		Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
