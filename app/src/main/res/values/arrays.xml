@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="ATCode">
+        <item>测试命令</item>
+        <item>设备信息数据流</item>
+        <item>打开实时数据</item>
+        <item>关闭实时数据</item>
+        <item>打开特定数据</item>
+        <item>关闭特定数据</item>
+        <item>读取自定义数据</item>
+        <item>读取故障码</item>
+        <item>清除ECU故障码</item>
+        <item>总里程修正</item>
+        <item>读取VIN码</item>
+    </string-array>
+    <string-array name="PIDCode">
+        <item>ATPID=01</item>
+        <item>ATPID=04</item>
+        <item>ATPID=05</item>
+        <item>ATPID=012</item>
+        <item>ATPID=013</item>
+        <item>ATPID=015</item>
+        <item>ATPID=017</item>
+        <item>ATPID=031</item>
+        <item>ATPID=044</item>
+        <item>ATPID=047</item>
+    </string-array>
+</resources>

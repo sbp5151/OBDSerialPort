@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">OBDSerialPort</string>
+    <string name="init_succeed_hind">扫描二维码绑定车联助手</string>
+    <string name="bind_succeed">绑定成功</string>
+    <string name="initing_hint">正在初始化...</string>
+    <string name="init_fail_hint">初始化失败</string>
+    <string name="init_timeout">初始化超时</string>
+    <string name="device_bind_succeed">设备已绑定</string>
+    <string name="network_error">网络状态异常</string>
+</resources>
