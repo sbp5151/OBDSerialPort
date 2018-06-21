@@ -49,8 +49,8 @@ public class Constant {
 //    public static String SERIAL_PORT_PATH = "/dev/ttyS2";
     public static String SERIAL_PORT_PATH = "/dev/ttyMT2";
     //串口波特率
-    public static int SERIAL_PORT_BAUD_RATE = 57600;
-//    public static int SERIAL_PORT_BAUD_RATE = 9600;
+//    public static int SERIAL_PORT_BAUD_RATE = 57600;
+    public static int SERIAL_PORT_BAUD_RATE = 9600;
 
     //shared名称
     public static final String SHARED_NAME = "shared_futurevi";

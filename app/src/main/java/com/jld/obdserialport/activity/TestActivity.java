@@ -56,8 +56,7 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
     private SelfStartService.MyBinder mMyBinder;
     public static final int ADD_DATA_FLAG = 0x01;
     private Spinner mSpinner;
-    private String[] mCodes = {"AT", "ATI", "ATRTON", "ATRTOFF", "ATUTON", "ATUTOFF"
-            , "ATPID", "ATDTC", "ATCDI", "ATADJ", "ATVIN"};
+    private String[] mCodes = getResources().getStringArray(R.array.ATCode);
 
     class MyHandler extends Handler {
         private WeakReference<TestActivity> mWeakReference;
@@ -139,13 +138,13 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         switch (position) {
-            case 6:
-            case 9:
-                mEtCode.setText("=");
-                break;
-            default:
-                mEtCode.setText("");
-                break;
+//            case 6:
+//            case 9:
+//                mEtCode.setText("=");
+//                break;
+//            default:
+//                mEtCode.setText("");
+//                break;
         }
     }
 
@@ -174,30 +173,6 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
         mHandler.sendMessage(message);
     }
 
-    private void enCode2() {
-        String content = "{'repairPhone':'18547854787','customPhone':'12365478965','captchav':'58m7'}";
-        try {
-            String encrypt = AESUtil.encrypt(content, Constant.SIGN_KEY);
-            Log.d(TAG, "加密后: " + encrypt);
-            String decrypt = AESUtil.decrypt(encrypt.getBytes("UTF-8"), Constant.SIGN_KEY);
-            Log.d(TAG, "解密后: " + decrypt);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void enCode() {
-        String content = "{'repairPhone':'18547854787','customPhone':'12365478965','captchav':'58m7'}";
-        try {
-            String encrypt = JavaAESCryptor.encrypt(content, Constant.SIGN_KEY);
-            Log.d(TAG, "加密后: " + encrypt);
-            byte[] decrypt = JavaAESCryptor.decrypt(encrypt.getBytes("UTF-8"), Constant.SIGN_KEY);
-            Log.d(TAG, "解密后: " + new String(decrypt, "UTF-8"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -214,21 +189,20 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
         }
     }
 
-
     /**
      * 串口数据发送
      */
     private void sendCode() {
         String code = mEtCode.getText().toString();
         int position = mSpinner.getSelectedItemPosition();
-        if (position == 6 && (TextUtils.isEmpty(code) || code.equals("="))) {
-            Toast.makeText(this, "请输入PID数据", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (position == 9 && (TextUtils.isEmpty(code) || code.equals("="))) {
-            Toast.makeText(this, "请输入需要修改的总里程", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        if (position == 6 && (TextUtils.isEmpty(code) || code.equals("="))) {
+//            Toast.makeText(this, "请输入PID数据", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+//        if (position == 9 && (TextUtils.isEmpty(code) || code.equals("="))) {
+//            Toast.makeText(this, "请输入需要修改的总里程", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
         if (mMyBinder == null) {
             Toast.makeText(this, "服务器未连接！！！", Toast.LENGTH_SHORT).show();
             return;
@@ -237,7 +211,8 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
             Toast.makeText(this, "串口未连接！！！", Toast.LENGTH_SHORT).show();
             return;
         }
-        mMyBinder.sendData(mCodes[position] + code);
+//        mMyBinder.sendData(mCodes[position] + code);
+        mMyBinder.sendData(mCodes[position]);
     }
 
     @Override
