@@ -51,6 +51,8 @@ public class Constant {
     //串口波特率
 //    public static int SERIAL_PORT_BAUD_RATE = 57600;
     public static int SERIAL_PORT_BAUD_RATE = 9600;
+//    public static int SERIAL_PORT_BAUD_RATE = 11520;
+//    public static int SERIAL_PORT_BAUD_RATE = 38400;
 
     //shared名称
     public static final String SHARED_NAME = "shared_futurevi";

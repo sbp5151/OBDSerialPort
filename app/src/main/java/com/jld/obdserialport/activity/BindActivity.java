@@ -36,8 +36,10 @@ public class BindActivity extends BaseActivity {
         setContentView(R.layout.activity_bind);
         initView();
         //启动后台服务
-        Intent intent = new Intent(this, SelfStartService.class);
-        startService(intent);
+        Intent serviceIntent = new Intent(this, SelfStartService.class);
+        startService(serviceIntent);
+        Intent activityIntent = new Intent(BindActivity.this, TestActivity.class);
+        startActivity(activityIntent);
 
         EventBus.getDefault().register(this);
     }

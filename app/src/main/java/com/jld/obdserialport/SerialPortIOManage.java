@@ -11,6 +11,7 @@ import com.jld.obdserialport.event_msg.OBDDataMessage;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -83,8 +84,12 @@ public class SerialPortIOManage {
 
                 }
             };
+            Log.d(TAG, "串口连接成功");
+
             mEventBus.post(new OBDDataMessage(OBDDataMessage.CONNECT_STATE_FLAG, true));
         } else {
+            Log.d(TAG, "串口连接失败");
+
             mEventBus.post(new OBDDataMessage(OBDDataMessage.CONNECT_STATE_FLAG, false));
             mIsConnect = false;
         }
@@ -169,37 +174,55 @@ public class SerialPortIOManage {
 //                    int read = mInputStream.read(mBuffer, mReadOff, mBuffer.length - mReadOff);
                     int read = mInputStream.read(mBuffer);
                     mReadOff = read;
-                    Log.d(TAG, "read:"+read+"   数据读取: "+new String(mBuffer,0,read,"UTF-8"));
+                    Log.d(TAG, "\n\r"+new String(mBuffer, 0, read, "UTF-8"));
+//                    Log.d(TAG, "read:" + read + "   数据读取: " + File.separator + new String(mBuffer, 0, read, "UTF-8"));
 //                    mReadOff += read;
 //                    Log.d(TAG, "数据读取: "+new String(mBuffer,0,mReadOff,"UTF-8"));
 //                    if (read > 0 && mBuffer[mReadOff - 1] == 10) {//后缀为\n
 //                        mWriteHandler.removeMessages(FEEDBACK_TIMEOUT_FLAG);
 //                        sendData();
 //                    }
+//                 1   13.8,
+//                 2   1416,
+//                 3       34,
+//                 4   0.00
+//                 5   ,41.96
+//                 6   ,86
+//                 7    ,6.21
+//                 8   ,0.29
+//                 9   ,2.20
+//                 10   ,57
+//                 11   ,0.16
+//                 12   ,0.21
+//                 13   ,0
+//                 14   ,2
+//                 15   ,0
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }
     };
-    private static String hexStr =  "0123456789ABCDEF";
+    private static String hexStr = "0123456789ABCDEF";
+
     /**
-     *
      * @param bytes
      * @return 将二进制转换为十六进制字符输出
      */
-    public static String BinaryToHexString(byte[] bytes,int length){
+    public static String BinaryToHexString(byte[] bytes, int length) {
         String result = "";
         String hex = "";
-        for(int i=0;i<length;i++){
+        for (int i = 0; i < length; i++) {
             //字节高4位
-            hex = String.valueOf(hexStr.charAt((bytes[i]&0xF0)>>4));
+            hex = String.valueOf(hexStr.charAt((bytes[i] & 0xF0) >> 4));
             //字节低4位
-            hex += String.valueOf(hexStr.charAt(bytes[i]&0x0F));
-            result +=hex+" ";
+            hex += String.valueOf(hexStr.charAt(bytes[i] & 0x0F));
+            result += hex + " ";
         }
         return result;
     }
+
     private void sendData() {
         String readData = null;
         try {

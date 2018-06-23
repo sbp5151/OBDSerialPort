@@ -55,8 +55,8 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
     private Handler mHandler;
     private SelfStartService.MyBinder mMyBinder;
     public static final int ADD_DATA_FLAG = 0x01;
+    public static final int ADD_TEST_DATA = 0x02;
     private Spinner mSpinner;
-    private String[] mCodes = getResources().getStringArray(R.array.ATCode);
 
     class MyHandler extends Handler {
         private WeakReference<TestActivity> mWeakReference;
@@ -79,9 +79,15 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
                     mObdDataAdapter.notifyDataSetChanged();
                     mRecyclerView.scrollToPosition(mObdDataAdapter.getItemCount() - 1);
                     break;
+                case ADD_TEST_DATA:
+                    sendCode();
+                    mHandler.sendEmptyMessageDelayed(ADD_TEST_DATA,1500);
+                    break;
             }
         }
     }
+
+    private String[] mCodes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +98,8 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
         initView();
         EventBus.getDefault().register(this);
         initService();
+        mCodes = getResources().getStringArray(R.array.ATCode);
+
         TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_NUMBERS) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             Log.e(TAG, "read permission phoneNum fail: ");
@@ -212,7 +220,10 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
             return;
         }
 //        mMyBinder.sendData(mCodes[position] + code);
-        mMyBinder.sendData(mCodes[position]);
+        if (position == 6)
+            mMyBinder.sendData("ATBUD="+code);
+        else
+            mMyBinder.sendData(mCodes[position]);
     }
 
     @Override
