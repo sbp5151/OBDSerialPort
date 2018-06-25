@@ -31,10 +31,9 @@ public class SerialPortIOManage {
     private boolean mIsLoopWrite = true;
     private boolean mIsLoopRead = true;
     private boolean mIsWriteDataIng = false;
-    private int mReadOff = 0;
     private final int WRITE_DATA_FLAG = 0x01;
     private final int FEEDBACK_TIMEOUT_FLAG = 0x02;
-    private int mFeedbackTimeout = 1000;
+    private int mFeedbackTimeout = 1500;//发送数据反馈超时
     ArrayList<String> mWriteDatas = new ArrayList<>();
 
     public SerialPortIOManage(Context context) {
@@ -66,7 +65,7 @@ public class SerialPortIOManage {
                     super.handleMessage(msg);
                     switch (msg.what) {
                         case WRITE_DATA_FLAG:
-                            String data = (String) msg.obj + "\r\n";
+                            String data = msg.obj + "\r\n";
                             try {
                                 Log.d(TAG, "写数据：" + data);
                                 mOutputStream.write(data.getBytes("UTF-8"));
@@ -77,7 +76,6 @@ public class SerialPortIOManage {
                             }
                             break;
                         case FEEDBACK_TIMEOUT_FLAG:
-//                            sendData();
                             mIsWriteDataIng = false;
                             break;
                     }
@@ -85,15 +83,67 @@ public class SerialPortIOManage {
                 }
             };
             Log.d(TAG, "串口连接成功");
-
             mEventBus.post(new OBDDataMessage(OBDDataMessage.CONNECT_STATE_FLAG, true));
         } else {
             Log.d(TAG, "串口连接失败");
-
             mEventBus.post(new OBDDataMessage(OBDDataMessage.CONNECT_STATE_FLAG, false));
             mIsConnect = false;
         }
     }
+
+    public void addWriteData(String data) {
+        if (mIsConnect) {
+            mWriteDatas.add(data);
+        }
+    }
+
+    /**
+     * 向串口写数据
+     */
+    Runnable mLoopWriteRun = new Runnable() {
+        @Override
+        public void run() {
+            while (mIsLoopWrite) {
+                if (!mIsWriteDataIng && mWriteDatas.size() > 0) {
+                    mIsWriteDataIng = true;
+                    Message message = mWriteHandler.obtainMessage();
+                    message.obj = mWriteDatas.get(0);
+                    message.what = WRITE_DATA_FLAG;
+                    mWriteHandler.sendMessage(message);
+                    mWriteHandler.sendEmptyMessageDelayed(FEEDBACK_TIMEOUT_FLAG, mFeedbackTimeout);//数据反馈超时
+                    mWriteDatas.remove(0);
+                }
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
+    byte[] mBuffer = new byte[512];
+
+    /**
+     * 串口数据接收
+     */
+    Runnable mReadRun = new Runnable() {
+        @Override
+        public void run() {
+            Log.d(TAG, "开始读取数据:" + mIsConnect);
+            while (mIsLoopRead) {
+                try {
+                    int read = mInputStream.read(mBuffer);
+                    String readData = new String(mBuffer, 0, read, "UTF-8");
+                    Log.d(TAG, "数据读取：" + readData);
+                    mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, readData));
+                    mWriteHandler.removeMessages(FEEDBACK_TIMEOUT_FLAG);
+                    mIsWriteDataIng = false;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
 
     /**
      * 断开连接
@@ -125,114 +175,5 @@ public class SerialPortIOManage {
 
     public boolean isConnect() {
         return mIsConnect;
-    }
-
-    public void addWriteData(String data) {
-        if (mIsConnect) {
-            mWriteDatas.add(data);
-        }
-    }
-
-    /**
-     * 向串口写数据
-     */
-    Runnable mLoopWriteRun = new Runnable() {
-        @Override
-        public void run() {
-            while (mIsLoopWrite) {
-//                if (!mIsWriteDataIng && mWriteDatas.size() > 0) {
-                if (mWriteDatas.size() > 0) {
-                    mIsWriteDataIng = true;
-                    Message message = mWriteHandler.obtainMessage();
-                    message.obj = mWriteDatas.get(0);
-                    message.what = WRITE_DATA_FLAG;
-                    mWriteHandler.sendMessage(message);
-                    mWriteHandler.sendEmptyMessageDelayed(FEEDBACK_TIMEOUT_FLAG, mFeedbackTimeout);//数据反馈超时
-                    mWriteDatas.remove(0);
-                }
-                try {
-                    Thread.sleep(300);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    };
-    byte[] mBuffer = new byte[512];
-
-    /**
-     * 串口数据接收
-     */
-    Runnable mReadRun = new Runnable() {
-        @Override
-        public void run() {
-            Log.d(TAG, "mReadRun:" + mIsConnect);
-            while (mIsLoopRead) {
-                try {
-//                    int read = mInputStream.read(mBuffer);
-//                    mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, BinaryToHexString(mBuffer,read)));
-//                    int read = mInputStream.read(mBuffer, mReadOff, mBuffer.length - mReadOff);
-                    int read = mInputStream.read(mBuffer);
-                    mReadOff = read;
-                    Log.d(TAG, "\n\r"+new String(mBuffer, 0, read, "UTF-8"));
-//                    Log.d(TAG, "read:" + read + "   数据读取: " + File.separator + new String(mBuffer, 0, read, "UTF-8"));
-//                    mReadOff += read;
-//                    Log.d(TAG, "数据读取: "+new String(mBuffer,0,mReadOff,"UTF-8"));
-//                    if (read > 0 && mBuffer[mReadOff - 1] == 10) {//后缀为\n
-//                        mWriteHandler.removeMessages(FEEDBACK_TIMEOUT_FLAG);
-//                        sendData();
-//                    }
-//                 1   13.8,
-//                 2   1416,
-//                 3       34,
-//                 4   0.00
-//                 5   ,41.96
-//                 6   ,86
-//                 7    ,6.21
-//                 8   ,0.29
-//                 9   ,2.20
-//                 10   ,57
-//                 11   ,0.16
-//                 12   ,0.21
-//                 13   ,0
-//                 14   ,2
-//                 15   ,0
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    };
-    private static String hexStr = "0123456789ABCDEF";
-
-    /**
-     * @param bytes
-     * @return 将二进制转换为十六进制字符输出
-     */
-    public static String BinaryToHexString(byte[] bytes, int length) {
-        String result = "";
-        String hex = "";
-        for (int i = 0; i < length; i++) {
-            //字节高4位
-            hex = String.valueOf(hexStr.charAt((bytes[i] & 0xF0) >> 4));
-            //字节低4位
-            hex += String.valueOf(hexStr.charAt(bytes[i] & 0x0F));
-            result += hex + " ";
-        }
-        return result;
-    }
-
-    private void sendData() {
-        String readData = null;
-        try {
-            readData = new String(mBuffer, 0, mReadOff, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        Log.d(TAG, "readDataAll：" + readData);
-        mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, readData));
-        mReadOff = 0;
-        mIsWriteDataIng = false;
     }
 }

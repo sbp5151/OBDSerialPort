@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -13,8 +12,9 @@ import com.jld.obdserialport.R;
 import com.jld.obdserialport.bean.BaseBean;
 import com.jld.obdserialport.bean.BindMsgBean;
 import com.jld.obdserialport.event_msg.DefaultMessage;
+import com.jld.obdserialport.http.BaseHttpUtil;
+import com.jld.obdserialport.http.BindHttpUtil;
 import com.jld.obdserialport.utils.Constant;
-import com.jld.obdserialport.utils.MyHttpUtil;
 import com.jld.obdserialport.utils.SharedName;
 
 import org.greenrobot.eventbus.EventBus;
@@ -79,15 +79,15 @@ public class BindDeviceRun implements TagAliasCallback {
                     break;
                 case MSG_UPLOAD_JPUSH_MEG:
                     Log.d(TAG, "上传JPush绑定信息...");
-                    MyHttpUtil.build().jPushBindUpload(MSG_UPLOAD_JPUSH_MEG, Constant.JPUSH_DEVICE_ALIAS, new HttpCallback());
+                    BindHttpUtil.build().jPushBindUpload(MSG_UPLOAD_JPUSH_MEG, Constant.JPUSH_DEVICE_ALIAS, new HttpCallback());
                     break;
                 case MSG_REQUEST_BIND_MEG:
                     Log.d(TAG, "获取JPush绑定信息...");
-                    MyHttpUtil.build().jPushBindRequest(MSG_REQUEST_BIND_MEG, new HttpCallback());
+                    BindHttpUtil.build().jPushBindRequest(MSG_REQUEST_BIND_MEG, new HttpCallback());
                     break;
                 case MSG_UPLOAD_DEVICE_ID:
                     Log.d(TAG, "上传设备ID...");
-                    MyHttpUtil.build().uploadDeviceID(MSG_UPLOAD_DEVICE_ID, new HttpCallback());
+                    BindHttpUtil.build().uploadDeviceID(MSG_UPLOAD_DEVICE_ID, new HttpCallback());
                     break;
                 case MSG_TOAST:
                     Toast.makeText(mContext, (String) msg.obj, Toast.LENGTH_SHORT).show();
@@ -153,7 +153,7 @@ public class BindDeviceRun implements TagAliasCallback {
         }
     }
 
-    class HttpCallback implements MyHttpUtil.MyCallback {
+    class HttpCallback implements BaseHttpUtil.MyCallback {
 
         @Override
         public void onFailure(int tag, String errorMessage) {
@@ -208,10 +208,10 @@ public class BindDeviceRun implements TagAliasCallback {
                 case MSG_UPLOAD_DEVICE_ID:
                     baseBean = mGson.fromJson(body, BaseBean.class);
                     if (baseBean.getResult() == 0) {
-                        Log.d(TAG, "设置设备ID成功 body=" + body);
+                        Log.d(TAG, "上传设备ID成功 body=" + body);
                         mSp.edit().putBoolean(SharedName.DEVICE_IS_UPLOAD, true).apply();
                     } else
-                        Log.d(TAG, "设置设备ID失败 msg=" + body);
+                        Log.d(TAG, "上传设备ID失败 msg=" + body);
                     break;
             }
         }

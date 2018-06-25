@@ -9,16 +9,13 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
-import org.greenrobot.eventbus.EventBus;
+import com.jld.obdserialport.bean.GPSBean;
+import com.jld.obdserialport.http.GPSHttpUtil;
 
-import java.lang.ref.WeakReference;
 import java.util.List;
 
 /**
@@ -29,6 +26,7 @@ public class LocationReceiveRun {
     private static final String TAG = "LocationReceiveRun";
     private Context mContext;
     private LocationManager mLocationManager;
+    public static GPSBean mGpsBean = new GPSBean();
 
     public LocationReceiveRun(Context context) {
         mContext = context;
@@ -48,20 +46,27 @@ public class LocationReceiveRun {
         for (int i = 0; i < allProviders.size(); i++) {
             Log.d(TAG, "allProviders item:" + allProviders.get(i));
         }
-        if (mLocationManager.getProvider(LocationManager.GPS_PROVIDER) != null)
-            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, mLocationListener);
-        else if (mLocationManager.getProvider(LocationManager.NETWORK_PROVIDER) != null)
-            mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 1000, 1, mLocationListener);
-        else if (mLocationManager.getProvider(LocationManager.NETWORK_PROVIDER) != null)
-            mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 1000, 1, mLocationListener);
+        if (mLocationManager.getProvider(LocationManager.GPS_PROVIDER) != null) {
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 3, mLocationListener);
+            Log.d(TAG, "GPS定位...");
+        } else if (mLocationManager.getProvider(LocationManager.NETWORK_PROVIDER) != null) {
+            mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 3000, 3, mLocationListener);
+            Log.d(TAG, "网络定位...");
+        } else if (mLocationManager.getProvider(LocationManager.PASSIVE_PROVIDER) != null) {
+            mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 3000, 3, mLocationListener);
+            Log.d(TAG, "其他定位...");
+        }
     }
 
     LocationListener mLocationListener = new LocationListener() {
         @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         public void onLocationChanged(Location location) {
-            Log.d(TAG, "onLocationChanged: " + location);
-            EventBus.getDefault().post(location);
+            Log.d(TAG, "------------onLocationChanged: " + location);
+            mGpsBean.setDirection(location.getBearing());
+            mGpsBean.setLatitude(location.getLatitude());
+            mGpsBean.setLongitude(location.getLongitude());
+            GPSHttpUtil.build().gpsDataPost(mGpsBean);
         }
 
         @Override
@@ -80,7 +85,7 @@ public class LocationReceiveRun {
         }
     };
 
-    public void removeUpdates(){
+    public void removeUpdates() {
         mLocationManager.removeUpdates(mLocationListener);
     }
 }

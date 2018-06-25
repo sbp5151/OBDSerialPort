@@ -7,7 +7,7 @@ import com.jld.obdserialport.utils.Constant;
 /**
  * 驾驶习惯数据
  */
-public class HBTBean {
+public class HBTBean extends BaseBean {
 
     private static final String TAG = "HBTBean";
     private String obdId = Constant.OBD_DEFAULT_ID;//OBD编号
@@ -22,9 +22,9 @@ public class HBTBean {
     private int totalSharpSlowdownTimes;//累计急加速次数
 
     public void setData(String data) {
-        Log.d(TAG, "HBTBean setData: "+data);
+        Log.d(TAG, "HBTBean setData: " + data);
         String[] datas = data.split(",");
-        if (datas.length >= 100) {
+        if (datas.length == 10) {
             totalIgnitionTimes = Integer.parseInt(datas[1]);
             totalTravelTime = Double.parseDouble(datas[2]);
             totalIdleTime = Double.parseDouble(datas[3]);
@@ -35,7 +35,7 @@ public class HBTBean {
             totalRapidlyAccelerateTimes = Integer.parseInt(datas[8]);
             totalSharpSlowdownTimes = Integer.parseInt(datas[9]);
         } else {
-            Log.e(TAG, "HBTBean setData 数据异常:" + data);
+            Log.e(TAG, "驾驶习惯数据 setData 数据大小异常:" + data);
         }
     }
 

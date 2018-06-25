@@ -7,8 +7,8 @@ import com.jld.obdserialport.utils.Constant;
 /**
  * 单独数据读取
  */
-public class PIDBeanTest {
-    private static final String TAG = "PIDBeanTest";
+public class ATBeanTest {
+    private static final String TAG = "ATBeanTest";
     private String obdId = Constant.OBD_DEFAULT_ID;// OBD编号
     private int currentNumberOfFaultCodes;//当前故障码数量(Times/次) 01
     private double engineLoad;//发动机负荷(%) 004
@@ -68,7 +68,7 @@ public class PIDBeanTest {
 
     @Override
     public String toString() {
-        return "PIDBeanTest{" +
+        return "ATBeanTest{" +
                 "obdId='" + obdId + '\'' +
                 ", currentNumberOfFaultCodes=" + currentNumberOfFaultCodes +
                 ", engineLoad=" + engineLoad +
