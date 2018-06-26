@@ -1,7 +1,6 @@
 package com.jld.obdserialport.activity;
 
 import android.content.Intent;
-import android.mtp.MtpConstants;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,8 +10,7 @@ import android.widget.TextView;
 import com.jld.obdserialport.R;
 import com.jld.obdserialport.SelfStartService;
 import com.jld.obdserialport.event_msg.DefaultMessage;
-import com.jld.obdserialport.event_msg.OBDDataMessage;
-import com.jld.obdserialport.runnable.BindDeviceRun;
+import com.jld.obdserialport.test.TestActivity;
 import com.jld.obdserialport.utils.DeviceUtils;
 import com.jld.obdserialport.utils.EncryptUtils;
 import com.jld.obdserialport.utils.ZxingUtil;
@@ -21,9 +19,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-public class BindActivity extends BaseActivity {
+public class MainActivity extends BaseActivity {
 
-    private static final String TAG = "BindActivity";
+    private static final String TAG = "MainActivity";
     private int mClickNum = 0;
     private TextView mTvBindMessage;
     private ImageView mIvBindCode;
@@ -33,12 +31,12 @@ public class BindActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
-        setContentView(R.layout.activity_bind);
+        setContentView(R.layout.activity_main);
         initView();
         //启动后台服务
         Intent serviceIntent = new Intent(this, SelfStartService.class);
         startService(serviceIntent);
-//        Intent activityIntent = new Intent(BindActivity.this, TestActivity.class);
+//        Intent activityIntent = new Intent(MainActivity.this, TestActivity.class);
 //        startActivity(activityIntent);
 
         EventBus.getDefault().register(this);
@@ -53,7 +51,7 @@ public class BindActivity extends BaseActivity {
                 mClickNum++;
                 if (mClickNum == 6) {
                     mClickNum = 0;
-                    Intent intent = new Intent(BindActivity.this, TestActivity.class);
+                    Intent intent = new Intent(MainActivity.this, TestActivity.class);
                     startActivity(intent);
                 }
             }

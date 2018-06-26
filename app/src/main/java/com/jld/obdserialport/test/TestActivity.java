@@ -1,4 +1,4 @@
-package com.jld.obdserialport.activity;
+package com.jld.obdserialport.test;
 
 import android.Manifest;
 import android.content.ComponentName;
@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.telephony.TelephonyManager;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -24,13 +23,10 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.jld.obdserialport.ObdDataAdapter;
 import com.jld.obdserialport.R;
 import com.jld.obdserialport.SelfStartService;
+import com.jld.obdserialport.activity.BaseActivity;
 import com.jld.obdserialport.event_msg.OBDDataMessage;
-import com.jld.obdserialport.utils.Constant;
-import com.jld.obdserialport.utils.AESUtil;
-import com.jld.obdserialport.utils.JavaAESCryptor;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;

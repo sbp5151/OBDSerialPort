@@ -18,6 +18,10 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
+/**
+ * 串口数据读写管理类
+ * 功能：连接、读写
+ */
 public class SerialPortIOManage {
     public static final String TAG = "SerialPortIOManage";
     private InputStream mInputStream;

@@ -137,5 +137,4 @@ public class BindHttpUtil extends BaseHttpUtil {
             }
         });
     }
-
 }

@@ -15,8 +15,8 @@ import com.jld.obdserialport.runnable.OBDReceiveRun;
 import org.greenrobot.eventbus.EventBus;
 
 /**
- * 1、串口连接，失败重连
- * 2、注册EventBus接收SerialPortIOManager数据
+ * 1、启动三大runnable
+ * 2、与TestActivity进行数据通信
  */
 public class SelfStartService extends Service {
 

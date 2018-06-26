@@ -26,13 +26,11 @@ import java.util.Date;
 import static com.jld.obdserialport.utils.Constant.SERIAL_PORT_BAUD_RATE;
 import static com.jld.obdserialport.utils.Constant.SERIAL_PORT_PATH;
 
+/**
+ * OBD运行任务
+ * 功能：串口数据读取、串口数据控制（获取、上传）
+ */
 public class OBDReceiveRun {
-
-//  $OBD-RT,13.2,1580,55,0.00,40.00,86,3.27,2.68,10.80,82,0.94,2.95,0,6,8
-//  $OBD-RT,13.4,1284,8,0.00,23.92,87,19.88,2.71,12.49,83,1.01,3.02,0,6,8
-//  D-TT,15,8.30,30.98,13.06,0.15,0.94,2202,65,7,8
-//  $EST527,System sleeping.
-//  $EST527,V6.6 System running...
 
     public static final String TAG = "OBDReceiveRun";
     private Context mContext;
@@ -47,7 +45,6 @@ public class OBDReceiveRun {
     private final int FLAG_HBT_OFF_POST = 0x07;
     private final int FLAG_TT_POST = 0x08;
     private SerialPortIOManage mPortManage;
-    String[] mPidCode;
     private RTBean mRtBean;
     private ATBeanTest mAtBean;
     private Date mTTStartTime;
@@ -71,12 +68,6 @@ public class OBDReceiveRun {
                 case FLAG_PORT_CONNECT://串口连接
                     Log.d(TAG, "connect: 串口连接：" + SERIAL_PORT_PATH + " -- " + SERIAL_PORT_BAUD_RATE);
                     mPortManage.connect(SERIAL_PORT_PATH, SERIAL_PORT_BAUD_RATE);
-                    break;
-                case FLAG_LOOP_GET_PID:
-                    for (int i = 0; i < mPidCode.length; i++) {
-                        mPortManage.addWriteData(mPidCode[i]);
-                    }
-                    mHandler.sendEmptyMessageDelayed(FLAG_LOOP_GET_PID, 1000 * 15);
                     break;
                 case FLAG_RT_POST:
                     OBDHttpUtil.build().rtDataPost(mRtBean, FLAG_RT_POST, mMyCallback);
@@ -102,12 +93,12 @@ public class OBDReceiveRun {
         mContext = context;
         mHandler = new MyHandler(this);
         EventBus.getDefault().register(this);
-        mPidCode = mContext.getResources().getStringArray(R.array.PIDCode);
         mPortManage = new SerialPortIOManage(mContext);
         mHandler.sendEmptyMessage(FLAG_PORT_CONNECT);//串口连接
     }
 
     private int rtNum = 30;
+    private boolean mCarStatusIsOn = false;
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void odbEvent(OBDDataMessage messageEvent) {
@@ -115,7 +106,6 @@ public class OBDReceiveRun {
             if (messageEvent.isConnect()) {
                 Log.d(TAG, "串口连接成功");
                 mPortManage.addWriteData("ATRON");
-                // mHandler.sendEmptyMessageDelayed(FLAG_LOOP_GET_PID, 1000);//获取PID数据
             } else {
                 Log.d(TAG, "串口连接失败 3s重连");
                 mHandler.sendEmptyMessageDelayed(FLAG_PORT_CONNECT, 3000);//3s重连
@@ -135,14 +125,16 @@ public class OBDReceiveRun {
                     mHandler.sendEmptyMessage(FLAG_RT_POST);
                 }
                 Log.d(TAG, "odbEvent: " + mRtBean);
-            } else if (message.contains("System running")) {//汽车点火
+            } else if (!mCarStatusIsOn && message.contains("System running") || message.contains("STATUS ON")) {//汽车点火
                 Log.d(TAG, "接收到汽车点火");
+                mCarStatusIsOn = true;
                 mTTStartTime = new Date();
                 mStartOrStopBean = new OnOrOffBean(OnOrOffBean.CAR_START, LocationReceiveRun.mGpsBean.getLongitude(), LocationReceiveRun.mGpsBean.getLatitude());
                 mHandler.removeMessages(FLAG_ON_POST);
                 mHandler.sendEmptyMessage(FLAG_ON_POST);
-            } else if (message.contains("System sleeping")) {//汽车熄火
+            } else if (mCarStatusIsOn && message.contains("System sleeping") || message.contains("STATUS OFF")) {//汽车熄火
                 Log.d(TAG, "接收到汽车熄火");
+                mCarStatusIsOn = false;
                 mStartOrStopBean = new OnOrOffBean(OnOrOffBean.CAR_STOP, LocationReceiveRun.mGpsBean.getLongitude(), LocationReceiveRun.mGpsBean.getLatitude());
                 mHandler.removeMessages(FLAG_OFF_POST);
                 mHandler.sendEmptyMessage(FLAG_OFF_POST);
@@ -165,7 +157,7 @@ public class OBDReceiveRun {
                 mHbtBean.setData(message.trim());
                 mHandler.removeMessages(FLAG_HBT_OFF_POST);
                 mHandler.sendEmptyMessage(FLAG_HBT_OFF_POST);
-            }else if (message.startsWith("AT")) {//AT数据
+            } else if (message.startsWith("AT")) {//AT数据
                 if (mAtBean == null)
                     mAtBean = new ATBeanTest();
                 if (mAtBean.setData(message.trim())) {//数据获取完成
@@ -183,6 +175,7 @@ public class OBDReceiveRun {
             mHandler.sendEmptyMessageDelayed(tag, 3000);
 //            Log.d(TAG, "数据上传失败 tag: " + tag + " errorMessage:" + errorMessage);
         }
+
         @Override
         public void onResponse(int tag, String body) {
 //            Log.d(TAG, "数据上传成功 tag: " + tag + " body:" + body);
