@@ -19,7 +19,7 @@ import okhttp3.Response;
 
 public class OBDHttpUtil extends BaseHttpUtil {
 
-    public static final String TAG = "GPSHttpUtil";
+    public static final String TAG = "OBDHttpUtil";
     public static OBDHttpUtil mHttpUtil;
 
     private OBDHttpUtil() {

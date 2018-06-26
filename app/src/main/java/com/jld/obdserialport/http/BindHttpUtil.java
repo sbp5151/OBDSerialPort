@@ -129,9 +129,9 @@ public class BindHttpUtil extends BaseHttpUtil {
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.code() == 200) {
                     callback.onResponse(tag, response.body().string());
-                    Log.d(TAG, "获取设备绑定信息失败成功: " + response.message());
+                    Log.d(TAG, "获取设备绑定信息成功: " + response.message());
                 } else {
-                    Log.d(TAG, "获取设备绑定信息失败失败 onResponse: " + response.message());
+                    Log.d(TAG, "获取设备绑定信息失败 onResponse: " + response.message());
                     callback.onFailure(tag, response.message());
                 }
             }

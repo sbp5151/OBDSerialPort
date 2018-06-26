@@ -28,6 +28,12 @@ import static com.jld.obdserialport.utils.Constant.SERIAL_PORT_PATH;
 
 public class OBDReceiveRun {
 
+//  $OBD-RT,13.2,1580,55,0.00,40.00,86,3.27,2.68,10.80,82,0.94,2.95,0,6,8
+//  $OBD-RT,13.4,1284,8,0.00,23.92,87,19.88,2.71,12.49,83,1.01,3.02,0,6,8
+//  D-TT,15,8.30,30.98,13.06,0.15,0.94,2202,65,7,8
+//  $EST527,System sleeping.
+//  $EST527,V6.6 System running...
+
     public static final String TAG = "OBDReceiveRun";
     private Context mContext;
     private final MyHandler mHandler;
@@ -129,13 +135,6 @@ public class OBDReceiveRun {
                     mHandler.sendEmptyMessage(FLAG_RT_POST);
                 }
                 Log.d(TAG, "odbEvent: " + mRtBean);
-            } else if (message.startsWith("AT")) {//AT数据
-                if (mAtBean == null)
-                    mAtBean = new ATBeanTest();
-                if (mAtBean.setData(message.trim())) {//数据获取完成
-                    Log.d(TAG, "AT数据获取完成");
-                    OBDHttpUtil.build().atDataPost(mAtBean);
-                }
             } else if (message.contains("System running")) {//汽车点火
                 Log.d(TAG, "接收到汽车点火");
                 mTTStartTime = new Date();
@@ -166,6 +165,13 @@ public class OBDReceiveRun {
                 mHbtBean.setData(message.trim());
                 mHandler.removeMessages(FLAG_HBT_OFF_POST);
                 mHandler.sendEmptyMessage(FLAG_HBT_OFF_POST);
+            }else if (message.startsWith("AT")) {//AT数据
+                if (mAtBean == null)
+                    mAtBean = new ATBeanTest();
+                if (mAtBean.setData(message.trim())) {//数据获取完成
+                    Log.d(TAG, "AT数据获取完成");
+                    OBDHttpUtil.build().atDataPost(mAtBean);
+                }
             }
         }
     }
