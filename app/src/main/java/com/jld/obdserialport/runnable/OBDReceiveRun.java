@@ -8,6 +8,7 @@ import android.util.Log;
 import com.jld.obdserialport.R;
 import com.jld.obdserialport.SerialPortIOManage;
 import com.jld.obdserialport.bean.HBTBean;
+import com.jld.obdserialport.event_msg.DefaultMessage;
 import com.jld.obdserialport.event_msg.OBDDataMessage;
 import com.jld.obdserialport.bean.ATBeanTest;
 import com.jld.obdserialport.bean.RTBean;
@@ -51,6 +52,9 @@ public class OBDReceiveRun {
     private OnOrOffBean mStartOrStopBean;
     private TTBean mTtBean;
     private HBTBean mHbtBean;
+    //系统启动需要时间，可能接收不到汽车启动指令
+    //所以第一次启动时接收到RT数据则表示汽车启动
+    private boolean mIsFirstStart = true;
 
     private class MyHandler extends Handler {
         private WeakReference<OBDReceiveRun> mWeakReference;
@@ -58,7 +62,6 @@ public class OBDReceiveRun {
         public MyHandler(OBDReceiveRun obdReceive) {
             mWeakReference = new WeakReference<>(obdReceive);
         }
-
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -85,7 +88,6 @@ public class OBDReceiveRun {
                     OBDHttpUtil.build().carStartOrStopPost(mStartOrStopBean, FLAG_OFF_POST, mMyCallback);
                     break;
             }
-
         }
     }
 
@@ -98,7 +100,6 @@ public class OBDReceiveRun {
     }
 
     private int rtNum = 30;
-    private boolean mCarStatusIsOn = false;
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void odbEvent(OBDDataMessage messageEvent) {
@@ -115,6 +116,8 @@ public class OBDReceiveRun {
             Log.d(TAG, "串口接收数据返回:" + message);
             if (message.startsWith("$OBD-RT")) {//实时数据
                 rtNum++;
+                if (mIsFirstStart)//第一次启动接收到RT当作汽车启动
+                    systemRun();
                 if (rtNum <= 30)
                     return;
                 if (mRtBean == null)
@@ -126,30 +129,21 @@ public class OBDReceiveRun {
                 }
                 Log.d(TAG, "odbEvent: " + mRtBean);
             } else if (message.contains("System running")) {//汽车点火
-                Log.d(TAG, "接收到汽车点火");
-                mCarStatusIsOn = true;
-                mTTStartTime = new Date();
-                mStartOrStopBean = new OnOrOffBean(OnOrOffBean.CAR_START, LocationReceiveRun.mGpsBean.getLongitude(), LocationReceiveRun.mGpsBean.getLatitude());
-                mHandler.removeMessages(FLAG_ON_POST);
-                mHandler.sendEmptyMessage(FLAG_ON_POST);
+                systemRun();
             } else if (message.contains("System sleeping")) {//汽车熄火
-                Log.d(TAG, "接收到汽车熄火");
-                mCarStatusIsOn = false;
-                mStartOrStopBean = new OnOrOffBean(OnOrOffBean.CAR_STOP, LocationReceiveRun.mGpsBean.getLongitude(), LocationReceiveRun.mGpsBean.getLatitude());
-                mHandler.removeMessages(FLAG_OFF_POST);
-                mHandler.sendEmptyMessage(FLAG_OFF_POST);
+                systemSleep();
             } else if (message.contains("BD-TT")) {//本次行程数据
                 Log.d(TAG, "接收到本次行程数据");
                 mTtBean = new TTBean();
                 mTtBean.setData(message.trim());
                 //本次行程大于等于500m
-              //  if (mTtBean.getTravelMileage() >= 0.5) {
-                    //获取驾驶习惯数据
-                    mTtBean.setStartTime(mTTStartTime);
-                    mTtBean.setEndTime(new Date());
-                    mPortManage.addWriteData("ATHBT");
-                    mHandler.removeMessages(FLAG_TT_POST);//停止失败续传
-                    mHandler.sendEmptyMessage(FLAG_TT_POST);
+                //  if (mTtBean.getTravelMileage() >= 0.5) {
+                //获取驾驶习惯数据
+                mTtBean.setStartTime(mTTStartTime);
+                mTtBean.setEndTime(new Date());
+                mPortManage.addWriteData("ATHBT");
+                mHandler.removeMessages(FLAG_TT_POST);//停止失败续传
+                mHandler.sendEmptyMessage(FLAG_TT_POST);
                 //}
             } else if (message.startsWith("$OBD-HBT")) {//驾驶习惯数据
                 Log.d(TAG, "接收到驾驶习惯数据");
@@ -166,6 +160,23 @@ public class OBDReceiveRun {
                 }
             }
         }
+    }
+
+    private void systemRun() {
+        Log.d(TAG, "接收到汽车点火");
+        if (mIsFirstStart)
+            mIsFirstStart = false;
+        mTTStartTime = new Date();
+        mStartOrStopBean = new OnOrOffBean(OnOrOffBean.CAR_START, LocationReceiveRun.mGpsBean.getLongitude(), LocationReceiveRun.mGpsBean.getLatitude());
+        mHandler.removeMessages(FLAG_ON_POST);
+        mHandler.sendEmptyMessage(FLAG_ON_POST);
+    }
+
+    private void systemSleep() {
+        Log.d(TAG, "接收到汽车熄火");
+        mStartOrStopBean = new OnOrOffBean(OnOrOffBean.CAR_STOP, LocationReceiveRun.mGpsBean.getLongitude(), LocationReceiveRun.mGpsBean.getLatitude());
+        mHandler.removeMessages(FLAG_OFF_POST);
+        mHandler.sendEmptyMessage(FLAG_OFF_POST);
     }
 
     BaseHttpUtil.MyCallback mMyCallback = new BaseHttpUtil.MyCallback() {
