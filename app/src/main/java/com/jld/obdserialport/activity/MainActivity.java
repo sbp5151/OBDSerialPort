@@ -36,8 +36,10 @@ public class MainActivity extends BaseActivity {
         //启动后台服务
         Intent serviceIntent = new Intent(this, SelfStartService.class);
         startService(serviceIntent);
-//        Intent activityIntent = new Intent(MainActivity.this, TestActivity.class);
-//        startActivity(activityIntent);
+
+        //开启测试界面
+        Intent activityIntent = new Intent(MainActivity.this, TestActivity.class);
+        startActivity(activityIntent);
 
         EventBus.getDefault().register(this);
     }

@@ -30,6 +30,7 @@ public class LocationReceiveRun {
 
     public LocationReceiveRun(Context context) {
         mContext = context;
+        Log.d(TAG, "LocationReceiveRun");
         initLocation();
     }
 
@@ -40,6 +41,7 @@ public class LocationReceiveRun {
         criteria.setBearingRequired(true);//带方向
         if (ActivityCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "LocationReceiveRun 权限错误");
             return;
         }
         List<String> allProviders = mLocationManager.getAllProviders();

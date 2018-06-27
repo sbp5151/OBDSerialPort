@@ -125,32 +125,32 @@ public class OBDReceiveRun {
                     mHandler.sendEmptyMessage(FLAG_RT_POST);
                 }
                 Log.d(TAG, "odbEvent: " + mRtBean);
-            } else if (!mCarStatusIsOn && message.contains("System running") || message.contains("STATUS ON")) {//汽车点火
+            } else if (message.contains("System running")) {//汽车点火
                 Log.d(TAG, "接收到汽车点火");
                 mCarStatusIsOn = true;
                 mTTStartTime = new Date();
                 mStartOrStopBean = new OnOrOffBean(OnOrOffBean.CAR_START, LocationReceiveRun.mGpsBean.getLongitude(), LocationReceiveRun.mGpsBean.getLatitude());
                 mHandler.removeMessages(FLAG_ON_POST);
                 mHandler.sendEmptyMessage(FLAG_ON_POST);
-            } else if (mCarStatusIsOn && message.contains("System sleeping") || message.contains("STATUS OFF")) {//汽车熄火
+            } else if (message.contains("System sleeping")) {//汽车熄火
                 Log.d(TAG, "接收到汽车熄火");
                 mCarStatusIsOn = false;
                 mStartOrStopBean = new OnOrOffBean(OnOrOffBean.CAR_STOP, LocationReceiveRun.mGpsBean.getLongitude(), LocationReceiveRun.mGpsBean.getLatitude());
                 mHandler.removeMessages(FLAG_OFF_POST);
                 mHandler.sendEmptyMessage(FLAG_OFF_POST);
-            } else if (message.startsWith("$OBD-TT")) {//本次行程数据
+            } else if (message.contains("BD-TT")) {//本次行程数据
                 Log.d(TAG, "接收到本次行程数据");
                 mTtBean = new TTBean();
                 mTtBean.setData(message.trim());
                 //本次行程大于等于500m
-                if (mTtBean.getTravelMileage() >= 0.5) {
+              //  if (mTtBean.getTravelMileage() >= 0.5) {
                     //获取驾驶习惯数据
                     mTtBean.setStartTime(mTTStartTime);
                     mTtBean.setEndTime(new Date());
                     mPortManage.addWriteData("ATHBT");
-                    mHandler.removeMessages(FLAG_TT_POST);
+                    mHandler.removeMessages(FLAG_TT_POST);//停止失败续传
                     mHandler.sendEmptyMessage(FLAG_TT_POST);
-                }
+                //}
             } else if (message.startsWith("$OBD-HBT")) {//驾驶习惯数据
                 Log.d(TAG, "接收到驾驶习惯数据");
                 mHbtBean = new HBTBean();
@@ -172,7 +172,7 @@ public class OBDReceiveRun {
 
         @Override
         public void onFailure(int tag, String errorMessage) {
-            mHandler.sendEmptyMessageDelayed(tag, 3000);
+//            mHandler.sendEmptyMessageDelayed(tag, 3000);
 //            Log.d(TAG, "数据上传失败 tag: " + tag + " errorMessage:" + errorMessage);
         }
 

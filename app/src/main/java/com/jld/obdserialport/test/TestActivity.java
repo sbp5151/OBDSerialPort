@@ -88,7 +88,7 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_test);
         Log.d(TAG, "onCreate");
         mHandler = new MyHandler(this);
         initView();
