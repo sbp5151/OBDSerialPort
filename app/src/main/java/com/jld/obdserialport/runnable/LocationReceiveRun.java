@@ -76,7 +76,7 @@ public class LocationReceiveRun {
         @Override
         public void onLocationChanged(Location location) {
             Log.d(TAG, "------------onLocationChanged: " + location);
-            mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, "onLocationChanged"));
+            mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, "onLocationChanged:"+location));
 
             mGpsBean.setDirection(location.getBearing());
             mGpsBean.setLatitude(location.getLatitude());
@@ -86,7 +86,7 @@ public class LocationReceiveRun {
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
-            mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, "onStatusChanged"));
+            mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, "onStatusChanged:"+status));
             Log.d(TAG, "onStatusChanged: " + status);
         }
 

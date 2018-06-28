@@ -95,8 +95,6 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
         EventBus.getDefault().register(this);
         initService();
         mCodes = getResources().getStringArray(R.array.ATCode);
-
-
     }
 
     private void initService() {

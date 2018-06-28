@@ -36,13 +36,13 @@ public class SelfStartService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
-        //getTelephonyInfo();
+        getTelephonyInfo();
         //极光绑定线程
-        mBindDeviceRun = new BindDeviceRun(this);
+//        mBindDeviceRun = new BindDeviceRun(this);
         //OBD数据获取线程
         mObdReceive = new OBDReceiveRun(this);
         //开启GPS信息获取线程
-        mLocationReceive = new LocationReceiveRun(this);
+//        mLocationReceive = new LocationReceiveRun(this);
     }
 
     private void getTelephonyInfo() {

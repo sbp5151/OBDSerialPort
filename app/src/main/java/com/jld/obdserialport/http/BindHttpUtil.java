@@ -73,6 +73,7 @@ public class BindHttpUtil extends BaseHttpUtil {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("deviceID", Constant.OBD_DEFAULT_ID);
         jsonObject.addProperty("jPushAlias", alias);
+        jsonObject.addProperty("iccid", Constant.ICCID);
         Log.d(TAG, "上传设备绑定信息: " + jsonObject);
         RequestBody body = RequestBody.create(mJsonType, jsonObject.toString());
         Request build = new Request.Builder()

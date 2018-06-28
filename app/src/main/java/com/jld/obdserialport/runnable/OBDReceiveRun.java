@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.jld.obdserialport.R;
 import com.jld.obdserialport.SerialPortIOManage;
+import com.jld.obdserialport.bean.BaseBean;
 import com.jld.obdserialport.bean.HBTBean;
 import com.jld.obdserialport.event_msg.DefaultMessage;
 import com.jld.obdserialport.event_msg.OBDDataMessage;
@@ -57,6 +58,7 @@ public class OBDReceiveRun {
     //系统启动需要时间，可能接收不到汽车启动指令
     //所以第一次启动时接收到RT数据则表示汽车启动
     private boolean mIsFirstStart = true;
+    private final EventBus mEventBus;
 
     private class MyHandler extends Handler {
         private WeakReference<OBDReceiveRun> mWeakReference;
@@ -64,7 +66,6 @@ public class OBDReceiveRun {
         public MyHandler(OBDReceiveRun obdReceive) {
             mWeakReference = new WeakReference<>(obdReceive);
         }
-
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -103,7 +104,9 @@ public class OBDReceiveRun {
     public OBDReceiveRun(Context context) {
         mContext = context;
         mHandler = new MyHandler(this);
-        EventBus.getDefault().register(this);
+        mEventBus = EventBus.getDefault();
+        mEventBus.register(this);
+        mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, "OBDReceiveRun run....."));
         mPortManage = new SerialPortIOManage(mContext);
         mHandler.sendEmptyMessage(FLAG_PORT_CONNECT);//串口连接
     }

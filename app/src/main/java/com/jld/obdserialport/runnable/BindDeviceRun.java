@@ -14,6 +14,7 @@ import com.jld.obdserialport.R;
 import com.jld.obdserialport.bean.BaseBean;
 import com.jld.obdserialport.bean.BindMsgBean;
 import com.jld.obdserialport.event_msg.DefaultMessage;
+import com.jld.obdserialport.event_msg.OBDDataMessage;
 import com.jld.obdserialport.http.BaseHttpUtil;
 import com.jld.obdserialport.http.BindHttpUtil;
 import com.jld.obdserialport.utils.Constant;
@@ -56,6 +57,7 @@ public class BindDeviceRun implements TagAliasCallback {
     private SharedPreferences mSp;
     private Gson mGson;
     private MyHandler mHandler;
+    private final EventBus mEventBus;
 
     private class MyHandler extends Handler {
         private WeakReference<BindDeviceRun> mWeakReference;
@@ -74,20 +76,24 @@ public class BindDeviceRun implements TagAliasCallback {
                     break;
                 case MSG_SET_ALIAS:
                     Log.d(TAG, "设置JPush别名...");
+                    mySendMessage("设置JPush别名...");
                     JPushInterface.setAliasAndTags(mContext.getApplicationContext(),
                             Constant.JPUSH_DEVICE_ALIAS,
                             null,
                             BindDeviceRun.this);
                     break;
                 case MSG_UPLOAD_JPUSH_MEG:
+                    mySendMessage("上传JPush绑定信息...");
                     Log.d(TAG, "上传JPush绑定信息...");
                     BindHttpUtil.build().jPushBindUpload(MSG_UPLOAD_JPUSH_MEG, Constant.JPUSH_DEVICE_ALIAS, new HttpCallback());
                     break;
                 case MSG_REQUEST_BIND_MEG:
+                    mySendMessage("获取JPush绑定信息...");
                     Log.d(TAG, "获取JPush绑定信息...");
                     BindHttpUtil.build().jPushBindRequest(MSG_REQUEST_BIND_MEG, new HttpCallback());
                     break;
                 case MSG_UPLOAD_DEVICE_ID:
+                    mySendMessage("上传设备ID...");
                     Log.d(TAG, "上传设备ID...");
                     BindHttpUtil.build().uploadDeviceID(MSG_UPLOAD_DEVICE_ID, new HttpCallback());
                     break;
@@ -101,6 +107,7 @@ public class BindDeviceRun implements TagAliasCallback {
                     if (mSp.getBoolean(SharedName.JPUSH_MSG_IS_UPLOAD, false))
                         EventBus.getDefault().post(new DefaultMessage(EVENT_MSG_SHOW_CODE, ""));
                     else {
+                        mySendMessage("JPush信息没有上传，不能显示二维码，15秒后再判断...");
                         Log.i(TAG, "JPush信息没有上传，不能显示二维码，15秒后再判断");
                         mHandler.sendEmptyMessageDelayed(MSG_SHOW_CODE, 1000 * 15);
                     }
@@ -115,8 +122,9 @@ public class BindDeviceRun implements TagAliasCallback {
         mSp = mContext.getSharedPreferences(Constant.SHARED_NAME, MODE_PRIVATE);
         mGson = new Gson();
         mHandler = new MyHandler(this);
+        mEventBus = EventBus.getDefault();
         // 设备ID上传
-        if (!mSp.getBoolean(SharedName.DEVICE_IS_UPLOAD, false) && !TextUtils.isEmpty(Constant.ICCID) && !TextUtils.isEmpty(Constant.OBD_DEFAULT_ID))
+        if (!mSp.getBoolean(SharedName.DEVICE_IS_UPLOAD, false) && !TextUtils.isEmpty(Constant.OBD_DEFAULT_ID))
             mHandler.sendEmptyMessage(MSG_UPLOAD_DEVICE_ID);
 
         //极光推送注册别名
@@ -131,6 +139,10 @@ public class BindDeviceRun implements TagAliasCallback {
         else mHandler.sendEmptyMessage(MSG_HIDE_CODE);
     }
 
+    private void mySendMessage(String message) {
+        mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, message));
+    }
+
     public void toast(String msg) {
         Message message = mHandler.obtainMessage();
         message.obj = msg;
@@ -142,15 +154,18 @@ public class BindDeviceRun implements TagAliasCallback {
     public void gotResult(int code, String s, Set<String> set) {
         switch (code) {
             case 0:
+                mySendMessage("JPush别名设置成功");
                 Log.i(TAG, "JPush别名设置成功");
                 mSp.edit().putBoolean(SharedName.JPUSH_SETALIAS_SUCCEED, true).apply();
                 mHandler.sendEmptyMessage(MSG_UPLOAD_JPUSH_MEG);
                 break;
             case 6002:
+                mySendMessage("JPush30s重复申请");
                 Log.i(TAG, "JPush30s重复申请");
                 mHandler.sendEmptyMessageDelayed(MSG_SET_ALIAS, 1000 * 30);
                 break;
             default:
+                mySendMessage("JPush设置别名失败 errorCode:" + code);
                 Log.e(TAG, "JPush设置别名失败 errorCode:" + code);
         }
     }
