@@ -46,6 +46,7 @@ public class OBDReceiveRun {
     private final int FLAG_OFF_POST = 0x06;
     private final int FLAG_HBT_OFF_POST = 0x07;
     private final int FLAG_TT_POST = 0x08;
+    private final int FLAG_REMAINING = 0x09;
     private SerialPortIOManage mPortManage;
     private RTBean mRtBean;
     private ATBeanTest mAtBean;
@@ -84,12 +85,16 @@ public class OBDReceiveRun {
                     OBDHttpUtil.build().ttDataPost(mTtBean, FLAG_TT_POST, mMyCallback);
                     break;
                 case FLAG_ON_POST:
-                    mStartOrStopBean = new OnOrOffBean(OnOrOffBean.CAR_START, LocationReceiveRun.mGpsBean.getLongitude(), LocationReceiveRun.mGpsBean.getLatitude(),mRemain);
+                    mStartOrStopBean = new OnOrOffBean(OnOrOffBean.CAR_START, LocationReceiveRun.mGpsBean.getLongitude(), LocationReceiveRun.mGpsBean.getLatitude(), mRemain);
                     OBDHttpUtil.build().carStartOrStopPost(mStartOrStopBean, FLAG_ON_POST, mMyCallback);
                     break;
                 case FLAG_OFF_POST:
-                    mStartOrStopBean = new OnOrOffBean(OnOrOffBean.CAR_STOP, LocationReceiveRun.mGpsBean.getLongitude(), LocationReceiveRun.mGpsBean.getLatitude(),mRemain);
+                    mStartOrStopBean = new OnOrOffBean(OnOrOffBean.CAR_STOP, LocationReceiveRun.mGpsBean.getLongitude(), LocationReceiveRun.mGpsBean.getLatitude(), mRemain);
                     OBDHttpUtil.build().carStartOrStopPost(mStartOrStopBean, FLAG_OFF_POST, mMyCallback);
+                    break;
+                case FLAG_REMAINING:
+                    mPortManage.addWriteData("AT047");//获取当前剩余油量
+                    mHandler.sendEmptyMessageDelayed(FLAG_REMAINING, 1000 * 10);
                     break;
             }
         }
@@ -105,7 +110,6 @@ public class OBDReceiveRun {
 
     private int rtNum = 30;//实时数据30次才发送一次
     private int mRemain;//油箱剩余油量
-    private boolean mSystemIsRun;//是否处于点火状态
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void odbEvent(OBDDataMessage messageEvent) {
@@ -136,8 +140,13 @@ public class OBDReceiveRun {
                 systemRun();
             } else if (message.contains("System sleeping")) {//汽车熄火
                 systemSleep();
+            } else if (message.contains("Connect ECU OK")) {
+                mHandler.sendEmptyMessage(FLAG_REMAINING);//获取当前剩余油量
+                mPortManage.addWriteData("ATHBT");//获取驾驶习惯数据
+                mPortManage.addWriteData("ATRON");//开启实时数据获取
             } else if (message.contains("BD-TT")) {//本次行程数据
                 Log.d(TAG, "接收到本次行程数据");
+                mPortManage.addWriteData("ATROFF");//关闭实时数据获取
                 mTtBean = new TTBean();
                 mTtBean.setData(message.trim());
                 //本次行程大于等于500m
@@ -163,10 +172,6 @@ public class OBDReceiveRun {
                 String remain = message.replace("$047=", "");
                 if (!TextUtils.isEmpty(remain))
                     mRemain = Integer.parseInt(remain);
-                if (mSystemIsRun)
-                    mHandler.sendEmptyMessage(FLAG_ON_POST);
-                else
-                    mHandler.sendEmptyMessage(FLAG_OFF_POST);
             }
         }
     }
@@ -175,18 +180,13 @@ public class OBDReceiveRun {
         Log.d(TAG, "接收到汽车点火");
         if (mIsFirstStart)
             mIsFirstStart = false;
-        mSystemIsRun = true;
         mTTStartTime = new Date();
-        mPortManage.addWriteData("AT047");//获取当前剩余油量
-        mPortManage.addWriteData("ATRON");//开启实时数据获取
+        mHandler.sendEmptyMessage(FLAG_ON_POST);
     }
 
     private void systemSleep() {
         Log.d(TAG, "接收到汽车熄火");
-        mSystemIsRun = false;
-        mPortManage.addWriteData("ATROFF");//关闭实时数据获取
-        mPortManage.addWriteData("AT047");//获取当前剩余油量
-        mPortManage.addWriteData("ATHBT");//获取驾驶习惯数据
+        mHandler.sendEmptyMessage(FLAG_OFF_POST);
     }
 
     BaseHttpUtil.MyCallback mMyCallback = new BaseHttpUtil.MyCallback() {

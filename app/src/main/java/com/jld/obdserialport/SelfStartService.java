@@ -36,7 +36,7 @@ public class SelfStartService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
-        getTelephonyInfo();
+        //getTelephonyInfo();
         //极光绑定线程
         mBindDeviceRun = new BindDeviceRun(this);
         //OBD数据获取线程
