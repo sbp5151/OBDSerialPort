@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.TextureView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -114,7 +116,7 @@ public class BindDeviceRun implements TagAliasCallback {
         mGson = new Gson();
         mHandler = new MyHandler(this);
         // 设备ID上传
-        if (!mSp.getBoolean(SharedName.DEVICE_IS_UPLOAD, false))
+        if (!mSp.getBoolean(SharedName.DEVICE_IS_UPLOAD, false) && !TextUtils.isEmpty(Constant.ICCID) && !TextUtils.isEmpty(Constant.OBD_DEFAULT_ID))
             mHandler.sendEmptyMessage(MSG_UPLOAD_DEVICE_ID);
 
         //极光推送注册别名

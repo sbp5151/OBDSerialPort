@@ -96,13 +96,7 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
         initService();
         mCodes = getResources().getStringArray(R.array.ATCode);
 
-        TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_NUMBERS) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            Log.e(TAG, "read permission phoneNum fail: ");
-            return;
-        }
-        String phoneNum = tm.getLine1Number();
-        Log.d(TAG, "phoneNum: " + phoneNum);
+
     }
 
     private void initService() {

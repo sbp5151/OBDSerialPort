@@ -8,14 +8,15 @@ public class OnOrOffBean extends BaseBean {
     private double engineState;//发动机状态
     private double longitude;//经度
     private double latitude;//纬度
-
+    private double fuelTankResidue;//剩余油量
     public static final double CAR_START = 1;
     public static final double CAR_STOP = 0;
 
-    public OnOrOffBean(double engineState, double longitude, double latitude) {
+    public OnOrOffBean(double engineState, double longitude, double latitude, double fuelTankResidue) {
         this.engineState = engineState;
         this.longitude = longitude;
         this.latitude = latitude;
+        this.fuelTankResidue = fuelTankResidue;
     }
 
     public double getEngineState() {

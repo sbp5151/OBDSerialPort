@@ -60,6 +60,10 @@ public class Constant {
     public static final String OBD_DEFAULT_ID = "JLD001";
 
     /**
+     * SIM卡序号
+     */
+    public static String ICCID = "JLD001";
+    /**
      * 极光推送别名
      */
     public static final String JPUSH_DEVICE_ALIAS = OBD_DEFAULT_ID;
