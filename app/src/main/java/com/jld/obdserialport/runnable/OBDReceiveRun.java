@@ -151,7 +151,9 @@ public class OBDReceiveRun {
             } else if (message.contains("System running")) {//汽车点火
             } else if (message.contains("System sleeping")) {//汽车熄火
 //                mHandler.sendEmptyMessageDelayed(FLAG_ENABLE_RT, 1000 * 60 * 10);
+                mHandler.removeMessages(FLAG_REMAINING);//停止剩余油量上传
                 mHandler.sendEmptyMessageDelayed(FLAG_ENABLE_RT, 1000 * 60);
+                rtNum = 30;//休眠状态上传数据
             } else if (message.contains("Connect ECU OK")) {
                 mHandler.sendEmptyMessage(FLAG_REMAINING);//获取当前剩余油量
                 mHandler.sendEmptyMessageDelayed(FLAG_BATTERY_UPLOAD, 1000 * 30);
@@ -175,7 +177,7 @@ public class OBDReceiveRun {
             } else if (message.startsWith("$047=")) {//当前剩余油量
                 Log.d(TAG, "接收到当前油耗：" + message);
                 String remain = message.replace("$047=", "");
-                if (!TextUtils.isEmpty(remain) && remain.equals("ECU not support")) {
+                if (!TextUtils.isEmpty(remain) && remain.contains("ECU not support")) {
                     mRemain = -1;
                 } else if (!TextUtils.isEmpty(remain)) {
                     mRemain = Integer.parseInt(remain);
@@ -189,6 +191,9 @@ public class OBDReceiveRun {
             mRtBean = new RTBean();
         mRtBean.setData(message.trim());
         String currentEngineSpeed = mRtBean.getEngineSpeed();
+        Log.d(TAG, "当前转速: "+currentEngineSpeed);
+        Log.d(TAG, "上一次转速: "+mLastEngineSpeed);
+        Log.d(TAG, "发动机状态: "+mEngineStatus);
         //熄火判断
         if (!TextUtils.isEmpty(currentEngineSpeed) && !TextUtils.isEmpty(mLastEngineSpeed)
                 && Integer.parseInt(currentEngineSpeed) < 300 && Integer.parseInt(mLastEngineSpeed) >= 300) {
@@ -253,7 +258,6 @@ public class OBDReceiveRun {
         mHandler.removeMessages(FLAG_BATTERY_UPLOAD);
         mPortManage.disConnect();
         EventBus.getDefault().unregister(this);
-        mHandler.removeMessages(FLAG_BATTERY_UPLOAD);
         mHandler.removeMessages(FLAG_PORT_CONNECT);
     }
 }

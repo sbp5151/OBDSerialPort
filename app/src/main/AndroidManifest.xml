@@ -17,7 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/MyTheme">
-        <activity android:name=".test.TestActivity">
+        <activity android:name=".activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -38,7 +38,7 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".activity.MainActivity" />
+        <activity android:name=".test.TestActivity" />
         <activity android:name=".activity.BaseActivity" />
         <!---  JPush   -->
         <!--<service-->
