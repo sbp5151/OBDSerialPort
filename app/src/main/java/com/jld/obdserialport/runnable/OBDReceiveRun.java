@@ -95,7 +95,7 @@ public class OBDReceiveRun {
                     break;
                 case FLAG_REMAINING:
                     mPortManage.addWriteData("AT047");//获取当前剩余油量
-                    mHandler.sendEmptyMessageDelayed(FLAG_REMAINING, 1000 * 10);
+                   // mHandler.sendEmptyMessageDelayed(FLAG_REMAINING, 1000 * 10);
                     break;
             }
         }
