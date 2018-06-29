@@ -3,6 +3,7 @@ package com.jld.obdserialport.http;
 import android.util.Log;
 
 import com.jld.obdserialport.bean.ATBeanTest;
+import com.jld.obdserialport.bean.BatteryBean;
 import com.jld.obdserialport.bean.HBTBean;
 import com.jld.obdserialport.bean.OnOrOffBean;
 import com.jld.obdserialport.bean.RTBean;
@@ -93,6 +94,36 @@ public class OBDHttpUtil extends BaseHttpUtil {
                     Log.d(TAG, "自定义数据上传成功 onResponse: " + response.body().string());
                 else
                     Log.d(TAG, "自定义数据上传失败 onResponse: " + response.body().string());
+            }
+        });
+    }
+
+    /**
+     * 电池电压数据上传
+     *
+     * @param batteryBean
+     */
+    public void BatteryVoltageDataPost(BatteryBean batteryBean) {
+        String batteryJson = mGson.toJson(batteryBean);
+        Log.d(TAG, "电池电压数据上传: " + batteryJson);
+        RequestBody body = RequestBody.create(mJsonType, batteryJson);
+        Request request = new Request.Builder()
+                .url(Constant.URL_UPLOAD_BATTERY_VOLTAGE)
+                .post(body)
+                .header("sign", getSign())
+                .build();
+        mOkHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.d(TAG, "电池电压数据上传 onFailure: " + e.toString());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.code() == 200)
+                    Log.d(TAG, "电池电压数据上传 onResponse: " + response.body().string());
+                else
+                    Log.d(TAG, "电池电压数据上传 onResponse: " + response.body().string());
             }
         });
     }

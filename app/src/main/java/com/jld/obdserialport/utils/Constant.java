@@ -55,6 +55,11 @@ public class Constant {
     public static final String URL_UPLOAD_DEVICE_ID = "http://m.futurevi.com/androidFaceController/uploadObdId.do";
 
     /**
+     * 电池电压上传接口
+     */
+    public static final String URL_UPLOAD_BATTERY_VOLTAGE = "http://m.futurevi.com/androidFaceController/uploadBatteryVoltageFace.do";
+
+    /**
      * OBD默认ID
      */
     public static final String OBD_DEFAULT_ID = "JLD001";

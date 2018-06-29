@@ -6,11 +6,9 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.jld.obdserialport.R;
 import com.jld.obdserialport.SerialPortIOManage;
-import com.jld.obdserialport.bean.BaseBean;
+import com.jld.obdserialport.bean.BatteryBean;
 import com.jld.obdserialport.bean.HBTBean;
-import com.jld.obdserialport.event_msg.DefaultMessage;
 import com.jld.obdserialport.event_msg.OBDDataMessage;
 import com.jld.obdserialport.bean.ATBeanTest;
 import com.jld.obdserialport.bean.RTBean;
@@ -48,6 +46,10 @@ public class OBDReceiveRun {
     private final int FLAG_HBT_OFF_POST = 0x07;
     private final int FLAG_TT_POST = 0x08;
     private final int FLAG_REMAINING = 0x09;
+    private final int FLAG_BATTERY_UPLOAD = 0x10;
+    private final int FLAG_ENABLE_RT = 0x11;
+    private final int ENGINE_STATUS_START = 1;
+    private final int ENGINE_STATUS_STOP = 0;
     private SerialPortIOManage mPortManage;
     private RTBean mRtBean;
     private ATBeanTest mAtBean;
@@ -55,10 +57,12 @@ public class OBDReceiveRun {
     private OnOrOffBean mStartOrStopBean;
     private TTBean mTtBean;
     private HBTBean mHbtBean;
-    //系统启动需要时间，可能接收不到汽车启动指令
-    //所以第一次启动时接收到RT数据则表示汽车启动
-    private boolean mIsFirstStart = true;
+    //    //系统启动需要时间，可能接收不到汽车启动指令
+//    //所以第一次启动时接收到RT数据则表示汽车启动
+//    private boolean mIsFirstStart = true;
+    private int mEngineStatus = ENGINE_STATUS_STOP;
     private final EventBus mEventBus;
+    private BatteryBean mBatteryBean;
 
     private class MyHandler extends Handler {
         private WeakReference<OBDReceiveRun> mWeakReference;
@@ -66,6 +70,7 @@ public class OBDReceiveRun {
         public MyHandler(OBDReceiveRun obdReceive) {
             mWeakReference = new WeakReference<>(obdReceive);
         }
+
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -95,7 +100,21 @@ public class OBDReceiveRun {
                     break;
                 case FLAG_REMAINING:
                     mPortManage.addWriteData("AT047");//获取当前剩余油量
-                   // mHandler.sendEmptyMessageDelayed(FLAG_REMAINING, 1000 * 10);
+                    mHandler.sendEmptyMessageDelayed(FLAG_REMAINING, 1000 * 60);
+                    break;
+                case FLAG_BATTERY_UPLOAD://电池电压上传
+                    if (mRtBean == null)
+                        return;
+                    if (mBatteryBean == null)
+                        mBatteryBean = new BatteryBean();
+                    mBatteryBean.setBatteryVoltage(Double.parseDouble(mRtBean.getBatteryVoltage()));
+                    OBDHttpUtil.build().BatteryVoltageDataPost(mBatteryBean);
+                    mHandler.sendEmptyMessageDelayed(FLAG_BATTERY_UPLOAD, 1000 * 60 * 3);
+                    break;
+                case FLAG_ENABLE_RT:
+//                    mHandler.sendEmptyMessageDelayed(FLAG_ENABLE_RT, 1000 * 60 * 10);
+                    mHandler.sendEmptyMessageDelayed(FLAG_ENABLE_RT, 1000 * 60);
+                    mPortManage.addWriteData("ATRON");//激活实时数据
                     break;
             }
         }
@@ -113,6 +132,7 @@ public class OBDReceiveRun {
 
     private int rtNum = 30;//实时数据30次才发送一次
     private int mRemain;//油箱剩余油量
+    private String mLastEngineSpeed;
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void odbEvent(OBDDataMessage messageEvent) {
@@ -121,35 +141,24 @@ public class OBDReceiveRun {
                 Log.d(TAG, "串口连接成功");
             } else {
                 Log.d(TAG, "串口连接失败 3s重连");
-                mHandler.sendEmptyMessageDelayed(FLAG_PORT_CONNECT, 3000);//3s重连
+                mHandler.sendEmptyMessageDelayed(FLAG_PORT_CONNECT, 3000);
             }
         } else if (messageEvent.getFlag() == OBDDataMessage.CONTENT_FLAG) {//串口接收数据返回
             String message = messageEvent.getMessage();
             Log.d(TAG, "串口接收数据返回:" + message);
             if (message.startsWith("$OBD-RT")) {//实时数据
-                rtNum++;
-                if (mIsFirstStart)//第一次启动接收到RT当作汽车启动
-                    systemRun();
-                if (rtNum <= 30)
-                    return;
-                if (mRtBean == null)
-                    mRtBean = new RTBean();
-                if (mRtBean.setData(message.trim())) {
-                    rtNum = 0;
-                    mHandler.sendEmptyMessage(FLAG_RT_POST);
-                }
-                Log.d(TAG, "odbEvent: " + mRtBean);
+                rtParse(message);
             } else if (message.contains("System running")) {//汽车点火
-                systemRun();
             } else if (message.contains("System sleeping")) {//汽车熄火
-                systemSleep();
+//                mHandler.sendEmptyMessageDelayed(FLAG_ENABLE_RT, 1000 * 60 * 10);
+                mHandler.sendEmptyMessageDelayed(FLAG_ENABLE_RT, 1000 * 60);
             } else if (message.contains("Connect ECU OK")) {
                 mHandler.sendEmptyMessage(FLAG_REMAINING);//获取当前剩余油量
+                mHandler.sendEmptyMessageDelayed(FLAG_BATTERY_UPLOAD, 1000 * 30);
                 mPortManage.addWriteData("ATHBT");//获取驾驶习惯数据
                 mPortManage.addWriteData("ATRON");//开启实时数据获取
             } else if (message.contains("BD-TT")) {//本次行程数据
                 Log.d(TAG, "接收到本次行程数据");
-                mPortManage.addWriteData("ATROFF");//关闭实时数据获取
                 mTtBean = new TTBean();
                 mTtBean.setData(message.trim());
                 //本次行程大于等于500m
@@ -163,32 +172,57 @@ public class OBDReceiveRun {
                 mHbtBean = new HBTBean();
                 mHbtBean.setData(message.trim());
                 mHandler.sendEmptyMessage(FLAG_HBT_OFF_POST);
-            } else if (message.startsWith("AT")) {//AT数据
-                if (mAtBean == null)
-                    mAtBean = new ATBeanTest();
-                if (mAtBean.setData(message.trim())) {//数据获取完成
-                    Log.d(TAG, "AT数据获取完成");
-                    OBDHttpUtil.build().atDataPost(mAtBean);
-                }
             } else if (message.startsWith("$047=")) {//当前剩余油量
                 Log.d(TAG, "接收到当前油耗：" + message);
                 String remain = message.replace("$047=", "");
-                if (!TextUtils.isEmpty(remain))
+                if (!TextUtils.isEmpty(remain) && remain.equals("ECU not support")) {
+                    mRemain = -1;
+                } else if (!TextUtils.isEmpty(remain)) {
                     mRemain = Integer.parseInt(remain);
+                }
             }
         }
     }
 
-    private void systemRun() {
-        Log.d(TAG, "接收到汽车点火");
-        if (mIsFirstStart)
-            mIsFirstStart = false;
+    private void rtParse(String message) {//实时数据解析
+        if (mRtBean == null)
+            mRtBean = new RTBean();
+        mRtBean.setData(message.trim());
+        String currentEngineSpeed = mRtBean.getEngineSpeed();
+        //熄火判断
+        if (!TextUtils.isEmpty(currentEngineSpeed) && !TextUtils.isEmpty(mLastEngineSpeed)
+                && Integer.parseInt(currentEngineSpeed) < 300 && Integer.parseInt(mLastEngineSpeed) >= 300) {
+            flameOut();//当上一次转速大于等于300，这次小于300代表熄火
+        }
+        mLastEngineSpeed = currentEngineSpeed;
+
+        //点火判断
+        if (!TextUtils.isEmpty(currentEngineSpeed) && Integer.parseInt(currentEngineSpeed) >= 300
+                && mEngineStatus == ENGINE_STATUS_STOP) {
+            ignition();//当当前转速大于等于300，发动机前面处于熄火状态，说明发动机在启动
+        }
+
+        //实时数据30次上传一次
+        rtNum++;
+        if (rtNum >= 30) {
+            mHandler.sendEmptyMessage(FLAG_RT_POST);
+            rtNum = 0;
+        }
+    }
+
+    private void ignition() {
+        Log.d(TAG, "判断汽车正在点火");
+        mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, "判断汽车正在点火"));
+
+        mEngineStatus = ENGINE_STATUS_START;
         mTTStartTime = new Date();
         mHandler.sendEmptyMessage(FLAG_ON_POST);
     }
 
-    private void systemSleep() {
-        Log.d(TAG, "接收到汽车熄火");
+    private void flameOut() {
+        Log.d(TAG, "判断汽车正在熄火");
+        mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, "判断汽车正在熄火"));
+        mEngineStatus = ENGINE_STATUS_STOP;
         mHandler.sendEmptyMessage(FLAG_OFF_POST);
     }
 
@@ -216,8 +250,10 @@ public class OBDReceiveRun {
 
     public void disConnect() {
         mPortManage.addWriteData("ATROFF");
+        mHandler.removeMessages(FLAG_BATTERY_UPLOAD);
         mPortManage.disConnect();
         EventBus.getDefault().unregister(this);
+        mHandler.removeMessages(FLAG_BATTERY_UPLOAD);
         mHandler.removeMessages(FLAG_PORT_CONNECT);
     }
 }

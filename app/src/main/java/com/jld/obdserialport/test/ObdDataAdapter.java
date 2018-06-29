@@ -32,6 +32,10 @@ public class ObdDataAdapter extends RecyclerView.Adapter<ObdDataAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        if(mDatas.get(position).equals("判断汽车正在熄火")||mDatas.get(position).equals("判断汽车正在点火"))
+            holder.mData_item.setTextColor(mContext.getResources().getColor(R.color.important_text));
+        else
+            holder.mData_item.setTextColor(mContext.getResources().getColor(R.color.ordinary_text));
         holder.mData_item.setText(mDatas.get(position));
     }
 

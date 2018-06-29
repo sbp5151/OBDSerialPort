@@ -52,6 +52,13 @@ public class RTBean extends BaseBean {
         }
     }
 
+    public String getEngineSpeed() {
+        return engineSpeed;
+    }
+
+    public String getBatteryVoltage() {
+        return mBatteryVoltage;
+    }
 
     @Override
     public String toString() {
