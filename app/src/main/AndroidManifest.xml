@@ -44,7 +44,7 @@
         <!-- 设置key -->
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="93a95c39e9c939336f9a23bd483e4ce6"/>
+            android:value="5a9c4052d643d44f5cef4924f67c5517"/>
         <!-- 定位需要的服务 -->
         <service android:name="com.amap.api.location.APSService">
         </service>
