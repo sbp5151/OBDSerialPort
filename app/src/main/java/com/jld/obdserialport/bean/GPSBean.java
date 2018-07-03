@@ -10,6 +10,15 @@ public class GPSBean {
     private double direction;
     private double longitude;
     private double latitude;
+    private String address;
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
 
     public void setDirection(double direction) {
         this.direction = direction;

@@ -13,4 +13,5 @@
     
     <color name="important_text">#fbf12a0c</color>
     <color name="ordinary_text">#fb161514</color>
+    <color name="color_bind_code_background">#f7f7f6</color>
 </resources>

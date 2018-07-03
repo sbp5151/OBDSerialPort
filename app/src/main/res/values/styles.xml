@@ -20,4 +20,11 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
+
+    <style name="CustomDialog" parent="android:style/Theme.Dialog">
+        <!-- 背景颜色及透明程度 -->
+        <item name="android:windowBackground">@color/dialog_backgroud</item>
+    </style>
+
+    <color name="dialog_backgroud">#0000</color>
 </resources>

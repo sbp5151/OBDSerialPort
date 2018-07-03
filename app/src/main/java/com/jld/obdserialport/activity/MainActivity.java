@@ -1,6 +1,7 @@
 package com.jld.obdserialport.activity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,8 +12,8 @@ import com.jld.obdserialport.R;
 import com.jld.obdserialport.SelfStartService;
 import com.jld.obdserialport.event_msg.DefaultMessage;
 import com.jld.obdserialport.test.TestActivity;
-import com.jld.obdserialport.utils.DeviceUtils;
-import com.jld.obdserialport.utils.EncryptUtils;
+import com.jld.obdserialport.utils.Constant;
+import com.jld.obdserialport.utils.SharedName;
 import com.jld.obdserialport.utils.ZxingUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -25,7 +26,7 @@ public class MainActivity extends BaseActivity {
     private int mClickNum = 0;
     private TextView mTvBindMessage;
     private ImageView mIvBindCode;
-
+    private SharedPreferences mSp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,11 +34,11 @@ public class MainActivity extends BaseActivity {
         Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_main);
         initView();
+        EventBus.getDefault().register(this);
+        mSp = getSharedPreferences(Constant.SHARED_NAME, MODE_PRIVATE);
         //启动后台服务
         Intent serviceIntent = new Intent(this, SelfStartService.class);
         startService(serviceIntent);
-
-        EventBus.getDefault().register(this);
     }
 
     private void initView() {
@@ -54,18 +55,42 @@ public class MainActivity extends BaseActivity {
                 }
             }
         });
-        mIvBindCode.setImageBitmap(ZxingUtil.createBitmap(EncryptUtils.encryptMD5ToString(DeviceUtils.getMacAddress())));
+        mIvBindCode.setImageBitmap(ZxingUtil.createBitmap("http://www.futurevi.com/download.html?sn=" + Constant.OBD_DEFAULT_ID));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void obdEvent(DefaultMessage defaultMessage) {
-        if (defaultMessage.getFlag() == DefaultMessage.EVENT_MSG_SHOW_CODE) {
-            mIvBindCode.setVisibility(View.VISIBLE);
-            mTvBindMessage.setText(getString(R.string.init_succeed_hind));
-        } else if (defaultMessage.getFlag() == DefaultMessage.EVENT_MSG_HIDE_CODE) {
-            mIvBindCode.setVisibility(View.INVISIBLE);
-        } else if (defaultMessage.getFlag() == DefaultMessage.EVENT_MSG_NETWORK_ERROR) {
-            mTvBindMessage.setText(getString(R.string.network_error));
+        Log.d(TAG, "obdEvent: " + defaultMessage);
+        if (defaultMessage.getFlag() == DefaultMessage.EVENT_MSG_BIND) {//已绑定
+            bindState();
+        } else if (defaultMessage.getFlag() == DefaultMessage.EVENT_MSG_UNBIND) {//未绑定
+            unBindState();
+        } else if (defaultMessage.getFlag() == DefaultMessage.EVENT_MSG_NETWORK_ERROR) {//网络错误
+            networkErrorState();
+        } else if (defaultMessage.getFlag() == DefaultMessage.EVENT_MSG_BINDING) {//绑定中
+            bindingState();
         }
+    }
+
+    //绑定状态
+    private void bindState() {
+        String userName = mSp.getString(SharedName.BIND_USER_NAME, "");
+        String userNameHint = getString(R.string.bind_user_name);
+        mTvBindMessage.setText(userName + userNameHint);
+    }
+
+    private void unBindState() {
+        mIvBindCode.setVisibility(View.VISIBLE);
+        mTvBindMessage.setText(getString(R.string.bind_hind));
+    }
+
+    private void networkErrorState() {
+        mIvBindCode.setVisibility(View.GONE);
+        mTvBindMessage.setText(getString(R.string.network_error));
+    }
+
+    private void bindingState() {
+        mIvBindCode.setVisibility(View.GONE);
+        mTvBindMessage.setText(getString(R.string.initing_hint));
     }
 }

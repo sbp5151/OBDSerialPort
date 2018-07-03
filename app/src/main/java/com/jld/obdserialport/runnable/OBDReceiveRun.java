@@ -57,9 +57,6 @@ public class OBDReceiveRun {
     private OnOrOffBean mStartOrStopBean;
     private TTBean mTtBean;
     private HBTBean mHbtBean;
-    //    //系统启动需要时间，可能接收不到汽车启动指令
-//    //所以第一次启动时接收到RT数据则表示汽车启动
-//    private boolean mIsFirstStart = true;
     private int mEngineStatus = ENGINE_STATUS_STOP;
     private final EventBus mEventBus;
     private BatteryBean mBatteryBean;
@@ -99,10 +96,10 @@ public class OBDReceiveRun {
                     OBDHttpUtil.build().carStartOrStopPost(mStartOrStopBean, FLAG_OFF_POST, mMyCallback);
                     break;
                 case FLAG_REMAINING:
-                    mPortManage.addWriteData("AT047");//获取当前剩余油量
+                    mPortManage.addWriteData("AT047");
                     mHandler.sendEmptyMessageDelayed(FLAG_REMAINING, 1000 * 60);
                     break;
-                case FLAG_BATTERY_UPLOAD://电池电压上传
+                case FLAG_BATTERY_UPLOAD://电池电压上传 ECU连接成功开始上传，每隔三分钟上传一次
                     if (mRtBean == null)
                         return;
                     if (mBatteryBean == null)
@@ -111,10 +108,9 @@ public class OBDReceiveRun {
                     OBDHttpUtil.build().BatteryVoltageDataPost(mBatteryBean);
                     mHandler.sendEmptyMessageDelayed(FLAG_BATTERY_UPLOAD, 1000 * 60 * 3);
                     break;
-                case FLAG_ENABLE_RT:
-//                    mHandler.sendEmptyMessageDelayed(FLAG_ENABLE_RT, 1000 * 60 * 10);
-                    mHandler.sendEmptyMessageDelayed(FLAG_ENABLE_RT, 1000 * 60);
-                    mPortManage.addWriteData("ATRON");//激活实时数据
+                case FLAG_ENABLE_RT://激活实时数据 当系统进入休眠状态 每隔十分钟唤醒一次读取实时数据
+                    mHandler.sendEmptyMessageDelayed(FLAG_ENABLE_RT, 1000 * 60 * 10);
+                    mPortManage.addWriteData("ATRON");
                     break;
             }
         }
@@ -150,16 +146,15 @@ public class OBDReceiveRun {
                 rtParse(message);
             } else if (message.contains("System running")) {//汽车点火
             } else if (message.contains("System sleeping")) {//汽车熄火
-//                mHandler.sendEmptyMessageDelayed(FLAG_ENABLE_RT, 1000 * 60 * 10);
+                mHandler.sendEmptyMessageDelayed(FLAG_ENABLE_RT, 1000 * 60 * 10);
                 mHandler.removeMessages(FLAG_REMAINING);//停止剩余油量上传
-                mHandler.sendEmptyMessageDelayed(FLAG_ENABLE_RT, 1000 * 60);
                 rtNum = 30;//休眠状态上传数据
             } else if (message.contains("Connect ECU OK")) {
                 mHandler.sendEmptyMessage(FLAG_REMAINING);//获取当前剩余油量
-                mHandler.sendEmptyMessageDelayed(FLAG_BATTERY_UPLOAD, 1000 * 30);
+                mHandler.sendEmptyMessageDelayed(FLAG_BATTERY_UPLOAD, 1000 * 30);//上传电池电量
                 mPortManage.addWriteData("ATHBT");//获取驾驶习惯数据
                 mPortManage.addWriteData("ATRON");//开启实时数据获取
-            } else if (message.contains("BD-TT")) {//本次行程数据
+            } else if (message.contains("BD-TT")) {//本次行程数据 系统休眠前获取一次
                 Log.d(TAG, "接收到本次行程数据");
                 mTtBean = new TTBean();
                 mTtBean.setData(message.trim());
@@ -169,12 +164,12 @@ public class OBDReceiveRun {
                 mTtBean.setEndTime(new Date());
                 mHandler.sendEmptyMessage(FLAG_TT_POST);
                 //}
-            } else if (message.startsWith("$OBD-HBT")) {//驾驶习惯数据
+            } else if (message.startsWith("$OBD-HBT")) {//驾驶习惯数据 ECU连接成功获取一次
                 Log.d(TAG, "接收到驾驶习惯数据");
                 mHbtBean = new HBTBean();
                 mHbtBean.setData(message.trim());
                 mHandler.sendEmptyMessage(FLAG_HBT_OFF_POST);
-            } else if (message.startsWith("$047=")) {//当前剩余油量
+            } else if (message.startsWith("$047=")) {//当前剩余油量 ECU连接成功开始 每隔60秒读取一次 熄火便不再读取
                 Log.d(TAG, "接收到当前油耗：" + message);
                 String remain = message.replace("$047=", "");
                 if (!TextUtils.isEmpty(remain) && remain.contains("ECU not support")) {

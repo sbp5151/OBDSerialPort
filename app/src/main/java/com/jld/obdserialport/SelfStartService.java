@@ -45,6 +45,13 @@ public class SelfStartService extends Service {
         mLocationReceive = new LocationReceiveRun(this);
     }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "onStartCommand");
+        mBindDeviceRun.checkBind();
+        return super.onStartCommand(intent, flags, startId);
+    }
+
     private void getTelephonyInfo() {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_PHONE_NUMBERS) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             Log.e(TAG, "read permission phoneNum fail: ");
@@ -83,6 +90,7 @@ public class SelfStartService extends Service {
         super.onDestroy();
         Log.e(TAG, "onDestroy:");
         mObdReceive.disConnect();
+        mBindDeviceRun.onDestroy();
         mLocationReceive.removeUpdates();
         if (EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().unregister(this);

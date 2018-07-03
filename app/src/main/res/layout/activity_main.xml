@@ -37,7 +37,6 @@
             android:id="@+id/iv_bind_code"
             android:layout_width="230dp"
             android:layout_height="230dp"
-            android:visibility="gone"
             android:layout_centerInParent="true"
             android:scaleType="fitXY" />
         <TextView

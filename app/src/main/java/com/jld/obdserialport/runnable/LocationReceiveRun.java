@@ -13,6 +13,10 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
+import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.location.AMapLocationClientOption;
+import com.amap.api.location.AMapLocationListener;
 import com.jld.obdserialport.bean.GPSBean;
 import com.jld.obdserialport.event_msg.OBDDataMessage;
 import com.jld.obdserialport.http.GPSHttpUtil;
@@ -28,9 +32,9 @@ public class LocationReceiveRun {
 
     private static final String TAG = "LocationReceiveRun";
     private Context mContext;
-    private LocationManager mLocationManager;
-    public static GPSBean mGpsBean = new GPSBean();
+    public static GPSBean mGpsBean;
     private final EventBus mEventBus;
+    private AMapLocationClient mAMapLocationClient;
 
     public LocationReceiveRun(Context context) {
         mContext = context;
@@ -41,69 +45,36 @@ public class LocationReceiveRun {
     }
 
     private void initLocation() {
-        mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_FINE);//高精度
-        criteria.setBearingRequired(true);//带方向
-        if (ActivityCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "LocationReceiveRun 权限错误");
-            mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, "LocationReceiveRun 权限错误"));
-            return;
-        }
-        List<String> allProviders = mLocationManager.getAllProviders();
-        for (int i = 0; i < allProviders.size(); i++) {
-            Log.d(TAG, "allProviders item:" + allProviders.get(i));
-        }
-        if (mLocationManager.getProvider(LocationManager.GPS_PROVIDER) != null) {
-            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 3, mLocationListener);
-            Log.d(TAG, "GPS定位...");
-            mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, "LocationReceiveRun GPS定位"));
+        mAMapLocationClient = new AMapLocationClient(mContext.getApplicationContext());
 
-        } else if (mLocationManager.getProvider(LocationManager.NETWORK_PROVIDER) != null) {
-            mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 3000, 3, mLocationListener);
-            mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, "LocationReceiveRun 网络定位"));
-            Log.d(TAG, "网络定位...");
-        } else if (mLocationManager.getProvider(LocationManager.PASSIVE_PROVIDER) != null) {
-            mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 3000, 3, mLocationListener);
-            mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, "LocationReceiveRun 其他定位"));
-            Log.d(TAG, "其他定位...");
-        }
+        AMapLocationClientOption option = new AMapLocationClientOption();
+        option.setInterval(2000);
+        option.setLocationMode(AMapLocationClientOption.AMapLocationMode.Device_Sensors);//GPS定位
+        option.setNeedAddress(true);
+
+        mAMapLocationClient.setLocationOption(option);
+        mAMapLocationClient.setLocationListener(mAMapLocationListener);
+        mAMapLocationClient.startLocation();
     }
 
-    LocationListener mLocationListener = new LocationListener() {
-        @RequiresApi(api = Build.VERSION_CODES.O)
+    AMapLocationListener mAMapLocationListener = new AMapLocationListener() {
         @Override
-        public void onLocationChanged(Location location) {
-            Log.d(TAG, "------------onLocationChanged: " + location);
-            mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, "onLocationChanged:"+location));
-
-            mGpsBean.setDirection(location.getBearing());
-            mGpsBean.setLatitude(location.getLatitude());
-            mGpsBean.setLongitude(location.getLongitude());
-            GPSHttpUtil.build().gpsDataPost(mGpsBean);
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-            mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, "onStatusChanged:"+status));
-            Log.d(TAG, "onStatusChanged: " + status);
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-            mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, "onProviderEnabled"));
-            Log.d(TAG, "onProviderEnabled: " + provider);
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-            mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, "onProviderDisabled"));
-            Log.d(TAG, "onProviderDisabled: " + provider);
+        public void onLocationChanged(AMapLocation aMapLocation) {
+            Log.d(TAG, "onLocationChanged: " + aMapLocation);
+            if (aMapLocation != null && aMapLocation.getErrorCode() == 0) {
+                if (mGpsBean == null)
+                    mGpsBean = new GPSBean();
+                mGpsBean.setDirection(aMapLocation.getBearing());
+                mGpsBean.setLatitude(aMapLocation.getLatitude());
+                mGpsBean.setLongitude(aMapLocation.getLongitude());
+                mGpsBean.setAddress(aMapLocation.getAddress());
+                GPSHttpUtil.build().gpsDataPost(mGpsBean);
+            }
         }
     };
 
     public void removeUpdates() {
-        mLocationManager.removeUpdates(mLocationListener);
+        mAMapLocationClient.stopLocation();
+        mAMapLocationClient.onDestroy();
     }
 }

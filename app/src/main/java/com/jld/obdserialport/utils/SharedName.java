@@ -10,4 +10,6 @@ public class SharedName {
     public static final String DEVICE_IS_UPLOAD = "deviceIsUpload";
     //设备是否被绑定
     public static final String DEVICE_IS_BIND = "deviceIsBind";
+    //绑定者姓名
+    public static final String BIND_USER_NAME = "userName";
 }

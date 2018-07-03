@@ -2,12 +2,14 @@ package com.jld.obdserialport.event_msg;
 
 public class DefaultMessage {
 
-    //显示二维码
-    public static final int EVENT_MSG_HIDE_CODE = 0x07;
-    //隐藏二维码
-    public static final int EVENT_MSG_SHOW_CODE = 0x08;
+    //未绑定
+    public static final int EVENT_MSG_UNBIND = 0x07;
+    //已绑定
+    public static final int EVENT_MSG_BIND = 0x08;
     //网络错误
     public static final int EVENT_MSG_NETWORK_ERROR = 0x09;
+    //帮定中
+    public static final int EVENT_MSG_BINDING = 0x10;
 
     private int flag;
     private String message;
@@ -34,5 +36,13 @@ public class DefaultMessage {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    @Override
+    public String toString() {
+        return "DefaultMessage{" +
+                "flag=" + flag +
+                ", message='" + message + '\'' +
+                '}';
     }
 }
