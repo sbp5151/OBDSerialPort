@@ -32,7 +32,8 @@ public class LocationReceiveRun {
 
     private static final String TAG = "LocationReceiveRun";
     private Context mContext;
-    public static GPSBean mGpsBean;
+    public static GPSBean mGpsBean = new GPSBean();
+    ;
     private final EventBus mEventBus;
     private AMapLocationClient mAMapLocationClient;
 
