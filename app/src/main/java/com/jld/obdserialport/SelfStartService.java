@@ -13,6 +13,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 
 
+import com.jld.obdserialport.http.OtherHttpUtil;
 import com.jld.obdserialport.runnable.BindDeviceRun;
 import com.jld.obdserialport.runnable.LocationReceiveRun;
 import com.jld.obdserialport.runnable.OBDReceiveRun;
@@ -43,7 +44,10 @@ public class SelfStartService extends Service {
         mObdReceive = new OBDReceiveRun(this);
         //开启GPS信息获取线程
         mLocationReceive = new LocationReceiveRun(this);
+
+        OtherHttpUtil.build().checkApkUpdate(this);
     }
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {

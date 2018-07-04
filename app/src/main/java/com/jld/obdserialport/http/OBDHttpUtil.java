@@ -32,11 +32,8 @@ public class OBDHttpUtil extends BaseHttpUtil {
             mHttpUtil = new OBDHttpUtil();
         return mHttpUtil;
     }
-
-
     /**
      * 实时数据上传
-     *
      * @param rtBean
      */
     public void rtDataPost(RTBean rtBean, final int tag, final MyCallback callback) {

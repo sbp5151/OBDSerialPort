@@ -24,8 +24,8 @@ public class TTBean extends BaseBean {
     private double topCarSpeed;//本次最高车速
     private int rapidlyAccelerateTimes;//本次急加速次数
     private int sharpSlowdownTimes;//本次急减速次数
-    private Date startTime;//本次行程开始时间
-    private Date endTime;//本次行程结束时间
+    private String startTime;//本次行程开始时间
+    private String endTime;//本次行程结束时间
 
 
     public void setData(String data) {
@@ -46,11 +46,11 @@ public class TTBean extends BaseBean {
         }
     }
 
-    public void setStartTime(Date startTime) {
+    public void setStartTime(String startTime) {
         this.startTime = startTime;
     }
 
-    public void setEndTime(Date endTime) {
+    public void setEndTime(String endTime) {
         this.endTime = endTime;
     }
 

@@ -74,16 +74,24 @@ public class MapNaviUtils {
     public static void openAutoMap(Context context, double dlat, double dlon, String dname) {
         if (LocationReceiveRun.mGpsBean != null) {
             Intent intent = new Intent();
+//            intent.setAction("AUTONAVI_STANDARD_BROADCAST_RECV");
+//            intent.putExtra("KEY_TYPE", 10007);
+//            intent.putExtra("EXTRA_SNAME", LocationReceiveRun.mGpsBean.getAddress());
+//            intent.putExtra("EXTRA_SLON", LocationReceiveRun.mGpsBean.getLongitude());
+//            intent.putExtra("EXTRA_SLAT", LocationReceiveRun.mGpsBean.getLatitude());
+//            intent.putExtra("EXTRA_DNAME", dname);
+//            intent.putExtra("EXTRA_DLON", dlon);
+//            intent.putExtra("EXTRA_DLAT", dlat);
+//            intent.putExtra("EXTRA_DEV", 0);
+//            intent.putExtra("EXTRA_M", 0);
             intent.setAction("AUTONAVI_STANDARD_BROADCAST_RECV");
-            intent.putExtra("KEY_TYPE", 10007);
-            intent.putExtra("EXTRA_SNAME", LocationReceiveRun.mGpsBean.getAddress());
-            intent.putExtra("EXTRA_SLON", LocationReceiveRun.mGpsBean.getLongitude());
-            intent.putExtra("EXTRA_SLAT", LocationReceiveRun.mGpsBean.getLatitude());
-            intent.putExtra("EXTRA_DNAME", dname);
-            intent.putExtra("EXTRA_DLON", dlon);
-            intent.putExtra("EXTRA_DLAT", dlat);
-            intent.putExtra("EXTRA_DEV", 0);
-            intent.putExtra("EXTRA_M", 0);
+            intent.putExtra("KEY_TYPE", 10038);
+            intent.putExtra("POINAME",dname);
+            intent.putExtra("LAT",dlat);
+            intent.putExtra("LON",dlon);
+            intent.putExtra("DEV",0);
+            intent.putExtra("STYLE",0);
+            intent.putExtra("SOURCE_APP","OBDSerialPort");
             context.sendBroadcast(intent);
         } else
             Toast.makeText(context, context.getString(R.string.request_location_fail), Toast.LENGTH_SHORT).show();

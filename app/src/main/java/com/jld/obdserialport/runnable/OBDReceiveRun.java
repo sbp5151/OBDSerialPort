@@ -22,6 +22,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.lang.ref.WeakReference;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static com.jld.obdserialport.utils.Constant.SERIAL_PORT_BAUD_RATE;
@@ -53,13 +54,14 @@ public class OBDReceiveRun {
     private SerialPortIOManage mPortManage;
     private RTBean mRtBean;
     private ATBeanTest mAtBean;
-    private Date mTTStartTime;
+    private String mTTStartTime;
     private OnOrOffBean mStartOrStopBean;
     private TTBean mTtBean;
     private HBTBean mHbtBean;
     private int mEngineStatus = ENGINE_STATUS_STOP;
     private final EventBus mEventBus;
     private BatteryBean mBatteryBean;
+    private final SimpleDateFormat mSimpleDateFormat;
 
     private class MyHandler extends Handler {
         private WeakReference<OBDReceiveRun> mWeakReference;
@@ -85,6 +87,9 @@ public class OBDReceiveRun {
                     OBDHttpUtil.build().hbtDataPost(mHbtBean, FLAG_HBT_OFF_POST, mMyCallback);
                     break;
                 case FLAG_TT_POST:
+                    mTtBean = new TTBean();
+                    mTtBean.setStartTime(mSimpleDateFormat.format(new Date()));
+                    mTtBean.setEndTime(mSimpleDateFormat.format(new Date()));
                     OBDHttpUtil.build().ttDataPost(mTtBean, FLAG_TT_POST, mMyCallback);
                     break;
                 case FLAG_ON_POST:
@@ -124,6 +129,8 @@ public class OBDReceiveRun {
         mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, "OBDReceiveRun run....."));
         mPortManage = new SerialPortIOManage(mContext);
         mHandler.sendEmptyMessage(FLAG_PORT_CONNECT);//串口连接
+        mSimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        mHandler.sendEmptyMessageDelayed(FLAG_TT_POST, 1000 * 10);
     }
 
     private int rtNum = 30;//实时数据30次才发送一次
@@ -161,7 +168,7 @@ public class OBDReceiveRun {
                 //本次行程大于等于500m
                 //  if (mTtBean.getTravelMileage() >= 0.5) {
                 mTtBean.setStartTime(mTTStartTime);
-                mTtBean.setEndTime(new Date());
+                mTtBean.setEndTime(mSimpleDateFormat.format(new Date()));
                 mHandler.sendEmptyMessage(FLAG_TT_POST);
                 //}
             } else if (message.startsWith("$OBD-HBT")) {//驾驶习惯数据 ECU连接成功获取一次
@@ -186,9 +193,9 @@ public class OBDReceiveRun {
             mRtBean = new RTBean();
         mRtBean.setData(message.trim());
         String currentEngineSpeed = mRtBean.getEngineSpeed();
-        Log.d(TAG, "当前转速: "+currentEngineSpeed);
-        Log.d(TAG, "上一次转速: "+mLastEngineSpeed);
-        Log.d(TAG, "发动机状态: "+mEngineStatus);
+        Log.d(TAG, "当前转速: " + currentEngineSpeed);
+        Log.d(TAG, "上一次转速: " + mLastEngineSpeed);
+        Log.d(TAG, "发动机状态: " + mEngineStatus);
         //熄火判断
         if (!TextUtils.isEmpty(currentEngineSpeed) && !TextUtils.isEmpty(mLastEngineSpeed)
                 && Integer.parseInt(currentEngineSpeed) < 300 && Integer.parseInt(mLastEngineSpeed) >= 300) {
@@ -213,9 +220,8 @@ public class OBDReceiveRun {
     private void ignition() {
         Log.d(TAG, "判断汽车正在点火");
         mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, "判断汽车正在点火"));
-
         mEngineStatus = ENGINE_STATUS_START;
-        mTTStartTime = new Date();
+        mTTStartTime = mSimpleDateFormat.format(new Date());
         mHandler.sendEmptyMessage(FLAG_ON_POST);
     }
 

@@ -5,25 +5,25 @@ import com.jld.obdserialport.utils.Constant;
 public class OnOrOffBean extends BaseBean {
 
     private String obdId = Constant.OBD_DEFAULT_ID;//OBD编号
-    private double engineState;//发动机状态
+    private String engineState;//发动机状态
     private double longitude;//经度
     private double latitude;//纬度
     private double fuelTankResidue;//剩余油量
-    public static final double CAR_START = 1;
-    public static final double CAR_STOP = 0;
+    public static final String CAR_START = "点火";
+    public static final String CAR_STOP = "熄火";
 
-    public OnOrOffBean(double engineState, double longitude, double latitude, double fuelTankResidue) {
+    public OnOrOffBean(String engineState, double longitude, double latitude, double fuelTankResidue) {
         this.engineState = engineState;
         this.longitude = longitude;
         this.latitude = latitude;
         this.fuelTankResidue = fuelTankResidue;
     }
 
-    public double getEngineState() {
+    public String getEngineState() {
         return engineState;
     }
 
-    public void setEngineState(double engineState) {
+    public void setEngineState(String engineState) {
         this.engineState = engineState;
     }
 
