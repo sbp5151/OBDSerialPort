@@ -167,6 +167,9 @@ public class OBDHttpUtil extends BaseHttpUtil {
     public void ttDataPost(TTBean bean, final int tag, final MyCallback callback) {
         String ttJson = mGson.toJson(bean);
         Log.d(TAG, "本次数据上传: " + ttJson);
+//        RequestBody body = RequestBody.create(mJsonType, "{\"drivingFuelConsumption\":0.32,\"drivingTimeLong\":9.68,\"endTime\":\"Jul 3, 2018 4:44:29 PM\",\"hotCarTimeLong\":5.0,\"idleSpeedFuelConsumption\":0.01,\"idleSpeedTimeLong\":0.25,\"mileage\":4.02,\"obdId\":\"JLD003\",\"rapidlyAccelerateTimes\":2,\"sharpSlowdownTimes\":0,\"startTime\":\"Jul 3, 2018 4:30:02 PM\",\"topCarSpeed\":51.0,\"topTurnSpeed\":2357.0,\"postFailNum\":0,\"result\":0}");
+
+
         RequestBody body = RequestBody.create(mJsonType, ttJson);
         final Request request = new Request.Builder()
                 .url(Constant.URL_TT_POST)

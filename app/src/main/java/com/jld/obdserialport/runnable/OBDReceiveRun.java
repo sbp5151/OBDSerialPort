@@ -87,9 +87,6 @@ public class OBDReceiveRun {
                     OBDHttpUtil.build().hbtDataPost(mHbtBean, FLAG_HBT_OFF_POST, mMyCallback);
                     break;
                 case FLAG_TT_POST:
-                    mTtBean = new TTBean();
-                    mTtBean.setStartTime(mSimpleDateFormat.format(new Date()));
-                    mTtBean.setEndTime(mSimpleDateFormat.format(new Date()));
                     OBDHttpUtil.build().ttDataPost(mTtBean, FLAG_TT_POST, mMyCallback);
                     break;
                 case FLAG_ON_POST:
@@ -130,7 +127,6 @@ public class OBDReceiveRun {
         mPortManage = new SerialPortIOManage(mContext);
         mHandler.sendEmptyMessage(FLAG_PORT_CONNECT);//串口连接
         mSimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        mHandler.sendEmptyMessageDelayed(FLAG_TT_POST, 1000 * 10);
     }
 
     private int rtNum = 30;//实时数据30次才发送一次
