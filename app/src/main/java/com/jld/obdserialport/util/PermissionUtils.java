@@ -1,4 +1,4 @@
-package com.jld.obdserialport.utils;
+package com.jld.obdserialport.util;
 
 import android.app.Activity;
 import android.content.Context;
@@ -15,7 +15,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.WindowManager;
 
-
+import com.jld.obdserialport.constant.PermissionConstants;
 
 import java.util.ArrayList;
 import java.util.Arrays;

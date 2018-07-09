@@ -1,4 +1,4 @@
-package com.jld.obdserialport.utils;
+package com.jld.obdserialport.constant;
 
 import android.Manifest;
 import android.Manifest.permission;

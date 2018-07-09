@@ -1,4 +1,4 @@
-package com.jld.obdserialport.utils;
+package com.jld.obdserialport.util;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;

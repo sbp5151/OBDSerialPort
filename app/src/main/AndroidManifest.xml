@@ -42,13 +42,13 @@
         android:theme="@style/MyTheme">
 
         <!-- 设置key -->
-        <meta-data
-            android:name="com.amap.api.v2.apikey"
-            android:value="c6113430a8410ae4cc49da80ef7a9106"/>
-        <!-- 定位需要的服务 -->
         <!--<meta-data-->
             <!--android:name="com.amap.api.v2.apikey"-->
-            <!--android:value="93a95c39e9c939336f9a23bd483e4ce6" />-->
+            <!--android:value="c6113430a8410ae4cc49da80ef7a9106"/>-->
+        <!-- 设置key -->
+        <meta-data
+            android:name="com.amap.api.v2.apikey"
+            android:value="93a95c39e9c939336f9a23bd483e4ce6" />
         <service android:name="com.amap.api.location.APSService">
         </service>
 

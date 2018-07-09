@@ -1,4 +1,4 @@
-package com.jld.obdserialport.utils;
+package com.jld.obdserialport.util;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

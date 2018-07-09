@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Binder;
+import android.os.Environment;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -17,9 +18,12 @@ import com.jld.obdserialport.http.OtherHttpUtil;
 import com.jld.obdserialport.runnable.BindDeviceRun;
 import com.jld.obdserialport.runnable.LocationReceiveRun;
 import com.jld.obdserialport.runnable.OBDReceiveRun;
+import com.jld.obdserialport.util.AppUtils;
 import com.jld.obdserialport.utils.Constant;
 
 import org.greenrobot.eventbus.EventBus;
+
+import java.io.File;
 
 /**
  * 1、启动三大runnable
@@ -45,9 +49,34 @@ public class SelfStartService extends Service {
         //开启GPS信息获取线程
         mLocationReceive = new LocationReceiveRun(this);
 
-        OtherHttpUtil.build().checkApkUpdate(this);
-    }
+        OtherHttpUtil.build().checkApkUpdate(this, new OtherHttpUtil.ApkCheckUpdateListener() {
+            @Override
+            public void onApkDownload(String download) {
+                String apkName = download.substring(download.lastIndexOf("/") + 1);
+                final File saveFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "CarFuture" + File.separator + apkName);
+                OtherHttpUtil.build().fileDownload(download,saveFile.getAbsolutePath(), new OtherHttpUtil.DownloadFileListener() {
+                    @Override
+                    public void onDownloadFailed() {
 
+                    }
+                    @Override
+                    public void onDownloadSucceed() {
+                        AppUtils.installApp(saveFile);
+                    }
+
+                    @Override
+                    public void onDownloadLoading(long progress) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onApkInstall(String installPath) {
+                AppUtils.installApp(installPath);
+            }
+        });
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
