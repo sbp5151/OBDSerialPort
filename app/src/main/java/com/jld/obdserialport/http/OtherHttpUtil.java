@@ -12,6 +12,8 @@ import com.google.gson.JsonParser;
 import com.jld.obdserialport.utils.Constant;
 
 import org.greenrobot.eventbus.EventBus;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -48,8 +50,8 @@ public class OtherHttpUtil extends BaseHttpUtil {
         try {
             String versionName = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
             JsonObject json = new JsonObject();
-            Log.d(TAG, "versionName: " + versionName);
             json.addProperty("versionCode", versionName);
+            Log.d(TAG, "checkApkUpdate json: " + json.toString());
             RequestBody requestBody = RequestBody.create(mJsonType, json.toString());
             final Request request = new Request.Builder()
                     .url(Constant.URL_CHECK_APK_UPDATE)
@@ -61,39 +63,39 @@ public class OtherHttpUtil extends BaseHttpUtil {
                 public void onFailure(Call call, IOException e) {
                     Log.d(TAG, "APK检测更新访问失败：" + e.toString());
                 }
-
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    Log.d(TAG, "APK检测更新访问成功：" + response);
+                    String rpString = response.body().string();
+                    Log.d(TAG, "APK检测更新访问成功：" + rpString);
                     if (response.code() == 200) {
-                        JsonParser parser = new JsonParser();
-                        JsonObject object = (JsonObject) parser.parse(response.body().string());  //创建JsonObject对象
-                        int flag = object.get("flag").getAsInt();
-                        if (flag == 1) {
-                            String apkDownUrl = object.get("apkDownUrl").getAsString();
-                            if (!TextUtils.isEmpty(apkDownUrl)) {
+                        try {
+                            JSONObject json = new JSONObject(rpString);
+                            if (json.getInt("flag") == 1) {
+                                String apkDownUrl = json.getString("apkDownUrl");
+                                if (!TextUtils.isEmpty(apkDownUrl)) {
 //                                fileDownload(apkDownUrl);
-                                File carFuture = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "CarFuture");
-                                if (carFuture.exists()) {
-
-                                    String[] listName = carFuture.list();
-                                    String apkName = apkDownUrl.substring(apkDownUrl.lastIndexOf("/") + 1);
-                                    for (String name : listName) {
-                                        if (name.equals(apkName)) {//文件已下载，直接安装
-                                            updateListener.onApkInstall(Environment.getExternalStorageDirectory().getAbsolutePath() +
-                                                    File.separator + "CarFuture" + File.separator + name);
-                                            return;
+                                    File carFuture = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "CarFuture");
+                                    if (carFuture.exists()) {
+                                        String[] listName = carFuture.list();
+                                        String apkName = apkDownUrl.substring(apkDownUrl.lastIndexOf("/") + 1).replace(".1","");
+                                        for (String name : listName) {
+                                            if (name.equals(apkName)) {//文件已下载，直接安装
+                                                updateListener.onApkInstall(Environment.getExternalStorageDirectory().getAbsolutePath() +
+                                                        File.separator + "CarFuture" + File.separator + name);
+                                                return;
+                                            }
                                         }
                                     }
+                                    //需下载
+                                    updateListener.onApkDownload(apkDownUrl);
                                 }
-                                //需下载
-                                updateListener.onApkDownload(apkDownUrl);
                             }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
                     }
                 }
             });
-
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -108,14 +110,15 @@ public class OtherHttpUtil extends BaseHttpUtil {
 
     public interface DownloadFileListener {
         public void onDownloadFailed();
+
         public void onDownloadSucceed();
 
         public void onDownloadLoading(long progress);
 
     }
 
-    public void fileDownload(final String fileUrl,String saveFile, final DownloadFileListener listener) {
-
+    public void fileDownload(final String fileUrl, String saveFile, final DownloadFileListener listener) {
+        Log.d(TAG, "文件下载: "+fileUrl);
         Request request = new Request.Builder().url(fileUrl).build();
         mOkHttpClient.newCall(request).enqueue(new Callback() {
             @Override
@@ -125,7 +128,7 @@ public class OtherHttpUtil extends BaseHttpUtil {
 
             @Override
             public void onResponse(Call call, Response response) {
-                String apkName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
+                String apkName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1).replace(".1","");
                 File saveFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "CarFuture" + File.separator + apkName);
                 if (!saveFile.getParentFile().exists())
                     saveFile.getParentFile().mkdirs();
@@ -135,6 +138,7 @@ public class OtherHttpUtil extends BaseHttpUtil {
                     fos = new FileOutputStream(saveFile);
                     is = response.body().byteStream();
                     long totalLen = response.body().contentLength();
+                    Log.d(TAG, "totalLen: "+totalLen);
                     byte[] buf = new byte[1024 * 3];
                     int len = 0;
                     int sum = 0;

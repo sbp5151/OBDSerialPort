@@ -52,27 +52,30 @@ public class SelfStartService extends Service {
         OtherHttpUtil.build().checkApkUpdate(this, new OtherHttpUtil.ApkCheckUpdateListener() {
             @Override
             public void onApkDownload(String download) {
-                String apkName = download.substring(download.lastIndexOf("/") + 1);
+                String apkName = download.substring(download.lastIndexOf("/") + 1).replace(".1","");
                 final File saveFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "CarFuture" + File.separator + apkName);
                 OtherHttpUtil.build().fileDownload(download,saveFile.getAbsolutePath(), new OtherHttpUtil.DownloadFileListener() {
                     @Override
                     public void onDownloadFailed() {
 
+                        Log.d(TAG, "onDownloadFailed");
                     }
                     @Override
                     public void onDownloadSucceed() {
+                        Log.d(TAG, "onDownloadSucceed:"+saveFile);
                         AppUtils.installApp(saveFile);
                     }
 
                     @Override
                     public void onDownloadLoading(long progress) {
-
+                        Log.d(TAG, "onDownloadLoading:"+progress);
                     }
                 });
             }
 
             @Override
             public void onApkInstall(String installPath) {
+                Log.d(TAG, "onApkInstall:"+installPath);
                 AppUtils.installApp(installPath);
             }
         });

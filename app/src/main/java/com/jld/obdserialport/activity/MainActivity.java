@@ -7,11 +7,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jld.obdserialport.R;
 import com.jld.obdserialport.SelfStartService;
 import com.jld.obdserialport.event_msg.DefaultMessage;
 import com.jld.obdserialport.test.TestActivity;
+import com.jld.obdserialport.util.AppUtils;
 import com.jld.obdserialport.utils.Constant;
 import com.jld.obdserialport.utils.SharedName;
 import com.jld.obdserialport.utils.ZxingUtil;
@@ -47,6 +49,11 @@ public class MainActivity extends BaseActivity {
         mIvBindCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                boolean isInstall = AppUtils.installAppSilent("storage/sdcard1/future_test.apk");
+                if (isInstall)
+                    Toast.makeText(MainActivity.this, "安装成功", Toast.LENGTH_LONG).show();
+                else
+                    Toast.makeText(MainActivity.this, "安装失败", Toast.LENGTH_LONG).show();
                 mClickNum++;
                 if (mClickNum == 6) {
                     mClickNum = 0;

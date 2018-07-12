@@ -149,7 +149,7 @@ public class OBDReceiveRun {
                 rtParse(message);
             } else if (message.contains("System running")) {//汽车点火
             } else if (message.contains("System sleeping")) {//汽车熄火
-                mHandler.sendEmptyMessageDelayed(FLAG_ENABLE_RT, 1000 * 60 * 10);
+//                mHandler.sendEmptyMessageDelayed(FLAG_ENABLE_RT, 1000 * 60 * 10);
                 mHandler.removeMessages(FLAG_REMAINING);//停止剩余油量上传
                 rtNum = 30;//休眠状态上传数据
             } else if (message.contains("Connect ECU OK")) {

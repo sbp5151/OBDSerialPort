@@ -62,7 +62,7 @@ public class Constant {
     /**
      * 检测APK是否能升级接口
      */
-    public static final String URL_CHECK_APK_UPDATE = "http://192.168.3.206/CarFuture/androidFaceController/isUpdateApkVersion.do";
+    public static final String URL_CHECK_APK_UPDATE = "http://m.futurevi.com/androidFaceController/isUpdateApkVersion.do";
 
     /**
      * OBD默认ID
