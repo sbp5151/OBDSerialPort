@@ -49,11 +49,6 @@ public class MainActivity extends BaseActivity {
         mIvBindCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean isInstall = AppUtils.installAppSilent("storage/sdcard1/future_test.apk");
-                if (isInstall)
-                    Toast.makeText(MainActivity.this, "安装成功", Toast.LENGTH_LONG).show();
-                else
-                    Toast.makeText(MainActivity.this, "安装失败", Toast.LENGTH_LONG).show();
                 mClickNum++;
                 if (mClickNum == 6) {
                     mClickNum = 0;
@@ -63,6 +58,7 @@ public class MainActivity extends BaseActivity {
             }
         });
         mIvBindCode.setImageBitmap(ZxingUtil.createBitmap("http://www.futurevi.com/download.html?sn=" + Constant.OBD_DEFAULT_ID));
+        mIvBindCode.setVisibility(View.GONE);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

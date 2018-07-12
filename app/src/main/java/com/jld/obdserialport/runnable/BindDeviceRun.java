@@ -120,8 +120,8 @@ public class BindDeviceRun implements TagAliasCallback {
                     break;
                 case MSG_SHOW_BIND_CODE:
 //                    if (mSp.getBoolean(SharedName.JPUSH_MSG_IS_UPLOAD, false)) {
-                        mEventBus.post(new DefaultMessage(EVENT_MSG_UNBIND, ""));
-                        showBindDialog();
+                    mEventBus.post(new DefaultMessage(EVENT_MSG_UNBIND, ""));
+                    showBindDialog();
 //                    } else {
 //                        mySendMessage("JPush信息没有上传，不能显示二维码，15秒后再判断...");
 //                        Log.i(TAG, "JPush信息没有上传，不能显示二维码，15秒后再判断");
@@ -170,6 +170,8 @@ public class BindDeviceRun implements TagAliasCallback {
 
     private void showBindDialog() {
         mCodeShotTime = 180;
+        if (mBindDialog != null)
+            mBindDialog.dismiss();
         mBindDialog = new Dialog(mContext, R.style.CustomDialog);
         View view = LayoutInflater.from(mContext).inflate(R.layout.bind_dialog, null);
         ImageView bind_code = view.findViewById(R.id.iv_bind_code);
@@ -193,7 +195,6 @@ public class BindDeviceRun implements TagAliasCallback {
         mBindDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);//无标题栏
         mBindDialog.setContentView(view);
         mBindDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
-        mBindDialog.setCancelable(false);
         mBindDialog.setCanceledOnTouchOutside(false);
         mBindDialog.show();
         mHandler.sendEmptyMessageDelayed(MSG_CODE_COUNT_DOWN, 1000);
