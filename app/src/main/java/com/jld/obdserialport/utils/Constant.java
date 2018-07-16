@@ -65,14 +65,20 @@ public class Constant {
     public static final String URL_CHECK_APK_UPDATE = "http://m.futurevi.com/androidFaceController/isUpdateApkVersion.do";
 
     /**
+     * 相片上传
+     */
+    public static final String URL_PHTO_UPLOAD = "";
+
+    /**
+     * 视频 上传
+     */
+    public static final String URL_VIDOA_UPLOAD = "";
+
+    /**
      * OBD默认ID
      */
     public static final String OBD_DEFAULT_ID = "Future_V1.0_00002";
 
-    /**
-     * SIM卡序号
-     */
-    public static String ICCID = "";
     /**
      * 极光推送别名
      */

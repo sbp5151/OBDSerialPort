@@ -11,6 +11,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.jld.obdserialport.bean.UserInfoBean;
 import com.jld.obdserialport.event_msg.DefaultMessage;
+import com.jld.obdserialport.event_msg.MediaMessage;
 import com.jld.obdserialport.utils.Constant;
 import com.jld.obdserialport.utils.MapNaviUtils;
 import com.jld.obdserialport.utils.SharedName;
@@ -94,12 +95,18 @@ public class JPushReceiver extends BroadcastReceiver {
 //                EventBus.getDefault().post(new DefaultMessage(EVENT_MSG_SHOW_BIND_CODE, ""));
                 break;
             case 3://预约导航
+            case 4://接人
                 if (MapNaviUtils.isGdAutoMapInstalled()) {
                     MapNaviUtils.openAutoMap(context, infoBean.getLatitude(),
                             infoBean.getLongitude(), infoBean.getSite());
                 } else
                     Log.d(TAG, "未安装高德地图！！！");
-
+                break;
+            case 5://拍照申请
+                EventBus.getDefault().post(new MediaMessage(MediaMessage.EVENT_MSG_PHOTO));
+                break;
+            case 6://录制申请
+                EventBus.getDefault().post(new MediaMessage(MediaMessage.EVENT_MSG_VIDEO));
                 break;
         }
 

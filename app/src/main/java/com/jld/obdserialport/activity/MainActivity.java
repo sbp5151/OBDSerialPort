@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.jld.obdserialport.R;
 import com.jld.obdserialport.SelfStartService;
 import com.jld.obdserialport.event_msg.DefaultMessage;
+import com.jld.obdserialport.event_msg.MediaMessage;
 import com.jld.obdserialport.test.TestActivity;
 import com.jld.obdserialport.util.NetworkUtils;
 import com.jld.obdserialport.utils.Constant;
@@ -52,6 +53,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 mClickNum++;
+                EventBus.getDefault().post(new MediaMessage(MediaMessage.EVENT_MSG_PHOTO));
                 if (mClickNum == 6) {
                     mClickNum = 0;
                     Intent intent = new Intent(MainActivity.this, TestActivity.class);

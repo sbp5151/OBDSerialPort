@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * 获取GPS信息
  */
-public class LocationReceiveRun {
+public class LocationReceiveRun extends BaseRun{
 
     private static final String TAG = "LocationReceiveRun";
     private Context mContext;
@@ -74,7 +74,7 @@ public class LocationReceiveRun {
         }
     };
 
-    public void removeUpdates() {
+    public void onDestroy() {
         mAMapLocationClient.stopLocation();
         mAMapLocationClient.onDestroy();
     }

@@ -32,7 +32,7 @@ import static com.jld.obdserialport.utils.Constant.SERIAL_PORT_PATH;
  * OBD运行任务
  * 功能：串口数据读取、串口数据控制（获取、上传）
  */
-public class OBDReceiveRun {
+public class OBDReceiveRun extends BaseRun{
 
     public static final String TAG = "OBDReceiveRun";
     private Context mContext;
@@ -250,7 +250,7 @@ public class OBDReceiveRun {
         return mPortManage.isConnect();
     }
 
-    public void disConnect() {
+    public void onDestroy() {
         mPortManage.addWriteData("ATROFF");
         mHandler.removeMessages(FLAG_BATTERY_UPLOAD);
         mPortManage.disConnect();

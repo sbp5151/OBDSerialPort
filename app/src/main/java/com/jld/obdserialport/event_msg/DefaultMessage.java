@@ -10,13 +10,16 @@ public class DefaultMessage {
     public static final int EVENT_MSG_NETWORK_ERROR = 0x09;
     //帮定中
     public static final int EVENT_MSG_INIT_STATUS = 0x10;
-
     private int flag;
     private String message;
 
     public DefaultMessage(int flag, String message) {
         this.flag = flag;
         this.message = message;
+    }
+
+    public DefaultMessage(int flag) {
+        this.flag = flag;
     }
 
     public DefaultMessage() {

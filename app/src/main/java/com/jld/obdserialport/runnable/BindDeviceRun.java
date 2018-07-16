@@ -46,7 +46,7 @@ import static android.content.Context.MODE_PRIVATE;
 import static com.jld.obdserialport.event_msg.DefaultMessage.EVENT_MSG_NETWORK_ERROR;
 import static com.jld.obdserialport.event_msg.DefaultMessage.EVENT_MSG_SHOW_BIND_CODE;
 
-public class BindDeviceRun implements TagAliasCallback {
+public class BindDeviceRun extends BaseRun implements TagAliasCallback {
 
     private static final String TAG = "BindDeviceRun";
     //点击超时
@@ -78,6 +78,7 @@ public class BindDeviceRun implements TagAliasCallback {
     private Button mBtn_close;
     private Dialog mBindDialog;
     private String mIccid;
+    private final SimStateReceive mSimStateReceive;
 
     private class MyHandler extends Handler {
         private WeakReference<BindDeviceRun> mWeakReference;
@@ -162,7 +163,7 @@ public class BindDeviceRun implements TagAliasCallback {
         mEventBus = EventBus.getDefault();
         getTelephonyInfo();
         checkBind();
-        new SimStateReceive();
+        mSimStateReceive = new SimStateReceive();
     }
 
     public void checkBind() {
@@ -213,6 +214,7 @@ public class BindDeviceRun implements TagAliasCallback {
     public void onDestroy() {
         mHandler.removeMessages(MSG_UPLOAD_JPUSH_MEG);
         mHandler.removeMessages(MSG_CODE_COUNT_DOWN);
+        mContext.unregisterReceiver(mSimStateReceive);
     }
 
     private void mySendMessage(String message) {
@@ -319,9 +321,7 @@ public class BindDeviceRun implements TagAliasCallback {
             Log.e(TAG, "read permission phoneNum fail: ");
             return;
         }
-        //获取手机号码
         TelephonyManager tm = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
-//        Constant.ICCID = tm.getSimSerialNumber();//获得SIM卡的序号
         //获得SIM卡的序号
         mIccid = tm.getSimSerialNumber();
         String spIccid = mSp.getString(SharedName.SIM_ICCID, "");
@@ -332,10 +332,6 @@ public class BindDeviceRun implements TagAliasCallback {
                 mHandler.sendEmptyMessage(MSG_UPLOAD_JPUSH_MEG);//上传Jpush绑定信息
             }
         }
-//        String deviceid = tm.getDeviceId();//获取智能设备唯一编号
-//        String te1 = tm.getLine1Number();//获取本机号码
-//        String imsi = tm.getSubscriberId();//得到用户Id
-//        Log.d(TAG, "deviceid:" + deviceid + "\n\r" + "te1:" + te1 + "\n\r" + "ICCID:" + Constant.ICCID + "\n\r" + "imsi:" + imsi);
     }
 
     class SimStateReceive extends BroadcastReceiver {
