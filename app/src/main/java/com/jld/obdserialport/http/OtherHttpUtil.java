@@ -114,7 +114,6 @@ public class OtherHttpUtil extends BaseHttpUtil {
         public void onDownloadSucceed();
 
         public void onDownloadLoading(long progress);
-
     }
 
     public void fileDownload(final String fileUrl, String saveFile, final DownloadFileListener listener) {

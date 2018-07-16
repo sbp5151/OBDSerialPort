@@ -3,13 +3,13 @@ package com.jld.obdserialport.event_msg;
 public class DefaultMessage {
 
     //未绑定
-    public static final int EVENT_MSG_UNBIND = 0x07;
+    public static final int EVENT_MSG_SHOW_BIND_CODE = 0x07;
     //已绑定
     public static final int EVENT_MSG_BIND = 0x08;
     //网络错误
     public static final int EVENT_MSG_NETWORK_ERROR = 0x09;
     //帮定中
-    public static final int EVENT_MSG_BINDING = 0x10;
+    public static final int EVENT_MSG_INIT_STATUS = 0x10;
 
     private int flag;
     private String message;

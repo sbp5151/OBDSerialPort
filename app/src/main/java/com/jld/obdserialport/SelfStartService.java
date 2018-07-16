@@ -41,14 +41,12 @@ public class SelfStartService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
-        getTelephonyInfo();
         //极光绑定线程
         mBindDeviceRun = new BindDeviceRun(this);
         //OBD数据获取线程
         mObdReceive = new OBDReceiveRun(this);
         //开启GPS信息获取线程
         mLocationReceive = new LocationReceiveRun(this);
-
         OtherHttpUtil.build().checkApkUpdate(this, new OtherHttpUtil.ApkCheckUpdateListener() {
             @Override
             public void onApkDownload(String download) {
@@ -57,7 +55,6 @@ public class SelfStartService extends Service {
                 OtherHttpUtil.build().fileDownload(download,saveFile.getAbsolutePath(), new OtherHttpUtil.DownloadFileListener() {
                     @Override
                     public void onDownloadFailed() {
-
                         Log.d(TAG, "onDownloadFailed");
                     }
                     @Override
@@ -84,23 +81,11 @@ public class SelfStartService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
-        mBindDeviceRun.checkBind();
+//        mBindDeviceRun.checkBind();
         return super.onStartCommand(intent, flags, startId);
     }
 
-    private void getTelephonyInfo() {
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_PHONE_NUMBERS) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            Log.e(TAG, "read permission phoneNum fail: ");
-            return;
-        }
-        //获取手机号码
-        TelephonyManager tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
-        String deviceid = tm.getDeviceId();//获取智能设备唯一编号
-        String te1 = tm.getLine1Number();//获取本机号码
-        Constant.ICCID = tm.getSimSerialNumber();//获得SIM卡的序号
-        String imsi = tm.getSubscriberId();//得到用户Id
-        Log.d(TAG, "deviceid:" + deviceid + "\n\r" + "te1:" + te1 + "\n\r" + "ICCID:" + Constant.ICCID + "\n\r" + "imsi:" + imsi);
-    }
+
 
     @Nullable
     @Override

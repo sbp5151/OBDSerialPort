@@ -1,10 +1,17 @@
 package com.jld.obdserialport.runnable;
 
+import android.Manifest;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.ActivityCompat;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,8 +35,6 @@ import com.jld.obdserialport.utils.SharedName;
 import com.jld.obdserialport.utils.ZxingUtil;
 
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.lang.ref.WeakReference;
 import java.util.Set;
@@ -38,9 +43,8 @@ import cn.jpush.android.api.JPushInterface;
 import cn.jpush.android.api.TagAliasCallback;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.jld.obdserialport.event_msg.DefaultMessage.EVENT_MSG_UNBIND;
 import static com.jld.obdserialport.event_msg.DefaultMessage.EVENT_MSG_NETWORK_ERROR;
-import static com.jld.obdserialport.event_msg.DefaultMessage.EVENT_MSG_BIND;
+import static com.jld.obdserialport.event_msg.DefaultMessage.EVENT_MSG_SHOW_BIND_CODE;
 
 public class BindDeviceRun implements TagAliasCallback {
 
@@ -57,10 +61,10 @@ public class BindDeviceRun implements TagAliasCallback {
     private static final int MSG_TOAST = 0x05;
     //上传设备ID
     private static final int MSG_UPLOAD_DEVICE_ID = 0x06;
-    //隐藏绑定二维码
-    private static final int MSG_HIED_BIND_CODE = 0x07;
-    //显示绑定二维码
-    private static final int MSG_SHOW_BIND_CODE = 0x08;
+    //    //隐藏绑定二维码
+//    private static final int MSG_HIED_BIND_CODE = 0x07;
+    //弹框显示绑定二维码
+    private static final int MSG_SHOW_DIALOG_BIND_CODE = 0x08;
     //code倒计时
     public static final int MSG_CODE_COUNT_DOWN = 0x09;
 
@@ -73,6 +77,7 @@ public class BindDeviceRun implements TagAliasCallback {
     private final EventBus mEventBus;
     private Button mBtn_close;
     private Dialog mBindDialog;
+    private String mIccid;
 
     private class MyHandler extends Handler {
         private WeakReference<BindDeviceRun> mWeakReference;
@@ -100,7 +105,12 @@ public class BindDeviceRun implements TagAliasCallback {
                 case MSG_UPLOAD_JPUSH_MEG:
                     mySendMessage("上传JPush绑定信息...");
                     Log.d(TAG, "上传JPush绑定信息...");
-                    BindHttpUtil.build().jPushBindUpload(MSG_UPLOAD_JPUSH_MEG, Constant.JPUSH_DEVICE_ALIAS, new HttpCallback());
+                    if (mSp.getBoolean(SharedName.DEVICE_IS_UPLOAD, false))
+                        BindHttpUtil.build().jPushBindUpload(MSG_UPLOAD_JPUSH_MEG, Constant.JPUSH_DEVICE_ALIAS, mIccid, new HttpCallback());
+                    else {
+                        Log.d(TAG, "等待设备ID上传成功，5s后再上传Jpush绑定信息");
+                        mHandler.sendEmptyMessageDelayed(MSG_UPLOAD_JPUSH_MEG, 1000 * 5);
+                    }
                     break;
                 case MSG_REQUEST_BIND_MEG:
                     mySendMessage("获取JPush绑定信息...");
@@ -115,17 +125,17 @@ public class BindDeviceRun implements TagAliasCallback {
                 case MSG_TOAST:
                     Toast.makeText(mContext, (String) msg.obj, Toast.LENGTH_SHORT).show();
                     break;
-                case MSG_HIED_BIND_CODE:
-                    mEventBus.post(new DefaultMessage(EVENT_MSG_BIND, ""));
-                    break;
-                case MSG_SHOW_BIND_CODE:
+//                case MSG_HIED_BIND_CODE:
+//                    mEventBus.post(new DefaultMessage(EVENT_MSG_BIND, ""));
+//                    break;
+                case MSG_SHOW_DIALOG_BIND_CODE:
 //                    if (mSp.getBoolean(SharedName.JPUSH_MSG_IS_UPLOAD, false)) {
-                    mEventBus.post(new DefaultMessage(EVENT_MSG_UNBIND, ""));
+//                    mEventBus.post(new DefaultMessage(EVENT_MSG_SHOW_BIND_CODE, ""));
                     showBindDialog();
 //                    } else {
 //                        mySendMessage("JPush信息没有上传，不能显示二维码，15秒后再判断...");
 //                        Log.i(TAG, "JPush信息没有上传，不能显示二维码，15秒后再判断");
-//                        mHandler.sendEmptyMessageDelayed(MSG_SHOW_BIND_CODE, 1000 * 15);
+//                        mHandler.sendEmptyMessageDelayed(MSG_SHOW_DIALOG_BIND_CODE, 1000 * 15);
 //                    }
                     break;
                 case MSG_CODE_COUNT_DOWN://二维码倒计时
@@ -150,22 +160,22 @@ public class BindDeviceRun implements TagAliasCallback {
         mGson = new Gson();
         mHandler = new MyHandler(this);
         mEventBus = EventBus.getDefault();
+        getTelephonyInfo();
+        checkBind();
+        new SimStateReceive();
     }
 
     public void checkBind() {
-        // 设备ID上传
         if (!mSp.getBoolean(SharedName.DEVICE_IS_UPLOAD, false) && !TextUtils.isEmpty(Constant.OBD_DEFAULT_ID))
-            mHandler.sendEmptyMessage(MSG_UPLOAD_DEVICE_ID);
-        //极光推送注册别名
+            mHandler.sendEmptyMessage(MSG_UPLOAD_DEVICE_ID);// 设备ID上传
         if (!mSp.getBoolean(SharedName.JPUSH_SETALIAS_SUCCEED, false))
-            mHandler.sendEmptyMessage(MSG_SET_ALIAS);
+            mHandler.sendEmptyMessage(MSG_SET_ALIAS);//极光推送注册别名
         else if (!mSp.getBoolean(SharedName.JPUSH_MSG_IS_UPLOAD, false))
-            mHandler.sendEmptyMessage(MSG_UPLOAD_JPUSH_MEG);
-        else
-            mHandler.sendEmptyMessage(MSG_SHOW_BIND_CODE);
-        //获取绑定信息
-        if (!mSp.getBoolean(SharedName.DEVICE_IS_BIND, false))
-            mHandler.sendEmptyMessage(MSG_REQUEST_BIND_MEG);
+            mHandler.sendEmptyMessage(MSG_UPLOAD_JPUSH_MEG);//上传Jpush绑定信息
+        else {
+            mEventBus.post(new DefaultMessage(EVENT_MSG_SHOW_BIND_CODE, ""));//界面中显示二维码
+            mHandler.sendEmptyMessage(MSG_REQUEST_BIND_MEG);//获取绑定信息
+        }
     }
 
     private void showBindDialog() {
@@ -226,9 +236,9 @@ public class BindDeviceRun implements TagAliasCallback {
                 mHandler.sendEmptyMessage(MSG_UPLOAD_JPUSH_MEG);
                 break;
             case 6002:
-                mySendMessage("JPush30s重复申请");
-                Log.i(TAG, "JPush30s重复申请");
-                mHandler.sendEmptyMessageDelayed(MSG_SET_ALIAS, 1000 * 30);
+                mySendMessage("JPush10s重复申请");
+                Log.i(TAG, "JPush10s重复申请");
+                mHandler.sendEmptyMessageDelayed(MSG_SET_ALIAS, 1000 * 10);
                 break;
             default:
                 mySendMessage("JPush设置别名失败 errorCode:" + code);
@@ -243,19 +253,19 @@ public class BindDeviceRun implements TagAliasCallback {
 
             switch (tag) {
                 case MSG_UPLOAD_JPUSH_MEG:
-                    Log.d(TAG, "上传JPush绑定信息失败，15s后再次上传 errorMessage=" + errorMessage);
-                    mHandler.sendEmptyMessageDelayed(MSG_UPLOAD_JPUSH_MEG, 1000 * 15);
+                    Log.d(TAG, "上传JPush绑定信息失败，5s后再次上传 errorMessage=" + errorMessage);
+                    mHandler.sendEmptyMessageDelayed(MSG_UPLOAD_JPUSH_MEG, 1000 * 5);
                     break;
                 case MSG_REQUEST_BIND_MEG:
-                    Log.d(TAG, "获取JPush绑定信息失败，15s后再次获取 errorMessage=" + errorMessage);
-                    mHandler.sendEmptyMessageDelayed(MSG_REQUEST_BIND_MEG, 1000 * 15);
+                    Log.d(TAG, "获取JPush绑定信息失败，5s后再次获取 errorMessage=" + errorMessage);
+                    mHandler.sendEmptyMessageDelayed(MSG_REQUEST_BIND_MEG, 1000 * 5);
                     break;
                 case MSG_UPLOAD_DEVICE_ID:
-                    Log.d(TAG, "上传设备ID失败，15s后再次上传 errorMessage=" + errorMessage);
-                    mHandler.sendEmptyMessageDelayed(MSG_UPLOAD_DEVICE_ID, 1000 * 15);
+                    Log.d(TAG, "上传设备ID失败，5s后再次上传 errorMessage=" + errorMessage);
+                    mHandler.sendEmptyMessageDelayed(MSG_UPLOAD_DEVICE_ID, 1000 * 5);
                     break;
             }
-            toast(mContext.getString(R.string.network_error));
+//            toast(mContext.getString(R.string.network_error));
             mEventBus.post(new DefaultMessage(EVENT_MSG_NETWORK_ERROR, ""));
         }
 
@@ -267,11 +277,12 @@ public class BindDeviceRun implements TagAliasCallback {
                     baseBean = mGson.fromJson(body, BaseBean.class);
                     if (baseBean.getResult() == 0) {
                         Log.d(TAG, "JPush绑定信息上传成功 body=" + body);
+                        mEventBus.post(new DefaultMessage(EVENT_MSG_SHOW_BIND_CODE, ""));//界面中显示二维码
                         mSp.edit().putBoolean(SharedName.JPUSH_MSG_IS_UPLOAD, true).apply();
-                        mHandler.sendEmptyMessage(MSG_SHOW_BIND_CODE);
+                        mHandler.sendEmptyMessage(MSG_REQUEST_BIND_MEG);//获取绑定信息
                     } else {
-                        Log.d(TAG, "JPush绑定信息上传失败 10s后再次上传 msg=" + body);
-                        mHandler.sendEmptyMessageDelayed(MSG_UPLOAD_JPUSH_MEG, 1000 * 10);
+                        Log.d(TAG, "JPush绑定信息上传失败 5s后再次上传 msg=" + body);
+                        mHandler.sendEmptyMessageDelayed(MSG_UPLOAD_JPUSH_MEG, 1000 * 5);
                     }
                     break;
                 case MSG_REQUEST_BIND_MEG:
@@ -279,13 +290,13 @@ public class BindDeviceRun implements TagAliasCallback {
                     if (bindMsgBean.getResult() == 0) {
                         Log.d(TAG, "获取JPush绑定信息成功  body=" + body);
                         if (bindMsgBean.getIsBinding() == 0) {//未绑定
-//                            mHandler.sendEmptyMessage(MSG_SHOW_BIND_CODE);
+                            mHandler.sendEmptyMessage(MSG_SHOW_DIALOG_BIND_CODE);
                         } else if (bindMsgBean.getIsBinding() == 1) {//已绑定
 //                            mHandler.sendEmptyMessage(MSG_HIED_BIND_CODE);
                         }
                     } else {
-                        Log.d(TAG, "获取JPush绑定信息失败 10s后再次获取 msg=" + body);
-                        mHandler.sendEmptyMessageDelayed(MSG_REQUEST_BIND_MEG, 1000 * 10);
+                        Log.d(TAG, "获取JPush绑定信息失败 5s后再次获取 msg=" + body);
+                        mHandler.sendEmptyMessageDelayed(MSG_REQUEST_BIND_MEG, 1000 * 5);
                     }
                     break;
                 case MSG_UPLOAD_DEVICE_ID:
@@ -297,6 +308,46 @@ public class BindDeviceRun implements TagAliasCallback {
                         Log.d(TAG, "上传设备ID失败 msg=" + body);
                     break;
             }
+        }
+    }
+
+    private void getTelephonyInfo() {
+        if (ActivityCompat.checkSelfPermission(mContext, android.Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(mContext, android.Manifest.permission.READ_PHONE_NUMBERS)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED) {
+            Log.e(TAG, "read permission phoneNum fail: ");
+            return;
+        }
+        //获取手机号码
+        TelephonyManager tm = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
+//        Constant.ICCID = tm.getSimSerialNumber();//获得SIM卡的序号
+        //获得SIM卡的序号
+        mIccid = tm.getSimSerialNumber();
+        String spIccid = mSp.getString(SharedName.SIM_ICCID, "");
+        Log.d(TAG, "ICCID :" + mIccid + "\n\r" + "SPICCID :" + spIccid);
+        if (!TextUtils.isEmpty(mIccid) && !mIccid.equals(spIccid)) {
+            mSp.edit().putString(SharedName.SIM_ICCID, mIccid).apply();
+            if (mSp.getBoolean(SharedName.JPUSH_MSG_IS_UPLOAD, false)) {
+                mHandler.sendEmptyMessage(MSG_UPLOAD_JPUSH_MEG);//上传Jpush绑定信息
+            }
+        }
+//        String deviceid = tm.getDeviceId();//获取智能设备唯一编号
+//        String te1 = tm.getLine1Number();//获取本机号码
+//        String imsi = tm.getSubscriberId();//得到用户Id
+//        Log.d(TAG, "deviceid:" + deviceid + "\n\r" + "te1:" + te1 + "\n\r" + "ICCID:" + Constant.ICCID + "\n\r" + "imsi:" + imsi);
+    }
+
+    class SimStateReceive extends BroadcastReceiver {
+
+        public SimStateReceive() {
+            IntentFilter intentFilter = new IntentFilter("android.intent.action.SIM_STATE_CHANGED");
+            mContext.registerReceiver(this, intentFilter);
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            getTelephonyInfo();
         }
     }
 }

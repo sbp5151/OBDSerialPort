@@ -23,9 +23,8 @@ import java.util.Iterator;
 
 import cn.jpush.android.api.JPushInterface;
 
-import static com.jld.obdserialport.event_msg.DefaultMessage.EVENT_MSG_BINDING;
 import static com.jld.obdserialport.event_msg.DefaultMessage.EVENT_MSG_BIND;
-import static com.jld.obdserialport.event_msg.DefaultMessage.EVENT_MSG_UNBIND;
+import static com.jld.obdserialport.event_msg.DefaultMessage.EVENT_MSG_SHOW_BIND_CODE;
 
 public class JPushReceiver extends BroadcastReceiver {
 
@@ -92,7 +91,7 @@ public class JPushReceiver extends BroadcastReceiver {
                 break;
             case 2://解绑
                 mSp.edit().putBoolean(SharedName.DEVICE_IS_BIND, false).apply();
-                EventBus.getDefault().post(new DefaultMessage(EVENT_MSG_UNBIND, ""));
+//                EventBus.getDefault().post(new DefaultMessage(EVENT_MSG_SHOW_BIND_CODE, ""));
                 break;
             case 3://预约导航
                 if (MapNaviUtils.isGdAutoMapInstalled()) {

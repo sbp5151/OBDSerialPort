@@ -67,7 +67,7 @@ public class Constant {
     /**
      * OBD默认ID
      */
-    public static final String OBD_DEFAULT_ID = "JLD004";
+    public static final String OBD_DEFAULT_ID = "Future_V1.0_00002";
 
     /**
      * SIM卡序号

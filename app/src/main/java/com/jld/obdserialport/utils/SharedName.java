@@ -12,4 +12,6 @@ public class SharedName {
     public static final String DEVICE_IS_BIND = "deviceIsBind";
     //绑定者姓名
     public static final String BIND_USER_NAME = "userName";
+    //sim卡iccid号
+    public static final String SIM_ICCID = "simIccid";
 }

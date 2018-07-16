@@ -69,11 +69,11 @@ public class BindHttpUtil extends BaseHttpUtil {
      * @param alias
      * @param callback
      */
-    public void jPushBindUpload(final int tag, String alias, final MyCallback callback) {
+    public void jPushBindUpload(final int tag, String alias,String iccid, final MyCallback callback) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("deviceID", Constant.OBD_DEFAULT_ID);
         jsonObject.addProperty("jPushAlias", alias);
-        jsonObject.addProperty("iccid", Constant.ICCID);
+        jsonObject.addProperty("iccid", iccid);
         Log.d(TAG, "上传设备绑定信息: " + jsonObject);
         RequestBody body = RequestBody.create(mJsonType, jsonObject.toString());
         Request build = new Request.Builder()
