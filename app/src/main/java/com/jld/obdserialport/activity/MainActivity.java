@@ -1,20 +1,24 @@
 package com.jld.obdserialport.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jld.obdserialport.R;
 import com.jld.obdserialport.SelfStartService;
 import com.jld.obdserialport.event_msg.DefaultMessage;
 import com.jld.obdserialport.event_msg.MediaMessage;
-import com.jld.obdserialport.test.TestActivity;
-import com.jld.obdserialport.util.NetworkUtils;
 import com.jld.obdserialport.utils.Constant;
 import com.jld.obdserialport.utils.SharedName;
 import com.jld.obdserialport.utils.ZxingUtil;
@@ -30,6 +34,8 @@ public class MainActivity extends BaseActivity {
     private TextView mTvBindMessage;
     private ImageView mIvBindCode;
     private SharedPreferences mSp;
+    private long mLastChangeTime;
+    private NetworkReceive mNetworkReceive;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,9 +43,12 @@ public class MainActivity extends BaseActivity {
         Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_main);
         mSp = getSharedPreferences(Constant.SHARED_NAME, MODE_PRIVATE);
+        mNetworkReceive = new NetworkReceive();
         initView();
-
-        initStatus();
+        if (mSp.getBoolean(SharedName.JPUSH_MSG_IS_UPLOAD, false))
+            showBindCode();
+        else
+            initStatus();
         EventBus.getDefault().register(this);
         //启动后台服务
         Intent serviceIntent = new Intent(this, SelfStartService.class);
@@ -109,5 +118,37 @@ public class MainActivity extends BaseActivity {
             return true;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    private class NetworkReceive extends BroadcastReceiver {
+
+        public NetworkReceive() {
+            IntentFilter intentFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
+            MainActivity.this.registerReceiver(this, intentFilter);
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo activeInfo = manager.getActiveNetworkInfo();
+            //如果无网络连接activeInfo为null
+            //也可获取网络的类型
+            if (activeInfo != null) { //网络连接
+                if (mSp.getBoolean(SharedName.JPUSH_MSG_IS_UPLOAD, false))
+                    showBindCode();
+                else
+                    initStatus();
+//                Toast.makeText(context, "测试：网络连接成功", Toast.LENGTH_SHORT).show();
+            } else { //网络断开
+//                Toast.makeText(context, "测试：网络断开", Toast.LENGTH_SHORT).show();
+                networkErrorState();
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        this.unregisterReceiver(mNetworkReceive);
     }
 }

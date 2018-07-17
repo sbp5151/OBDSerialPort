@@ -1,4 +1,4 @@
-package com.jld.obdserialport.test;
+package com.jld.obdserialport.activity;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -22,6 +22,7 @@ public class ObdDataAdapter extends RecyclerView.Adapter<ObdDataAdapter.ViewHold
         mDatas = datas;
         mContext = context;
     }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -32,7 +33,7 @@ public class ObdDataAdapter extends RecyclerView.Adapter<ObdDataAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        if(mDatas.get(position).equals("判断汽车正在熄火")||mDatas.get(position).equals("判断汽车正在点火"))
+        if (mDatas.get(position).equals("判断汽车正在熄火") || mDatas.get(position).equals("判断汽车正在点火"))
             holder.mData_item.setTextColor(mContext.getResources().getColor(R.color.important_text));
         else
             holder.mData_item.setTextColor(mContext.getResources().getColor(R.color.ordinary_text));
@@ -46,6 +47,7 @@ public class ObdDataAdapter extends RecyclerView.Adapter<ObdDataAdapter.ViewHold
 
     class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView mData_item;
+
         public ViewHolder(View itemView) {
             super(itemView);
             mData_item = itemView.findViewById(R.id.tv_data_item);

@@ -1,19 +1,14 @@
-package com.jld.obdserialport.test;
+package com.jld.obdserialport.activity;
 
-import android.Manifest;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -25,7 +20,6 @@ import android.widget.Toast;
 
 import com.jld.obdserialport.R;
 import com.jld.obdserialport.SelfStartService;
-import com.jld.obdserialport.activity.BaseActivity;
 import com.jld.obdserialport.event_msg.OBDDataMessage;
 
 import org.greenrobot.eventbus.EventBus;

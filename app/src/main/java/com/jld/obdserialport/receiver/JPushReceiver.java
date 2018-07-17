@@ -37,7 +37,7 @@ public class JPushReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         try {
             Bundle bundle = intent.getExtras();
-            Log.d(TAG, "[MyReceiver] onReceive - " + intent.getAction() + ", extras: " + printBundle(bundle));
+//            Log.d(TAG, "[MyReceiver] onReceive - " + intent.getAction() + ", extras: " + printBundle(bundle));
 
             if (JPushInterface.ACTION_REGISTRATION_ID.equals(intent.getAction())) {
                 String regId = bundle.getString(JPushInterface.EXTRA_REGISTRATION_ID);
@@ -77,6 +77,13 @@ public class JPushReceiver extends BroadcastReceiver {
         }
     }
 
+    private static final int FLAG_BIND = 1;
+    private static final int FLAG_UNBIND = 2;
+    private static final int FLAG_NAVIGATION = 3;
+    private static final int FLAG_JIEREN = 4;
+    private static final int FLAG_PHOTO_APPLY = 5;
+    private static final int FLAG_VIDEO_APPLY = 6;
+
     private void userDefinedParse(String data, Context context) {
         if (mGson == null) {
             mGson = new Gson();
@@ -85,31 +92,30 @@ public class JPushReceiver extends BroadcastReceiver {
         UserInfoBean infoBean = mGson.fromJson(data, UserInfoBean.class);
         Log.d(TAG, "infoBean: " + infoBean);
         switch (infoBean.getFlag()) {
-            case 1://绑定
-                mSp.edit().putString(SharedName.BIND_USER_NAME,infoBean.getNickName()).commit();
+            case FLAG_BIND://绑定
+                mSp.edit().putString(SharedName.BIND_USER_NAME, infoBean.getNickName()).commit();
                 mSp.edit().putBoolean(SharedName.DEVICE_IS_BIND, true).apply();
                 EventBus.getDefault().post(new DefaultMessage(EVENT_MSG_BIND, ""));
                 break;
-            case 2://解绑
+            case FLAG_UNBIND://解绑
                 mSp.edit().putBoolean(SharedName.DEVICE_IS_BIND, false).apply();
 //                EventBus.getDefault().post(new DefaultMessage(EVENT_MSG_SHOW_BIND_CODE, ""));
                 break;
-            case 3://预约导航
-            case 4://接人
+            case FLAG_NAVIGATION://预约导航
+            case FLAG_JIEREN://接人
                 if (MapNaviUtils.isGdAutoMapInstalled()) {
                     MapNaviUtils.openAutoMap(context, infoBean.getLatitude(),
                             infoBean.getLongitude(), infoBean.getSite());
                 } else
                     Log.d(TAG, "未安装高德地图！！！");
                 break;
-            case 5://拍照申请
+            case FLAG_PHOTO_APPLY://拍照申请
                 EventBus.getDefault().post(new MediaMessage(MediaMessage.EVENT_MSG_PHOTO));
                 break;
-            case 6://录制申请
+            case FLAG_VIDEO_APPLY://录制申请
                 EventBus.getDefault().post(new MediaMessage(MediaMessage.EVENT_MSG_VIDEO));
                 break;
         }
-
     }
 
     // 打印所有的 intent extra 数据
@@ -144,5 +150,4 @@ public class JPushReceiver extends BroadcastReceiver {
         }
         return sb.toString();
     }
-
 }
