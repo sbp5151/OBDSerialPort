@@ -17,6 +17,7 @@ import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
+import com.amap.api.location.AMapLocationQualityReport;
 import com.jld.obdserialport.bean.GPSBean;
 import com.jld.obdserialport.event_msg.DefaultMessage;
 import com.jld.obdserialport.event_msg.OBDDataMessage;
@@ -63,6 +64,12 @@ public class LocationReceiveRun extends BaseRun {
         @Override
         public void onLocationChanged(AMapLocation aMapLocation) {
             Log.d(TAG, "onLocationChanged: " + aMapLocation);
+            AMapLocationQualityReport locationQualityReport = aMapLocation.getLocationQualityReport();
+            Log.d(TAG, "getAdviseMessage: " + locationQualityReport.getAdviseMessage());
+            Log.d(TAG, "getGPSSatellites: " + locationQualityReport.getGPSSatellites());
+            Log.d(TAG, "getGPSStatus: " + locationQualityReport.getGPSStatus());
+            Log.d(TAG, "getNetUseTime: " + locationQualityReport.getNetUseTime());
+            Log.d(TAG, "getNetworkType: " + locationQualityReport.getNetworkType());
             if (aMapLocation != null && aMapLocation.getErrorCode() == 0 && (aMapLocation.getLocationType() == AMapLocation.LOCATION_TYPE_WIFI || aMapLocation.getLocationType() == AMapLocation.LOCATION_TYPE_GPS)) {
                 if (mGpsBean == null)
                     mGpsBean = new GPSBean();

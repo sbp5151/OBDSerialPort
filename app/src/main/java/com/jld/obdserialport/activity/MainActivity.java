@@ -7,7 +7,9 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -62,7 +64,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 mClickNum++;
-                EventBus.getDefault().post(new MediaMessage(MediaMessage.EVENT_MSG_PHOTO));
+//                EventBus.getDefault().post(new MediaMessage(MediaMessage.EVENT_MSG_PHOTO));
                 if (mClickNum == 6) {
                     mClickNum = 0;
                     Intent intent = new Intent(MainActivity.this, TestActivity.class);
