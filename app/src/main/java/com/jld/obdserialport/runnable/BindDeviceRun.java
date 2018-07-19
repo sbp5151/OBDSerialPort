@@ -69,7 +69,7 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
     public static final int MSG_CODE_COUNT_DOWN = 0x09;
 
     private boolean mCountDownPause = false;
-    private int mCodeShotTime = 180;
+    private int mCodeShotTime = 60;
     private Context mContext;
     private SharedPreferences mSp;
     private Gson mGson;
@@ -180,7 +180,7 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
     }
 
     private void showBindDialog() {
-        mCodeShotTime = 180;
+        mCodeShotTime = 60;
         if (mBindDialog != null)
             mBindDialog.dismiss();
         mBindDialog = new Dialog(mContext, R.style.CustomDialog);

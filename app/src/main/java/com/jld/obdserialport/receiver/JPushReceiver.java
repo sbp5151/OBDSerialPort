@@ -94,11 +94,11 @@ public class JPushReceiver extends BroadcastReceiver {
         switch (infoBean.getFlag()) {
             case FLAG_BIND://绑定
                 mSp.edit().putString(SharedName.BIND_USER_NAME, infoBean.getNickName()).commit();
-                mSp.edit().putBoolean(SharedName.DEVICE_IS_BIND, true).apply();
+//                mSp.edit().putBoolean(SharedName.DEVICE_IS_BIND, true).apply();
                 EventBus.getDefault().post(new DefaultMessage(EVENT_MSG_BIND, ""));
                 break;
             case FLAG_UNBIND://解绑
-                mSp.edit().putBoolean(SharedName.DEVICE_IS_BIND, false).apply();
+//                mSp.edit().putBoolean(SharedName.DEVICE_IS_BIND, false).apply();
 //                EventBus.getDefault().post(new DefaultMessage(EVENT_MSG_SHOW_BIND_CODE, ""));
                 break;
             case FLAG_NAVIGATION://预约导航

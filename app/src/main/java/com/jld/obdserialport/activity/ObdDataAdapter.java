@@ -17,7 +17,7 @@ public class ObdDataAdapter extends RecyclerView.Adapter<ObdDataAdapter.ViewHold
     public static final String TAG = "ObdDataAdapter";
     private List<String> mDatas;
     private Context mContext;
-
+    private String[] mSignificantDatas = {"判断汽车正在熄火",};
     public ObdDataAdapter(List<String> datas, Context context) {
         mDatas = datas;
         mContext = context;
@@ -33,7 +33,8 @@ public class ObdDataAdapter extends RecyclerView.Adapter<ObdDataAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        if (mDatas.get(position).equals("判断汽车正在熄火") || mDatas.get(position).equals("判断汽车正在点火"))
+        if (mDatas.get(position).equals("判断汽车正在熄火") || mDatas.get(position).equals("判断汽车正在点火")
+                ||mDatas.get(position).equals("-TT") || mDatas.get(position).equals("-HBT"))
             holder.mData_item.setTextColor(mContext.getResources().getColor(R.color.important_text));
         else
             holder.mData_item.setTextColor(mContext.getResources().getColor(R.color.ordinary_text));

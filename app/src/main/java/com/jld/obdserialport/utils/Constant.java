@@ -67,7 +67,7 @@ public class Constant {
     /**
      * 相片上传
      */
-    public static final String URL_PHTO_UPLOAD = "";
+    public static final String URL_MEDIA_UPLOAD = "http://192.168.3.113/androidFaceController/uploadObdFile.do";
 
     /**
      * 视频 上传
@@ -77,7 +77,11 @@ public class Constant {
     /**
      * OBD默认ID
      */
-    public static final String OBD_DEFAULT_ID = "Future_V1.0_00002";
+//    public static final String OBD_DEFAULT_ID = "Future_V1.0_00006";
+//    public static final String OBD_DEFAULT_ID = "Future_V1.0_00006";
+//    public static final String OBD_DEFAULT_ID = "Future_V1.0_00006";
+//    public static final String OBD_DEFAULT_ID = "Future_V1.0_00006";//周总
+    public static final String OBD_DEFAULT_ID = "Future_V1.0_0888";//邹总
 
     /**
      * 极光推送别名

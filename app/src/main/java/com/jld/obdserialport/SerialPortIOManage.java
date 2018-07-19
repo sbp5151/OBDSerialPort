@@ -3,6 +3,7 @@ package com.jld.obdserialport;
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 /**
@@ -28,7 +30,6 @@ public class SerialPortIOManage {
     private OutputStream mOutputStream;
     private boolean mIsConnect = false;
     private HandlerThread mHandlerThread;
-    private Handler mWriteHandler;
     private SerialPortDevice mSpd;
     private Context mContext;
     private final EventBus mEventBus;
@@ -37,8 +38,9 @@ public class SerialPortIOManage {
     private boolean mIsWriteDataIng = false;
     private final int WRITE_DATA_FLAG = 0x01;
     private final int FEEDBACK_TIMEOUT_FLAG = 0x02;
-    private int mFeedbackTimeout = 1500;//发送数据反馈超时
-    ArrayList<String> mWriteDatas = new ArrayList<>();
+    private final int mFeedbackTimeout = 1500;//发送数据反馈超时
+    private ArrayList<String> mWriteDatas = new ArrayList<>();
+    private WriteHandler mWriteHandler;
 
     public SerialPortIOManage(Context context) {
         mContext = context;
@@ -59,39 +61,47 @@ public class SerialPortIOManage {
             mIsConnect = true;
             mInputStream = mSpd.getInputStream();
             mOutputStream = mSpd.getOutputStream();
-            new Thread(mLoopWriteRun).start();//循环写数据
             new Thread(mReadRun).start();//启动串口数据接收
+            new Thread(mLoopWriteRun).start();//循环写数据
             mHandlerThread = new HandlerThread("");//数据发送线程
             mHandlerThread.start();
-            mWriteHandler = new Handler(mHandlerThread.getLooper()) {
-                @Override
-                public void handleMessage(Message msg) {//写数据
-                    super.handleMessage(msg);
-                    switch (msg.what) {
-                        case WRITE_DATA_FLAG:
-                            String data = msg.obj + "\r\n";
-                            try {
-                                Log.d(TAG, "写数据：" + data);
-                                mOutputStream.write(data.getBytes("UTF-8"));
-                                mOutputStream.flush();
-                            } catch (IOException e) {
-                                Toast.makeText(mContext, "写入失败", Toast.LENGTH_SHORT).show();
-                                e.printStackTrace();
-                            }
-                            break;
-                        case FEEDBACK_TIMEOUT_FLAG:
-                            mIsWriteDataIng = false;
-                            break;
-                    }
-
-                }
-            };
+            mWriteHandler = new WriteHandler(mHandlerThread.getLooper(), this);
             Log.d(TAG, "串口连接成功");
             mEventBus.post(new OBDDataMessage(OBDDataMessage.CONNECT_STATE_FLAG, true));
         } else {
             Log.d(TAG, "串口连接失败");
             mEventBus.post(new OBDDataMessage(OBDDataMessage.CONNECT_STATE_FLAG, false));
             mIsConnect = false;
+        }
+    }
+
+    class WriteHandler extends Handler {
+        WeakReference<SerialPortIOManage> mWeakReference;
+        private WriteHandler(Looper looper, SerialPortIOManage manage) {
+            super(looper);
+            mWeakReference = new WeakReference<>(manage);
+        }
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if (mWeakReference.get() == null)
+                return;
+            switch (msg.what) {
+                case WRITE_DATA_FLAG:
+                    String data = msg.obj + "\r\n";
+                    try {
+                        Log.d(TAG, "写数据：" + data);
+                        mOutputStream.write(data.getBytes("UTF-8"));
+                        mOutputStream.flush();
+                    } catch (IOException e) {
+                        Toast.makeText(mContext, "写入失败", Toast.LENGTH_SHORT).show();
+                        e.printStackTrace();
+                    }
+                    break;
+                case FEEDBACK_TIMEOUT_FLAG:
+                    mIsWriteDataIng = false;
+                    break;
+            }
         }
     }
 
@@ -104,7 +114,7 @@ public class SerialPortIOManage {
     /**
      * 向串口写数据
      */
-    Runnable mLoopWriteRun = new Runnable() {
+    private Runnable mLoopWriteRun = new Runnable() {
         @Override
         public void run() {
             while (mIsLoopWrite) {
@@ -125,23 +135,22 @@ public class SerialPortIOManage {
             }
         }
     };
-    byte[] mBuffer = new byte[512];
-
+    private byte[] mBuffer = new byte[512];
     /**
      * 串口数据接收
      */
-    Runnable mReadRun = new Runnable() {
+    private Runnable mReadRun = new Runnable() {
         @Override
         public void run() {
             Log.d(TAG, "开始读取数据:" + mIsConnect);
             while (mIsLoopRead) {
                 try {
+                    mIsWriteDataIng = false;
                     int read = mInputStream.read(mBuffer);
                     String readData = new String(mBuffer, 0, read, "UTF-8");
                     Log.d(TAG, "数据读取：" + readData);
                     mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, readData));
                     mWriteHandler.removeMessages(FEEDBACK_TIMEOUT_FLAG);
-                    mIsWriteDataIng = false;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

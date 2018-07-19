@@ -8,9 +8,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.TextureView;
 
-import com.jld.obdserialport.event_msg.DefaultMessage;
 import com.jld.obdserialport.event_msg.MediaMessage;
 import com.jld.obdserialport.http.FileHttpUtil;
 import com.jld.obdserialport.utils.Constant;
@@ -52,7 +50,7 @@ public class MediaRun extends BaseRun {
                 return;
             switch (msg.what) {
                 case FLAG_PHOTO_UPLOAD://相册上传
-                    FileHttpUtil.build().uploadFileUtil(Constant.URL_PHTO_UPLOAD, mPhotoPath, new FileHttpUtil.UploadFileListener() {
+                    FileHttpUtil.build().uploadFileUtil(Constant.URL_MEDIA_UPLOAD, mPhotoPath, new FileHttpUtil.UploadFileListener() {
                         @Override
                         public void onUploadFailed() {
                             mHandler.sendEmptyMessageDelayed(FLAG_PHOTO_UPLOAD, 1000 * 5);
@@ -60,7 +58,7 @@ public class MediaRun extends BaseRun {
                     });
                     break;
                 case FLAG_VIDEO_UPLOAD://视频上传
-                    FileHttpUtil.build().uploadFileUtil(Constant.URL_VIDOA_UPLOAD, mVideoPath, new FileHttpUtil.UploadFileListener() {
+                    FileHttpUtil.build().uploadFileUtil(Constant.URL_MEDIA_UPLOAD, mVideoPath, new FileHttpUtil.UploadFileListener() {
                         @Override
                         public void onUploadFailed() {
                             mHandler.sendEmptyMessageDelayed(FLAG_PHOTO_UPLOAD, 1000 * 5);
@@ -68,20 +66,19 @@ public class MediaRun extends BaseRun {
                     });
                     break;
             }
-
         }
     }
 
     private String mPhotoPath;
     private String mVideoPath;
-    private final MediaReceiver mMediaReceiver;
+//    private final MediaReceiver mMediaReceiver;
     private MyHandler mHandler;
 
     public MediaRun(Context context) {
         mContext = context;
         mHandler = new MyHandler(this);
         EventBus.getDefault().register(this);
-        mMediaReceiver = new MediaReceiver();
+//        mMediaReceiver = new MediaReceiver();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -128,8 +125,9 @@ public class MediaRun extends BaseRun {
 
     @Override
     public void onDestroy() {
+        EventBus.getDefault().unregister(this);
         mHandler.removeMessages(FLAG_PHOTO_UPLOAD);
         mHandler.removeMessages(FLAG_VIDEO_UPLOAD);
-        mContext.unregisterReceiver(mMediaReceiver);
+//        mContext.unregisterReceiver(mMediaReceiver);
     }
 }
