@@ -197,7 +197,7 @@ public class OBDReceiveRun extends BaseRun {
         //熄火判断
         if (!TextUtils.isEmpty(currentEngineSpeed) && !TextUtils.isEmpty(mLastEngineSpeed)
                 && Integer.parseInt(currentEngineSpeed) < 300 && Integer.parseInt(mLastEngineSpeed) >= 300) {
-            flameOut();//当上一次转速大于等于300，这次小于300代表熄火
+//            flameOut();//当上一次转速大于等于300，这次小于300代表熄火
         }
         mLastEngineSpeed = currentEngineSpeed;
         //点火判断

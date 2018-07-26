@@ -81,7 +81,8 @@ public class Constant {
 //    public static final String OBD_DEFAULT_ID = "Future_V1.0_00006";
 //    public static final String OBD_DEFAULT_ID = "Future_V1.0_00006";
 //    public static final String OBD_DEFAULT_ID = "Future_V1.0_00006";//周总
-    public static final String OBD_DEFAULT_ID = "Future_V1.0_0888";//邹总
+//    public static final String OBD_DEFAULT_ID = "Future_V1.0_0888";//邹总
+    public static final String OBD_DEFAULT_ID = "Future_V1.0_0008";//
 
     /**
      * 极光推送别名
