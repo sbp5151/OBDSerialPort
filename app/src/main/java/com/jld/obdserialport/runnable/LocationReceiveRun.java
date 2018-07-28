@@ -21,6 +21,7 @@ import com.amap.api.location.AMapLocationQualityReport;
 import com.jld.obdserialport.bean.GPSBean;
 import com.jld.obdserialport.event_msg.DefaultMessage;
 import com.jld.obdserialport.event_msg.OBDDataMessage;
+import com.jld.obdserialport.event_msg.TestDataMessage;
 import com.jld.obdserialport.http.GPSHttpUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -42,7 +43,7 @@ public class LocationReceiveRun extends BaseRun {
         mContext = context;
         Log.d(TAG, "LocationReceiveRun");
         mEventBus = EventBus.getDefault();
-        mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, "LocationReceiveRun"));
+        mEventBus.post(new TestDataMessage("LocationReceiveRun"));
         initLocation();
     }
 
@@ -65,15 +66,15 @@ public class LocationReceiveRun extends BaseRun {
         public void onLocationChanged(AMapLocation aMapLocation) {
             Log.d(TAG, "onLocationChanged: " + aMapLocation);
             AMapLocationQualityReport locationQualityReport = aMapLocation.getLocationQualityReport();
-            Log.d(TAG, "getAdviseMessage: " + locationQualityReport.getAdviseMessage());
-            Log.d(TAG, "getGPSSatellites: " + locationQualityReport.getGPSSatellites());
-            Log.d(TAG, "getGPSStatus: " + locationQualityReport.getGPSStatus());
-            Log.d(TAG, "getNetUseTime: " + locationQualityReport.getNetUseTime());
-            Log.d(TAG, "getNetworkType: " + locationQualityReport.getNetworkType());
+//            Log.d(TAG, "getAdviseMessage: " + locationQualityReport.getAdviseMessage());
+//            Log.d(TAG, "getGPSSatellites: " + locationQualityReport.getGPSSatellites());
+//            Log.d(TAG, "getGPSStatus: " + locationQualityReport.getGPSStatus());
+//            Log.d(TAG, "getNetUseTime: " + locationQualityReport.getNetUseTime());
+//            Log.d(TAG, "getNetworkType: " + locationQualityReport.getNetworkType());
             if (aMapLocation != null && aMapLocation.getErrorCode() == 0 && (aMapLocation.getLocationType() == AMapLocation.LOCATION_TYPE_WIFI || aMapLocation.getLocationType() == AMapLocation.LOCATION_TYPE_GPS)) {
                 if (mGpsBean == null)
                     mGpsBean = new GPSBean();
-                mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, aMapLocation.getAddress() + " type:" + aMapLocation.getLocationType()));
+                mEventBus.post(new TestDataMessage(aMapLocation.getAddress() + " type:" + aMapLocation.getLocationType()));
                 mGpsBean.setDirection(aMapLocation.getBearing());
                 mGpsBean.setLatitude(aMapLocation.getLatitude());
                 mGpsBean.setLongitude(aMapLocation.getLongitude());

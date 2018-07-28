@@ -6,7 +6,6 @@ import com.jld.obdserialport.utils.Constant;
 
 public class GPSBean {
 
-    private String obdId = Constant.OBD_DEFAULT_ID;
     private double direction;
     private double longitude;
     private double latitude;

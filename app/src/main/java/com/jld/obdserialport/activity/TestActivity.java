@@ -9,6 +9,7 @@ import android.os.Message;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -19,9 +20,14 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.jld.obdserialport.R;
 import com.jld.obdserialport.SelfStartService;
+import com.jld.obdserialport.bean.JpushBase;
+import com.jld.obdserialport.bean.MediaBean;
+import com.jld.obdserialport.event_msg.MediaMessage;
 import com.jld.obdserialport.event_msg.OBDDataMessage;
+import com.jld.obdserialport.event_msg.TestDataMessage;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -48,6 +54,7 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
     public static final int ADD_DATA_FLAG = 0x01;
     public static final int ADD_TEST_DATA = 0x02;
     private Spinner mSpinner;
+    private Gson mGson;
 
     class MyHandler extends Handler {
         private WeakReference<TestActivity> mWeakReference;
@@ -72,7 +79,7 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
                     break;
                 case ADD_TEST_DATA:
                     sendCode();
-                    mHandler.sendEmptyMessageDelayed(ADD_TEST_DATA,1500);
+                    mHandler.sendEmptyMessageDelayed(ADD_TEST_DATA, 1500);
                     break;
             }
         }
@@ -145,16 +152,20 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void obdEvent(OBDDataMessage messageEvent) {
-        if (messageEvent.getFlag() == OBDDataMessage.CONNECT_STATE_FLAG) {
-            if (messageEvent.isConnect()) {
-                addListData("串口连接成功！！！");
-            } else {
-                addListData("串口连接失败！！！");
-            }
-        } else if (messageEvent.getFlag() == OBDDataMessage.CONTENT_FLAG) {
-            addListData(messageEvent.getMessage());
-        }
+    public void obdEvent(TestDataMessage messageEvent) {
+        String testMessage = messageEvent.getTestMessage();
+        if (!TextUtils.isEmpty(testMessage))
+            addListData(messageEvent.getTestMessage());
+
+//        if (messageEvent.getFlag() == OBDDataMessage.CONNECT_STATE_FLAG) {
+//            if (messageEvent.isConnect()) {
+//                addListData("串口连接成功！！！");
+//            } else {
+//                addListData("串口连接失败！！！");
+//            }
+//        } else if (messageEvent.getFlag() == OBDDataMessage.CONTENT_FLAG) {
+//            addListData(messageEvent.getMessage());
+//        }
     }
 
     private void addListData(String data) {
@@ -168,10 +179,22 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_close:
-                goHome();
+                if (mGson == null)
+                    mGson = new Gson();
+
+
+                MediaBean mediaBean = mGson.fromJson("{\"fileName\":\"g8s647g8a6hawj008fjiw9udi1532746474975\",\"fileType\":2,\"flag\":5,\"obdId\":\"866275038851383\",\"uid\":\"olBG94sMevoxx0UZ0CwhVdBiaOCQ\",\"videoDuration\":1}", MediaBean.class);
+                Log.d(TAG, "mediaBean: "+mediaBean);
+//                goHome();
+                EventBus.getDefault().post(mediaBean);
                 break;
             case R.id.btn_send:
-                sendCode();
+//                EventBus.getDefault().post(new MediaBean(2));
+                if (mGson == null)
+                    mGson = new Gson();
+                JpushBase jpushBase = mGson.fromJson("{\"fileName\":\"x4lkr1y909jv78lnofofg8pvi1532681646138\",\"fileType\":2,\"flag\":5,\"obdId\":\"866275038851383\",\"uid\":\"olBG94sMevoxx0UZ0CwhVdBiaOCQ\",\"videoDuration\":1}", JpushBase.class);
+                Log.d(TAG, "jpushBase: "+jpushBase);
+//                sendCode();
                 break;
             case R.id.btn_clear:
                 mDatas.clear();
@@ -204,7 +227,7 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
         }
 //        mMyBinder.sendData(mCodes[position] + code);
         if (position == 6)
-            mMyBinder.sendData("ATBUD="+code);
+            mMyBinder.sendData("ATBUD=" + code);
         else
             mMyBinder.sendData(mCodes[position]);
     }

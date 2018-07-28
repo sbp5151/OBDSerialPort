@@ -28,6 +28,7 @@ import com.jld.obdserialport.bean.BaseBean;
 import com.jld.obdserialport.bean.BindMsgBean;
 import com.jld.obdserialport.event_msg.DefaultMessage;
 import com.jld.obdserialport.event_msg.OBDDataMessage;
+import com.jld.obdserialport.event_msg.TestDataMessage;
 import com.jld.obdserialport.http.BaseHttpUtil;
 import com.jld.obdserialport.http.BindHttpUtil;
 import com.jld.obdserialport.utils.Constant;
@@ -43,6 +44,8 @@ import cn.jpush.android.api.JPushInterface;
 import cn.jpush.android.api.TagAliasCallback;
 
 import static android.content.Context.MODE_PRIVATE;
+import static com.jld.obdserialport.MyApplication.JPUSH_DEVICE_ALIAS;
+import static com.jld.obdserialport.MyApplication.OBD_DEFAULT_ID;
 import static com.jld.obdserialport.event_msg.DefaultMessage.EVENT_MSG_NETWORK_ERROR;
 import static com.jld.obdserialport.event_msg.DefaultMessage.EVENT_MSG_SHOW_BIND_CODE;
 
@@ -99,7 +102,7 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
                     Log.d(TAG, "设置JPush别名...");
                     mySendMessage("设置JPush别名...");
                     JPushInterface.setAliasAndTags(mContext.getApplicationContext(),
-                            Constant.JPUSH_DEVICE_ALIAS,
+                            JPUSH_DEVICE_ALIAS,
                             null,
                             BindDeviceRun.this);
                     break;
@@ -107,7 +110,7 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
                     mySendMessage("上传JPush绑定信息...");
                     Log.d(TAG, "上传JPush绑定信息...");
                     if (mSp.getBoolean(SharedName.DEVICE_IS_UPLOAD, false))
-                        BindHttpUtil.build().jPushBindUpload(MSG_UPLOAD_JPUSH_MEG, Constant.JPUSH_DEVICE_ALIAS, mIccid, new HttpCallback());
+                        BindHttpUtil.build().jPushBindUpload(MSG_UPLOAD_JPUSH_MEG, JPUSH_DEVICE_ALIAS, mIccid, new HttpCallback());
                     else {
                         Log.d(TAG, "等待设备ID上传成功，5s后再上传Jpush绑定信息");
                         mHandler.sendEmptyMessageDelayed(MSG_UPLOAD_JPUSH_MEG, 1000 * 5);
@@ -167,7 +170,7 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
     }
 
     public void checkBind() {
-        if (!mSp.getBoolean(SharedName.DEVICE_IS_UPLOAD, false) && !TextUtils.isEmpty(Constant.OBD_DEFAULT_ID))
+        if (!mSp.getBoolean(SharedName.DEVICE_IS_UPLOAD, false) && !TextUtils.isEmpty(OBD_DEFAULT_ID))
             mHandler.sendEmptyMessage(MSG_UPLOAD_DEVICE_ID);// 设备ID上传
         if (!mSp.getBoolean(SharedName.JPUSH_SETALIAS_SUCCEED, false))
             mHandler.sendEmptyMessage(MSG_SET_ALIAS);//极光推送注册别名
@@ -189,7 +192,7 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
         Button btn_pause = view.findViewById(R.id.btn_pause);
         mBtn_close = view.findViewById(R.id.btn_close);
         mBtn_close.setText(mContext.getString(R.string.bind_code_close) + "(" + mCodeShotTime + ")");
-        bind_code.setImageBitmap(ZxingUtil.createBitmap("http://www.futurevi.com/download.html?sn=" + Constant.OBD_DEFAULT_ID));
+        bind_code.setImageBitmap(ZxingUtil.createBitmap("http://www.futurevi.com/download.html?sn=" + OBD_DEFAULT_ID));
         btn_pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -218,7 +221,7 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
     }
 
     private void mySendMessage(String message) {
-        mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, message));
+        mEventBus.post(new TestDataMessage(message));
     }
 
     public void toast(String msg) {

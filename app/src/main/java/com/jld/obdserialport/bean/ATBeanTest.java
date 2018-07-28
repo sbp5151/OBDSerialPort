@@ -9,7 +9,6 @@ import com.jld.obdserialport.utils.Constant;
  */
 public class ATBeanTest {
     private static final String TAG = "ATBeanTest";
-    private String obdId = Constant.OBD_DEFAULT_ID;// OBD编号
     private int currentNumberOfFaultCodes;//当前故障码数量(Times/次) 01
     private double engineLoad;//发动机负荷(%) 004
     private double coolantTemperature;//冷却液温度(℃) 005
@@ -69,7 +68,6 @@ public class ATBeanTest {
     @Override
     public String toString() {
         return "ATBeanTest{" +
-                "obdId='" + obdId + '\'' +
                 ", currentNumberOfFaultCodes=" + currentNumberOfFaultCodes +
                 ", engineLoad=" + engineLoad +
                 ", coolantTemperature=" + coolantTemperature +

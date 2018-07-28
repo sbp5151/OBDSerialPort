@@ -14,6 +14,7 @@ import com.jld.obdserialport.bean.ATBeanTest;
 import com.jld.obdserialport.bean.RTBean;
 import com.jld.obdserialport.bean.OnOrOffBean;
 import com.jld.obdserialport.bean.TTBean;
+import com.jld.obdserialport.event_msg.TestDataMessage;
 import com.jld.obdserialport.http.BaseHttpUtil;
 import com.jld.obdserialport.http.OBDHttpUtil;
 
@@ -125,7 +126,7 @@ public class OBDReceiveRun extends BaseRun {
         mHandler = new MyHandler(this);
         mEventBus = EventBus.getDefault();
         mEventBus.register(this);
-        mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, "OBDReceiveRun run....."));
+        mEventBus.post(new TestDataMessage("OBDReceiveRun run....."));
         mPortManage = new SerialPortIOManage(mContext);
         mHandler.sendEmptyMessage(FLAG_PORT_CONNECT);//串口连接
         mSimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -147,6 +148,7 @@ public class OBDReceiveRun extends BaseRun {
         } else if (messageEvent.getFlag() == OBDDataMessage.CONTENT_FLAG) {//串口接收数据返回
             String message = messageEvent.getMessage();
             Log.d(TAG, "串口接收数据返回:" + message);
+            mEventBus.post(new TestDataMessage(message));
             if (message.contains("-RT")) {//实时数据
                 rtDataParse(message);
             } else if (message.contains("System running")) {//汽车点火
@@ -217,7 +219,7 @@ public class OBDReceiveRun extends BaseRun {
         if (mEngineStatus == ENGINE_STATUS_START)
             return;
         Log.d(TAG, "判断汽车正在点火");
-        mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, "判断汽车正在点火"));
+        mEventBus.post(new TestDataMessage("判断汽车正在点火"));
         mEngineStatus = ENGINE_STATUS_START;
         mTTStartTime = mSimpleDateFormat.format(new Date());
         mHandler.sendEmptyMessage(FLAG_ON_POST);
@@ -227,7 +229,7 @@ public class OBDReceiveRun extends BaseRun {
         if (mEngineStatus == ENGINE_STATUS_STOP)
             return;
         Log.d(TAG, "判断汽车正在熄火");
-        mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, "判断汽车正在熄火"));
+        mEventBus.post(new TestDataMessage("判断汽车正在熄火"));
         mEngineStatus = ENGINE_STATUS_STOP;
         mHandler.sendEmptyMessage(FLAG_OFF_POST);
     }

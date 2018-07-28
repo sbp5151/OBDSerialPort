@@ -13,7 +13,6 @@ import java.util.Date;
 public class TTBean extends BaseBean {
 
     private static final String TAG = "TTBean";
-    private String obdId = Constant.OBD_DEFAULT_ID;//OBD编号
     private double hotCarTimeLong;//本次热车时长
     private double idleSpeedTimeLong;//本次怠速时长
     private double drivingTimeLong;//本次行驶时长

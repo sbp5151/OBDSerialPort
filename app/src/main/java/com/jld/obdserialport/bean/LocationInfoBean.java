@@ -2,13 +2,12 @@ package com.jld.obdserialport.bean;
 
 import java.util.Date;
 
-public class UserInfoBean {
+public class LocationInfoBean extends JpushBase{
 
     private String phoneNumber;
     private String nickName;//微信昵称
     private String openId;//微信用户唯一标识
     private String obdId;
-    private int flag;
     private double longitude;
     private double latitude;
     private String address;
@@ -28,10 +27,6 @@ public class UserInfoBean {
 
     public String getObdId() {
         return obdId;
-    }
-
-    public int getFlag() {
-        return flag;
     }
 
     public double getLongitude() {

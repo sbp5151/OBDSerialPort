@@ -4,7 +4,6 @@ import com.jld.obdserialport.utils.Constant;
 
 public class OnOrOffBean extends BaseBean {
 
-    private String obdId = Constant.OBD_DEFAULT_ID;//OBD编号
     private String engineState;//发动机状态
     private double longitude;//经度
     private double latitude;//纬度

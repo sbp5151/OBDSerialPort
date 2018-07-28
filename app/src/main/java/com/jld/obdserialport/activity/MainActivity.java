@@ -29,6 +29,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import static com.jld.obdserialport.MyApplication.OBD_DEFAULT_ID;
+
 public class MainActivity extends BaseActivity {
 
     private static final String TAG = "MainActivity";
@@ -72,7 +74,7 @@ public class MainActivity extends BaseActivity {
                 }
             }
         });
-        mIvBindCode.setImageBitmap(ZxingUtil.createBitmap("http://www.futurevi.com/download.html?sn=" + Constant.OBD_DEFAULT_ID));
+        mIvBindCode.setImageBitmap(ZxingUtil.createBitmap("http://www.futurevi.com/download.html?sn=" + OBD_DEFAULT_ID));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

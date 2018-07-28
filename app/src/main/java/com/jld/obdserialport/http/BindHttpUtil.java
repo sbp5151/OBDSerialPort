@@ -14,6 +14,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import static com.jld.obdserialport.MyApplication.OBD_DEFAULT_ID;
+
 public class BindHttpUtil extends BaseHttpUtil {
 
     public static final String TAG  = "BindHttpUtil";
@@ -34,7 +36,7 @@ public class BindHttpUtil extends BaseHttpUtil {
      */
     public void uploadDeviceID(final int tag, final MyCallback callback) {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("deviceID", Constant.OBD_DEFAULT_ID);
+        jsonObject.addProperty("deviceID", OBD_DEFAULT_ID);
         Log.d(TAG, "设备ID上传: " + jsonObject);
         RequestBody body = RequestBody.create(mJsonType, jsonObject.toString());
         Request build = new Request.Builder()
@@ -71,7 +73,7 @@ public class BindHttpUtil extends BaseHttpUtil {
      */
     public void jPushBindUpload(final int tag, String alias,String iccid, final MyCallback callback) {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("deviceID", Constant.OBD_DEFAULT_ID);
+        jsonObject.addProperty("deviceID", OBD_DEFAULT_ID);
         jsonObject.addProperty("jPushAlias", alias);
         jsonObject.addProperty("iccid", iccid);
         Log.d(TAG, "上传设备绑定信息: " + jsonObject);
@@ -109,9 +111,9 @@ public class BindHttpUtil extends BaseHttpUtil {
      */
     public void jPushBindRequest(final int tag, final MyCallback callback) {
 
-        FormBody formBody = new FormBody.Builder().add("obdId", Constant.OBD_DEFAULT_ID).build();
+        FormBody formBody = new FormBody.Builder().add("obdId", OBD_DEFAULT_ID).build();
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("deviceID", Constant.OBD_DEFAULT_ID);
+        jsonObject.addProperty("deviceID", OBD_DEFAULT_ID);
         RequestBody body = RequestBody.create(mJsonType, jsonObject.toString());
         Log.d(TAG, "获取设备绑定信息：" + jsonObject.toString());
         Request build = new Request.Builder()

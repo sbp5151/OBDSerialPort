@@ -10,7 +10,6 @@ import com.jld.obdserialport.utils.Constant;
 public class RTBean extends BaseBean {
 
     public static final String TAG = "RTBean";
-    private String obdId = Constant.OBD_DEFAULT_ID;
     private String mBatteryVoltage;//1电瓶电压
     private String engineSpeed;//2发动机转速（动力）
     private String carSpeed;//3行驶车速

@@ -67,7 +67,7 @@ public class Constant {
     /**
      * 相片上传
      */
-    public static final String URL_MEDIA_UPLOAD = "http://192.168.3.113/androidFaceController/uploadObdFile.do";
+    public static final String URL_MEDIA_UPLOAD = "http://m.futurevi.com/androidFaceController/uploadObdFile.do";
 
     /**
      * 视频 上传
@@ -81,13 +81,8 @@ public class Constant {
 //    public static final String OBD_DEFAULT_ID = "Future_V1.0_00006";
 //    public static final String OBD_DEFAULT_ID = "Future_V1.0_00006";
 //    public static final String OBD_DEFAULT_ID = "Future_V1.0_00006";//周总
-//    public static final String OBD_DEFAULT_ID = "Future_V1.0_0888";//邹总
-    public static final String OBD_DEFAULT_ID = "Future_V1.0_0008";//
+//    public static final String OBD_DEFAULT_ID = "Future_V1.0_08888";//邹总
 
-    /**
-     * 极光推送别名
-     */
-    public static final String JPUSH_DEVICE_ALIAS = OBD_DEFAULT_ID;
 
     //串口访问路径
 //    public static String SERIAL_PORT_PATH = "/dev/ttyS2";

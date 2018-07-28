@@ -9,9 +9,12 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.jld.obdserialport.bean.UserInfoBean;
+import com.jld.obdserialport.bean.JpushBase;
+import com.jld.obdserialport.bean.LocationInfoBean;
+import com.jld.obdserialport.bean.MediaBean;
 import com.jld.obdserialport.event_msg.DefaultMessage;
 import com.jld.obdserialport.event_msg.MediaMessage;
+import com.jld.obdserialport.event_msg.TestDataMessage;
 import com.jld.obdserialport.utils.Constant;
 import com.jld.obdserialport.utils.MapNaviUtils;
 import com.jld.obdserialport.utils.SharedName;
@@ -25,7 +28,6 @@ import java.util.Iterator;
 import cn.jpush.android.api.JPushInterface;
 
 import static com.jld.obdserialport.event_msg.DefaultMessage.EVENT_MSG_BIND;
-import static com.jld.obdserialport.event_msg.DefaultMessage.EVENT_MSG_SHOW_BIND_CODE;
 
 public class JPushReceiver extends BroadcastReceiver {
 
@@ -73,6 +75,7 @@ public class JPushReceiver extends BroadcastReceiver {
                 Log.d(TAG, "[MyReceiver] Unhandled intent - " + intent.getAction());
             }
         } catch (Exception e) {
+            Log.d(TAG, "Exception: " + e.toString());
 
         }
     }
@@ -81,19 +84,20 @@ public class JPushReceiver extends BroadcastReceiver {
     private static final int FLAG_UNBIND = 2;
     private static final int FLAG_NAVIGATION = 3;
     private static final int FLAG_JIEREN = 4;
-    private static final int FLAG_PHOTO_APPLY = 5;
-    private static final int FLAG_VIDEO_APPLY = 6;
+    private static final int FLAG_MEDIA_REQUEST = 5;
 
     private void userDefinedParse(String data, Context context) {
         if (mGson == null) {
             mGson = new Gson();
             mSp = context.getSharedPreferences(Constant.SHARED_NAME, Context.MODE_PRIVATE);
         }
-        UserInfoBean infoBean = mGson.fromJson(data, UserInfoBean.class);
-        Log.d(TAG, "infoBean: " + infoBean);
-        switch (infoBean.getFlag()) {
+        EventBus.getDefault().post(new TestDataMessage(data));
+        JpushBase bean = mGson.fromJson(data, MediaBean.class);
+        Log.d(TAG, "JpushBase: " + bean);
+        EventBus.getDefault().post(new TestDataMessage("flag:" + bean.getFlag()));
+        switch (bean.getFlag()) {
             case FLAG_BIND://绑定
-                mSp.edit().putString(SharedName.BIND_USER_NAME, infoBean.getNickName()).commit();
+//                mSp.edit().putString(SharedName.BIND_USER_NAME, infoBean.getNickName()).commit();
 //                mSp.edit().putBoolean(SharedName.DEVICE_IS_BIND, true).apply();
                 EventBus.getDefault().post(new DefaultMessage(EVENT_MSG_BIND, ""));
                 break;
@@ -103,17 +107,20 @@ public class JPushReceiver extends BroadcastReceiver {
                 break;
             case FLAG_NAVIGATION://预约导航
             case FLAG_JIEREN://接人
+                LocationInfoBean locationInfoBean = mGson.fromJson(data, LocationInfoBean.class);
                 if (MapNaviUtils.isGdAutoMapInstalled()) {
-                    MapNaviUtils.openAutoMap(context, infoBean.getLatitude(),
-                            infoBean.getLongitude(), infoBean.getSite());
+                    MapNaviUtils.openAutoMap(context, locationInfoBean.getLatitude(),
+                            locationInfoBean.getLongitude(), locationInfoBean.getSite());
                 } else
                     Log.d(TAG, "未安装高德地图！！！");
                 break;
-            case FLAG_PHOTO_APPLY://拍照申请
-                EventBus.getDefault().post(new MediaMessage(MediaMessage.EVENT_MSG_PHOTO));
-                break;
-            case FLAG_VIDEO_APPLY://录制申请
-                EventBus.getDefault().post(new MediaMessage(MediaMessage.EVENT_MSG_VIDEO));
+            case FLAG_MEDIA_REQUEST://录制 拍照申请
+                Log.d(TAG, "录制 拍照申请:"+data);
+                EventBus.getDefault().post(new TestDataMessage("录制 拍照申请"));
+//                EventBus.getDefault().post(new TestDataMessage("录制 拍照申请"));
+                MediaBean mediaBean = mGson.fromJson(data, MediaBean.class);
+                EventBus.getDefault().post(mediaBean);
+//                EventBus.getDefault().post(new MediaMessage(MediaMessage.EVENT_MSG_VIDEO));
                 break;
         }
     }
@@ -134,7 +141,6 @@ public class JPushReceiver extends BroadcastReceiver {
                 try {
                     JSONObject json = new JSONObject(bundle.getString(JPushInterface.EXTRA_EXTRA));
                     Iterator<String> it = json.keys();
-
                     while (it.hasNext()) {
                         String myKey = it.next();
                         sb.append("\nkey:" + key + ", value: [" +
