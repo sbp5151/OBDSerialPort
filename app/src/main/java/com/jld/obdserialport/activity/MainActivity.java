@@ -7,20 +7,16 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.jld.obdserialport.R;
 import com.jld.obdserialport.SelfStartService;
 import com.jld.obdserialport.event_msg.DefaultMessage;
-import com.jld.obdserialport.event_msg.MediaMessage;
 import com.jld.obdserialport.utils.Constant;
 import com.jld.obdserialport.utils.SharedName;
 import com.jld.obdserialport.utils.ZxingUtil;
@@ -29,13 +25,14 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import static com.jld.obdserialport.MyApplication.OBD_DEFAULT_ID;
+import static com.jld.obdserialport.MyApplication.OBD_ID;
 
 public class MainActivity extends BaseActivity {
 
     private static final String TAG = "MainActivity";
     private int mClickNum = 0;
     private TextView mTvBindMessage;
+    private TextView mTvBindImei;
     private ImageView mIvBindCode;
     private SharedPreferences mSp;
     private long mLastChangeTime;
@@ -60,6 +57,8 @@ public class MainActivity extends BaseActivity {
     }
 
     private void initView() {
+        mTvBindImei = findViewById(R.id.tv_bind_imei);
+        mTvBindImei.setText(OBD_ID);
         mTvBindMessage = findViewById(R.id.tv_bind_message);
         mIvBindCode = findViewById(R.id.iv_bind_code);
         mIvBindCode.setOnClickListener(new View.OnClickListener() {
@@ -74,7 +73,7 @@ public class MainActivity extends BaseActivity {
                 }
             }
         });
-        mIvBindCode.setImageBitmap(ZxingUtil.createBitmap("http://www.futurevi.com/download.html?sn=" + OBD_DEFAULT_ID));
+        mIvBindCode.setImageBitmap(ZxingUtil.createBitmap("http://www.futurevi.com/download.html?sn=" + OBD_ID));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

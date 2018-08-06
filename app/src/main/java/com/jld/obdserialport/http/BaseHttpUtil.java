@@ -6,6 +6,8 @@ import com.google.gson.Gson;
 import com.jld.obdserialport.utils.Constant;
 import com.jld.obdserialport.utils.JavaAESCryptor;
 
+import java.util.concurrent.TimeUnit;
+
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 
@@ -16,10 +18,15 @@ public class BaseHttpUtil {
     protected final Gson mGson;
 
     BaseHttpUtil() {
-        mOkHttpClient = new OkHttpClient();
+        mOkHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(15, TimeUnit.SECONDS)
+                .readTimeout(60*30, TimeUnit.SECONDS)
+                .writeTimeout(60*30, TimeUnit.SECONDS).build();
+
         mJsonType = MediaType.parse("application/json; charset=utf-8");
         mGson = new Gson();
     }
+
     protected String getSign() {
         String sign = "";
         try {

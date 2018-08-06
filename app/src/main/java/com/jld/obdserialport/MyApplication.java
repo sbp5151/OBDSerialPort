@@ -10,7 +10,7 @@ import cn.jpush.android.api.JPushInterface;
 
 public class MyApplication extends Application {
 
-    public static String OBD_DEFAULT_ID;
+    public static String OBD_ID;
     /**
      * 极光推送别名
      */
@@ -24,7 +24,8 @@ public class MyApplication extends Application {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        OBD_DEFAULT_ID = PhoneUtils.getIMEI();
-        JPUSH_DEVICE_ALIAS  = OBD_DEFAULT_ID;
+        OBD_ID = PhoneUtils.getIMEI();
+//        OBD_ID = "Future_V1.0_08888";
+        JPUSH_DEVICE_ALIAS = OBD_ID;
     }
 }

@@ -40,10 +40,19 @@
             android:layout_centerInParent="true"
             android:scaleType="fitXY" />
         <TextView
-            android:id="@+id/tv_bind_message"
+            android:id="@+id/tv_bind_imei"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/iv_bind_code"
+            android:layout_centerHorizontal="true"
+            android:paddingTop="10dp"
+            android:textColor="@android:color/white"
+            android:textSize="21dp" />
+        <TextView
+            android:id="@+id/tv_bind_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_bind_imei"
             android:layout_centerHorizontal="true"
             android:paddingTop="10dp"
             android:text="@string/initing_hint"

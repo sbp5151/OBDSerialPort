@@ -16,9 +16,16 @@ public class BootReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "onReceive");
         //开机启动串口数据读取service
-        Intent serviceIntent = new Intent(context, SelfStartService.class);
-        context.startService(serviceIntent);
+        if ("com.rmt.action.INSTALL_RESULT".equals(intent.getAction())) {
+            String package_name = intent.getStringExtra("package_name");
+            if (package_name.equals(context.getPackageName())) {
+                Intent serviceIntent = new Intent(context, SelfStartService.class);
+                context.startService(serviceIntent);
+            }
+        } else if ("android.intent.action.BOOT_COMPLETED".equals(intent.getAction())) {
+            Intent serviceIntent = new Intent(context, SelfStartService.class);
+            context.startService(serviceIntent);
+        }
     }
 }

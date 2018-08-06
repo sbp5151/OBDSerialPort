@@ -14,10 +14,12 @@ import android.util.Log;
 import com.jld.obdserialport.http.FileHttpUtil;
 import com.jld.obdserialport.http.OtherHttpUtil;
 import com.jld.obdserialport.runnable.BindDeviceRun;
+import com.jld.obdserialport.runnable.DeviceRun;
 import com.jld.obdserialport.runnable.LocationReceiveRun;
 import com.jld.obdserialport.runnable.MediaRun;
 import com.jld.obdserialport.runnable.OBDReceiveRun;
 import com.jld.obdserialport.util.AppUtils;
+import com.jld.obdserialport.utils.XiaoRuiUtils;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -31,10 +33,11 @@ public class SelfStartService extends Service {
 
     private static final String TAG = "SelfStartService";
     private MyBinder mMyBinder;
-    public LocationReceiveRun mLocationReceive;
-    private OBDReceiveRun mObdReceive;
+    public LocationReceiveRun mLocationRun;
+    private OBDReceiveRun mObdRun;
     private BindDeviceRun mBindDeviceRun;
     private MediaRun mMediaRun;
+    private DeviceRun mDeviceRun;
 
     @Override
     public void onCreate() {
@@ -43,48 +46,60 @@ public class SelfStartService extends Service {
         //极光绑定任务
         mBindDeviceRun = new BindDeviceRun(this);
         //OBD数据获取任务
-        mObdReceive = new OBDReceiveRun(this);
+        mObdRun = new OBDReceiveRun(this);
         //开启GPS信息获取任务
-        mLocationReceive = new LocationReceiveRun(this);
+        mLocationRun = new LocationReceiveRun(this);
         //开启媒体任务
         mMediaRun = new MediaRun(this);
+        //开启设备更新任务
+        mDeviceRun = new DeviceRun();
         wifiEnable();
-//        OtherHttpUtil.build().checkApkUpdate(this, new OtherHttpUtil.ApkCheckUpdateListener() {
-//            @Override
-//            public void onApkDownload(String download) {
-//                String apkName = download.substring(download.lastIndexOf("/") + 1).replace(".1", "");
-//                final File saveFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "CarFuture" + File.separator + apkName);
-//                FileHttpUtil.build().fileDownload(download, saveFile.getAbsolutePath(), new FileHttpUtil.DownloadFileListener() {
-//                    @Override
-//                    public void onDownloadFailed() {
-//                        Log.d(TAG, "onDownloadFailed");
-//                    }
-//                    @Override
-//                    public void onDownloadSucceed() {
-//                        Log.d(TAG, "onDownloadSucceed:" + saveFile);
-//                        AppUtils.installApp(saveFile);
-//                    }
-//
-//                    @Override
-//                    public void onDownloadLoading(long progress) {
-//                        Log.d(TAG, "onDownloadLoading:" + progress);
-//                    }
-//                });
-//            }
-//
-//            @Override
-//            public void onApkInstall(String installPath) {
-//                Log.d(TAG, "onApkInstall:" + installPath);
-//                AppUtils.installApp(installPath);
-//            }
-//        });
+        apkUpdateCheck();
     }
+
+    //APK更新检查
+    private void apkUpdateCheck() {
+        OtherHttpUtil.build().checkApkUpdate(this, new OtherHttpUtil.ApkCheckUpdateListener() {
+            @Override
+            public void onApkDownload(String download) {
+                String apkName = download.substring(download.lastIndexOf("/") + 1).replace(".1", "");
+                final File saveFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "CarFuture" + File.separator + apkName);
+                FileHttpUtil.build().fileDownload(download, new FileHttpUtil.DownloadFileListener() {
+                    @Override
+                    public void onDownloadFailed() {
+                        Log.d(TAG, "onDownloadFailed");
+                    }
+
+                    @Override
+                    public void onDownloadSucceed() {
+                        Log.d(TAG, "onDownloadSucceed:" + saveFile);
+//                        AppUtils.installApp(saveFile);
+                        if (saveFile.exists())
+                            XiaoRuiUtils.silentAppInstall(SelfStartService.this, saveFile.getAbsolutePath());
+                    }
+
+                    @Override
+                    public void onDownloadLoading(long progress) {
+                        Log.d(TAG, "onDownloadLoading:" + progress);
+                    }
+                });
+            }
+
+            @Override
+            public void onApkInstall(String installPath) {
+                Log.d(TAG, "onApkInstall:" + installPath);
+                XiaoRuiUtils.silentAppInstall(SelfStartService.this, installPath);
+            }
+        });
+    }
+
     private void wifiEnable() {
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         if (wifiManager != null && !wifiManager.isWifiEnabled()) {
             wifiManager.setWifiEnabled(true);
         }
     }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
@@ -104,11 +119,11 @@ public class SelfStartService extends Service {
 
     public class MyBinder extends Binder {
         public void sendData(String data) {
-            mObdReceive.addWriteData(data);
+            mObdRun.addWriteData(data);
         }
 
         public boolean isConnect() {
-            return mObdReceive.isConnect();
+            return mObdRun.isConnect();
         }
     }
 
@@ -116,10 +131,11 @@ public class SelfStartService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Log.e(TAG, "onDestroy:");
-        mObdReceive.onDestroy();
+        mObdRun.onDestroy();
         mBindDeviceRun.onDestroy();
-        mLocationReceive.onDestroy();
+        mLocationRun.onDestroy();
         mMediaRun.onDestroy();
+        mDeviceRun.onDestroy();
         if (EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().unregister(this);
     }

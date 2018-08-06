@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.jld.obdserialport.bean.GPSBean;
 import com.jld.obdserialport.utils.Constant;
+import com.jld.obdserialport.utils.TestLogUtil;
 
 import java.io.IOException;
 
@@ -37,6 +38,7 @@ public class GPSHttpUtil extends BaseHttpUtil {
     public void gpsDataPost(GPSBean gpsBean) {
         String gpsJson = mGson.toJson(gpsBean);
         Log.d(TAG, "GPS数据上传: " + gpsJson);
+        TestLogUtil.log("GPS数据上传: " + gpsJson);
         RequestBody body = RequestBody.create(mJsonType, gpsJson);
         Request request = new Request.Builder()
                 .url(Constant.URL_GPS_POST)
@@ -47,14 +49,18 @@ public class GPSHttpUtil extends BaseHttpUtil {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.d(TAG, "GPS数据上传失败 onFailure: " + e.toString());
+                TestLogUtil.log("GPS数据上传失败 onFailure: " + e.toString());
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.code() == 200)
+                if (response.code() == 200) {
+                    TestLogUtil.log("GPS数据上传成功 onResponse: " + response.body().string());
                     Log.d(TAG, "GPS数据上传成功 onResponse: " + response.body().string());
-                else
-                    Log.d(TAG, "GPS数据上传失败 onResponse: " + response.body().string());
+                } else {
+                    TestLogUtil.log("GPS数据上传成功 onResponse: " + response.body().string());
+                    Log.d(TAG, "GPS数据上传成功 onResponse: " + response.body().string());
+                }
             }
         });
     }

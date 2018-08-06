@@ -8,6 +8,13 @@ public class TestDataMessage {
         mTestMessage = testMessage;
     }
 
+    public TestDataMessage() {
+    }
+
+    public void setTestMessage(String testMessage) {
+        mTestMessage = testMessage;
+    }
+
     public String getTestMessage() {
         return mTestMessage;
     }

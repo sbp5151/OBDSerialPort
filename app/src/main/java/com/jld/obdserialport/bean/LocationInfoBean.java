@@ -44,4 +44,18 @@ public class LocationInfoBean extends JpushBase{
     public String getSite() {
         return site;
     }
+
+    @Override
+    public String toString() {
+        return "LocationInfoBean{" +
+                "phoneNumber='" + phoneNumber + '\'' +
+                ", nickName='" + nickName + '\'' +
+                ", openId='" + openId + '\'' +
+                ", obdId='" + obdId + '\'' +
+                ", longitude=" + longitude +
+                ", latitude=" + latitude +
+                ", address='" + address + '\'' +
+                ", site='" + site + '\'' +
+                '}';
+    }
 }

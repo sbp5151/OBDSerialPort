@@ -23,6 +23,7 @@ import com.jld.obdserialport.event_msg.DefaultMessage;
 import com.jld.obdserialport.event_msg.OBDDataMessage;
 import com.jld.obdserialport.event_msg.TestDataMessage;
 import com.jld.obdserialport.http.GPSHttpUtil;
+import com.jld.obdserialport.utils.TestLogUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -43,7 +44,6 @@ public class LocationReceiveRun extends BaseRun {
         mContext = context;
         Log.d(TAG, "LocationReceiveRun");
         mEventBus = EventBus.getDefault();
-        mEventBus.post(new TestDataMessage("LocationReceiveRun"));
         initLocation();
     }
 
@@ -51,11 +51,10 @@ public class LocationReceiveRun extends BaseRun {
         mAMapLocationClient = new AMapLocationClient(mContext.getApplicationContext());
 
         AMapLocationClientOption option = new AMapLocationClientOption();
-        option.setInterval(2000);
+        option.setInterval(1000*3);
 //        option.setLocationMode(AMapLocationClientOption.AMapLocationMode.Device_Sensors);//GPS定位
         option.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);//高精度定位
         option.setNeedAddress(true);
-
         mAMapLocationClient.setLocationOption(option);
         mAMapLocationClient.setLocationListener(mAMapLocationListener);
         mAMapLocationClient.startLocation();
@@ -74,7 +73,8 @@ public class LocationReceiveRun extends BaseRun {
             if (aMapLocation != null && aMapLocation.getErrorCode() == 0 && (aMapLocation.getLocationType() == AMapLocation.LOCATION_TYPE_WIFI || aMapLocation.getLocationType() == AMapLocation.LOCATION_TYPE_GPS)) {
                 if (mGpsBean == null)
                     mGpsBean = new GPSBean();
-                mEventBus.post(new TestDataMessage(aMapLocation.getAddress() + " type:" + aMapLocation.getLocationType()));
+//                mEventBus.post(new TestDataMessage(aMapLocation.getAddress() + " type:" + aMapLocation.getLocationType()));
+                TestLogUtil.log(aMapLocation.getAddress() + " type:" + aMapLocation.getLocationType()+" "+aMapLocation);
                 mGpsBean.setDirection(aMapLocation.getBearing());
                 mGpsBean.setLatitude(aMapLocation.getLatitude());
                 mGpsBean.setLongitude(aMapLocation.getLongitude());

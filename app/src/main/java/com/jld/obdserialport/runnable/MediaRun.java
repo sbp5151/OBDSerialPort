@@ -4,8 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
@@ -15,46 +13,36 @@ import android.widget.Toast;
 import com.jld.obdserialport.MyApplication;
 import com.jld.obdserialport.bean.MediaBean;
 import com.jld.obdserialport.event_msg.MediaMessage;
-import com.jld.obdserialport.event_msg.TestDataMessage;
 import com.jld.obdserialport.http.FileHttpUtil;
-import com.jld.obdserialport.util.ToastUtils;
-import com.jld.obdserialport.utils.Constant;
+import com.jld.obdserialport.utils.TestLogUtil;
+import com.jld.obdserialport.utils.XiaoRuiUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 public class MediaRun extends BaseRun {
 
     private static final String TAG = "MediaRun";
     private Context mContext;
-    //    //拍照返回广播action
-//    private static final String PHOTO_RETURN_ACTION = "com.media.action.Future_Return_Photo";
-//    //拍照请求广播action
-//    private static final String PHOTO_REQUEST_ACTION = "com.media.action.Future_Request_Photo";
-//    //录制返回广播action
-//    private static final String VIDEO_RETURN_ACTION = "com.media.action.Future_Return_Video";
-//    //录制请求广播action
-//    private static final String VIDEO_REQUEST_ACTION = "com.media.action.Future_Request_Video";
     //拍照返回广播action
-    private static final String PHOTO_RETURN_ACTION = "com.android.rmt.ACTION_RECEIVER_PIC";
+    private static final String PHOTO_RETURN_ACTION = "com.media.action.Future_Return_Photo";
     //拍照请求广播action
-    private static final String PHOTO_REQUEST_ACTION = "com.android.rmt.ACTION_TAKE_PIC";
+    public static final String PHOTO_REQUEST_ACTION = "com.media.action.Future_Request_Photo";
     //录制返回广播action
-    private static final String VIDEO_RETURN_ACTION = "com.android.rmt.ACTION_RECEIVER_VIDEO";
+    private static final String VIDEO_RETURN_ACTION = "com.media.action.Future_Return_Video";
     //录制请求广播action
-    private static final String VIDEO_REQUEST_ACTION = "com.android.rmt.ACTION_TAKE_VIDEO";
+    public static final String VIDEO_REQUEST_ACTION = "com.media.action.Future_Request_Video";
+//    //拍照返回广播action
+//    private static final String PHOTO_RETURN_ACTION = "com.android.rmt.ACTION_RECEIVER_PIC";
+//    //拍照请求广播action
+//    private static final String PHOTO_REQUEST_ACTION = "com.android.rmt.ACTION_TAKE_PIC";
+//    //录制返回广播action
+//    private static final String VIDEO_RETURN_ACTION = "com.android.rmt.ACTION_RECEIVER_VIDEO";
+//    //录制请求广播action
+//    private static final String VIDEO_REQUEST_ACTION = "com.android.rmt.ACTION_TAKE_VIDEO";
 
     private static final int REQUEST_PHOTO_FLAG = 0x01;
     private static final int REQUEST_VIDEO_FLAG = 0x02;
@@ -81,45 +69,39 @@ public class MediaRun extends BaseRun {
                 return;
             switch (msg.what) {
                 case FLAG_PHOTO_UPLOAD://相册上传
-                    FileHttpUtil.build().photoUploadUtil(MyApplication.OBD_DEFAULT_ID, mTakeUid, mTakeFileName, mPhotoPath, new FileHttpUtil.UploadFileListener() {
+                    FileHttpUtil.build().photoUploadUtil(MyApplication.OBD_ID, mTakeUid, mTakeFileName, mPhotoPath, new FileHttpUtil.UploadFileListener() {
                         @Override
                         public void onUploadFailed(String eroMessage) {
                             Log.d(TAG, "onUploadFailed: " + eroMessage);
                             mHandler.sendEmptyMessageDelayed(FLAG_PHOTO_UPLOAD, 1000 * 10);
-                            mEventBus.post(new TestDataMessage("相册上传失败 10s后继续上传:" + eroMessage));
+//                            mEventBus.post(new TestDataMessage("相册上传失败 10s后继续上传:" + eroMessage));
+                            TestLogUtil.log("相册上传失败 10s后继续上传:" + eroMessage);
                         }
 
                         @Override
-                        public void onUploadSucceed() {
-                            mEventBus.post(new TestDataMessage("相册上传成功"));
+                        public void onUploadSucceed(String msg) {
+//                            mEventBus.post(new TestDataMessage("相册上传成功"));
+                            TestLogUtil.log("相册上传成功:" + msg);
                         }
                     });
                     break;
                 case FLAG_VIDEO_UPLOAD://视频上传
-                    mVideoPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "CarFuture" + File.separator + "videotest.3gp";
-//                    FileHttpUtil.build().uploadFile2(mVideoPath, new FileHttpUtil.UploadFileListener() {
-//                        @Override
-//                        public void onUploadFailed(String errorMessage) {
-//                            Log.d(TAG, "onUploadFailed: " + errorMessage);
-//                            mEventBus.post(new TestDataMessage("视频上传失败 " + errorMessage));
-//                        }
-//
-//                        @Override
-//                        public void onUploadSucceed() {
-//                            mEventBus.post(new TestDataMessage("视频上传成功"));
-//                        }
-//                    });
-                    FileHttpUtil.build().videoUploadUtil(MyApplication.OBD_DEFAULT_ID, mVideoUid, mVideoFileName, mVideoPath, new FileHttpUtil.UploadFileListener() {
+//                    mVideoPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "CarFuture" + File.separator + "videotest.3gp";
+                    FileHttpUtil.build().videoUploadUtil(MyApplication.OBD_ID, mVideoUid, mVideoFileName, mVideoPath, new FileHttpUtil.UploadFileListener() {
                         @Override
                         public void onUploadFailed(String eroMessage) {
                             Log.d(TAG, "onUploadFailed: " + eroMessage);
                             mHandler.sendEmptyMessageDelayed(FLAG_VIDEO_UPLOAD, 1000 * 10);
-                            mEventBus.post(new TestDataMessage("视频上传失败 10s后继续上传:" + eroMessage));
+//                            mEventBus.post(new TestDataMessage("视频上传失败 10s后继续上传:" + eroMessage));
+                            TestLogUtil.log("视频上传失败 10s后继续上传:" + eroMessage);
+
                         }
 
                         @Override
-                        public void onUploadSucceed() {
-                            mEventBus.post(new TestDataMessage("视频上传成功"));
+                        public void onUploadSucceed(String msg) {
+//                            mEventBus.post(new TestDataMessage("视频上传成功"));
+                            TestLogUtil.log("视频上传成功:" + msg);
+
                         }
                     });
                     break;
@@ -155,21 +137,18 @@ public class MediaRun extends BaseRun {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void mediaEvent(MediaBean message) {
-        Log.d(TAG, "mediaEvent: " + message);
-        mEventBus.post(new TestDataMessage("收到media：" + message));
-        Intent intent = new Intent();
+//        mEventBus.post(new TestDataMessage("收到media：" + message));
         switch (message.getFileType()) {
             case MediaMessage.EVENT_MSG_PHOTO://拍照请求
                 if (!mIsTake) {
+                    XiaoRuiUtils.tts(mContext, "收到拍照请求");
                     mHandler.removeMessages(FLAG_PHOTO_UPLOAD);
                     mIsTake = true;
                     mTakeUid = message.getUid();
                     mTakeFileName = message.getFileName();
-                    mEventBus.post(new TestDataMessage("请求拍照"));
-                    intent.setAction(PHOTO_REQUEST_ACTION);
-                    intent.putExtra("cameraId", 1);//1 前置 2后置
-                    intent.putExtra("flag", message.getFileName());
-                    mContext.sendBroadcast(intent);
+//                    mEventBus.post(new TestDataMessage("请求拍照"));
+                    TestLogUtil.log("请求拍照");
+                    XiaoRuiUtils.takePic(mContext, 1, message.getFileName());
                     mHandler.sendEmptyMessageDelayed(FLAG_TAKE_TIMEOUT, 1000 * 3);
                 }
                 break;
@@ -179,23 +158,24 @@ public class MediaRun extends BaseRun {
                     mHandler.removeMessages(FLAG_VIDEO_UPLOAD);
                     mVideoUid = message.getUid();
                     mVideoFileName = message.getFileName();
-                    mEventBus.post(new TestDataMessage("录像请求"));
-                    intent.setAction(VIDEO_REQUEST_ACTION);
+//                    mEventBus.post(new TestDataMessage("录像请求"));
                     if (message.getVideoDuration() == 1) {
-                        intent.putExtra("duration", 1000 * 10);
-                        mHandler.sendEmptyMessageDelayed(FLAG_TAKE_TIMEOUT, 1000 * 11);
-                    }
-                    if (message.getVideoDuration() == 2) {
-                        intent.putExtra("duration", 1000 * 20);
-                        mHandler.sendEmptyMessageDelayed(FLAG_TAKE_TIMEOUT, 1000 * 21);
-                    }
-                    if (message.getVideoDuration() == 3) {
-                        intent.putExtra("duration", 1000 * 30);
-                        mHandler.sendEmptyMessageDelayed(FLAG_TAKE_TIMEOUT, 1000 * 31);
-                    }
-                    intent.putExtra("cameraId", 1);
-                    intent.putExtra("flag", message.getFileName());
-                    mContext.sendBroadcast(intent);
+                        TestLogUtil.log("收到十秒视频录制请求");
+                        XiaoRuiUtils.tts(mContext, "收到十秒视频录制请求");
+                        XiaoRuiUtils.takeVideo(mContext, 1000 * 10, 1, message.getFileName());
+                        mHandler.sendEmptyMessageDelayed(FLAG_VIDEO_TIMEOUT, 1000 * 15);
+                    } else if (message.getVideoDuration() == 2) {
+                        TestLogUtil.log("收到二十秒视频录制请求");
+                        XiaoRuiUtils.tts(mContext, "收到二十秒视频录制请求");
+                        XiaoRuiUtils.takeVideo(mContext, 1000 * 20, 1, message.getFileName());
+                        mHandler.sendEmptyMessageDelayed(FLAG_VIDEO_TIMEOUT, 1000 * 25);
+                    } else if (message.getVideoDuration() == 3) {
+                        TestLogUtil.log("收到三十秒视频录制请求");
+                        XiaoRuiUtils.tts(mContext, "收到三十秒视频录制请求");
+                        XiaoRuiUtils.takeVideo(mContext, 1000 * 30, 1, message.getFileName());
+                        mHandler.sendEmptyMessageDelayed(FLAG_VIDEO_TIMEOUT, 1000 * 35);
+                    } else
+                        mHandler.sendEmptyMessageDelayed(FLAG_VIDEO_TIMEOUT, 1000 * 10);
                 }
                 break;
         }
@@ -213,14 +193,15 @@ public class MediaRun extends BaseRun {
         public void onReceive(Context context, Intent intent) {
             if (PHOTO_RETURN_ACTION.equals(intent.getAction())) {//拍照返回
 //                mPhotoPath = intent.getStringExtra("photoPath");
-                mPhotoPath = intent.getStringExtra("fileAbsPath");
-                mEventBus.post(new TestDataMessage("收到拍照返回：" + mPhotoPath));
+                mPhotoPath = intent.getStringExtra("photoPath");
+//                mEventBus.post(new TestDataMessage("收到拍照返回：" + mPhotoPath));
+                TestLogUtil.log("收到拍照返回：" + mPhotoPath);
                 Toast.makeText(mContext, "收到拍照返回：" + mPhotoPath, Toast.LENGTH_LONG).show();
                 int cameraId = intent.getIntExtra("cameraId", 1);
                 int status = intent.getIntExtra("status", 1);
                 Log.d(TAG, "status:" + status);
                 Log.d(TAG, "mPhotoPath:" + mPhotoPath);
-                if (status == 1) {
+                if (status == 0) {
                     String flag = intent.getStringExtra("flag");
                     Log.d(TAG, "flag:" + flag);
                     if (!TextUtils.isEmpty(mPhotoPath))
@@ -228,12 +209,13 @@ public class MediaRun extends BaseRun {
                 }
                 mIsTake = false;
             } else if (VIDEO_RETURN_ACTION.equals(intent.getAction())) {//录制返回
-                mVideoPath = intent.getStringExtra("fileAbsPath");
-                mEventBus.post(new TestDataMessage("收到录制返回：" + mVideoPath));
+                mVideoPath = intent.getStringExtra("videoPath");
+                int status = intent.getIntExtra("status", 1);
+//                mEventBus.post(new TestDataMessage("收到录制返回：" + mVideoPath + " status:" + status));
+                TestLogUtil.log("收到录制返回：" + mVideoPath + " status:" + status);
                 Toast.makeText(mContext, "收到录制返回：" + mVideoPath, Toast.LENGTH_LONG).show();
                 int cameraId = intent.getIntExtra("cameraId", 1);
                 long time = intent.getLongExtra("this", 1);
-                int status = intent.getIntExtra("status", 1);
                 if (status == 1) {
                     String flag = intent.getStringExtra("flag");
                     if (!TextUtils.isEmpty(mVideoPath))
@@ -243,6 +225,7 @@ public class MediaRun extends BaseRun {
             }
         }
     }
+
 
     @Override
     public void onDestroy() {

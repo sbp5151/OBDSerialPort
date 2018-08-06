@@ -27,13 +27,15 @@ import com.jld.obdserialport.R;
 import com.jld.obdserialport.bean.BaseBean;
 import com.jld.obdserialport.bean.BindMsgBean;
 import com.jld.obdserialport.event_msg.DefaultMessage;
-import com.jld.obdserialport.event_msg.OBDDataMessage;
 import com.jld.obdserialport.event_msg.TestDataMessage;
 import com.jld.obdserialport.http.BaseHttpUtil;
 import com.jld.obdserialport.http.BindHttpUtil;
 import com.jld.obdserialport.utils.Constant;
 import com.jld.obdserialport.utils.SharedName;
+import com.jld.obdserialport.utils.TestLogUtil;
 import com.jld.obdserialport.utils.ZxingUtil;
+
+import junit.framework.Test;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -45,7 +47,7 @@ import cn.jpush.android.api.TagAliasCallback;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.jld.obdserialport.MyApplication.JPUSH_DEVICE_ALIAS;
-import static com.jld.obdserialport.MyApplication.OBD_DEFAULT_ID;
+import static com.jld.obdserialport.MyApplication.OBD_ID;
 import static com.jld.obdserialport.event_msg.DefaultMessage.EVENT_MSG_NETWORK_ERROR;
 import static com.jld.obdserialport.event_msg.DefaultMessage.EVENT_MSG_SHOW_BIND_CODE;
 
@@ -170,7 +172,7 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
     }
 
     public void checkBind() {
-        if (!mSp.getBoolean(SharedName.DEVICE_IS_UPLOAD, false) && !TextUtils.isEmpty(OBD_DEFAULT_ID))
+        if (!mSp.getBoolean(SharedName.DEVICE_IS_UPLOAD, false) && !TextUtils.isEmpty(OBD_ID))
             mHandler.sendEmptyMessage(MSG_UPLOAD_DEVICE_ID);// 设备ID上传
         if (!mSp.getBoolean(SharedName.JPUSH_SETALIAS_SUCCEED, false))
             mHandler.sendEmptyMessage(MSG_SET_ALIAS);//极光推送注册别名
@@ -192,7 +194,7 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
         Button btn_pause = view.findViewById(R.id.btn_pause);
         mBtn_close = view.findViewById(R.id.btn_close);
         mBtn_close.setText(mContext.getString(R.string.bind_code_close) + "(" + mCodeShotTime + ")");
-        bind_code.setImageBitmap(ZxingUtil.createBitmap("http://www.futurevi.com/download.html?sn=" + OBD_DEFAULT_ID));
+        bind_code.setImageBitmap(ZxingUtil.createBitmap("http://www.futurevi.com/download.html?sn=" + OBD_ID));
         btn_pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -221,7 +223,8 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
     }
 
     private void mySendMessage(String message) {
-        mEventBus.post(new TestDataMessage(message));
+//        mEventBus.post(new TestDataMessage(message));
+        TestLogUtil.log(message);
     }
 
     public void toast(String msg) {
@@ -296,8 +299,10 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
                         Log.d(TAG, "获取JPush绑定信息成功  body=" + body);
                         if (bindMsgBean.getIsBinding() == 0) {//未绑定
                             mHandler.sendEmptyMessage(MSG_SHOW_DIALOG_BIND_CODE);
+                            mSp.edit().putBoolean(SharedName.DEVICE_IS_BIND, false).apply();
                         } else if (bindMsgBean.getIsBinding() == 1) {//已绑定
 //                            mHandler.sendEmptyMessage(MSG_HIED_BIND_CODE);
+                            mSp.edit().putBoolean(SharedName.DEVICE_IS_BIND, true).apply();
                         }
                     } else {
                         Log.d(TAG, "获取JPush绑定信息失败 5s后再次获取 msg=" + body);

@@ -3,6 +3,7 @@ package com.jld.obdserialport.activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -14,25 +15,25 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.jld.obdserialport.MyApplication;
 import com.jld.obdserialport.R;
 import com.jld.obdserialport.SelfStartService;
-import com.jld.obdserialport.bean.JpushBase;
-import com.jld.obdserialport.bean.MediaBean;
-import com.jld.obdserialport.event_msg.MediaMessage;
-import com.jld.obdserialport.event_msg.OBDDataMessage;
 import com.jld.obdserialport.event_msg.TestDataMessage;
+import com.jld.obdserialport.http.FileHttpUtil;
+import com.jld.obdserialport.utils.TestLogUtil;
+import com.jld.obdserialport.utils.XiaoRuiUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
@@ -73,9 +74,7 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
             switch (msg.what) {
                 case ADD_DATA_FLAG:
                     String data = (String) msg.obj;
-                    mDatas.add(data);
-                    mObdDataAdapter.notifyDataSetChanged();
-                    mRecyclerView.scrollToPosition(mObdDataAdapter.getItemCount() - 1);
+                    addData(data);
                     break;
                 case ADD_TEST_DATA:
                     sendCode();
@@ -83,6 +82,24 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
                     break;
             }
         }
+    }
+
+    private synchronized void addData(String data) {
+        mDatas.add(data);
+        mObdDataAdapter.notifyDataSetChanged();
+        if (isVisBottom(mRecyclerView))
+            mRecyclerView.scrollToPosition(mObdDataAdapter.getItemCount() - 1);
+    }
+
+    private boolean isVisBottom(RecyclerView recyclerView) {
+        LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+        int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+        int childCount = layoutManager.getChildCount();
+        int itemCount = layoutManager.getItemCount();
+        int state = recyclerView.getScrollState();
+        if (state == RecyclerView.SCROLL_STATE_IDLE && childCount > 0 && lastVisibleItem >= (itemCount - 5))
+            return true;
+        else return false;
     }
 
     private String[] mCodes;
@@ -179,29 +196,164 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_close:
-                if (mGson == null)
-                    mGson = new Gson();
-
-
-                MediaBean mediaBean = mGson.fromJson("{\"fileName\":\"g8s647g8a6hawj008fjiw9udi1532746474975\",\"fileType\":2,\"flag\":5,\"obdId\":\"866275038851383\",\"uid\":\"olBG94sMevoxx0UZ0CwhVdBiaOCQ\",\"videoDuration\":1}", MediaBean.class);
-                Log.d(TAG, "mediaBean: "+mediaBean);
-//                goHome();
-                EventBus.getDefault().post(mediaBean);
+//                if (mGson == null)
+//                    mGson = new Gson();
+//
+//                String mVideoPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "CarFuture" + File.separator + "videotest.3gp";
+//                EventBus.getDefault().post(new TestDataMessage("视频上传："+mVideoPath));
+//
+//                FileHttpUtil.build().videoUploadUtil(MyApplication.OBD_ID, "", "", mVideoPath, new FileHttpUtil.UploadFileListener() {
+//                    @Override
+//                    public void onUploadFailed(String eroMessage) {
+//                        Log.d(TAG, "onUploadFailed: " + eroMessage);
+////                        mHandler.sendEmptyMessageDelayed(FLAG_VIDEO_UPLOAD, 1000 * 10);
+//                        EventBus.getDefault().post(new TestDataMessage("视频上传失败 10s后继续上传:" + eroMessage));
+//                    }
+//
+//                    @Override
+//                    public void onUploadSucceed() {
+//                        EventBus.getDefault().post(new TestDataMessage("视频上传成功"));
+//                    }
+//                });
+//                MediaBean mediaBean = mGson.fromJson("{\"fileName\":\"g8s647g8a6hawj008fjiw9udi1532746474975\",\"fileType\":2,\"flag\":5,\"obdId\":\"866275038851383\",\"uid\":\"olBG94sMevoxx0UZ0CwhVdBiaOCQ\",\"videoDuration\":1}", MediaBean.class);
+//                Log.d(TAG, "mediaBean: "+mediaBean);
+//                String mVideoPath2 = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "CarFuture" + File.separator + "future.3gp";
+//                FileHttpUtil.build().videoUploadUtil(MyApplication.OBD_ID, "1323", "42344", mVideoPath2, new FileHttpUtil.UploadFileListener() {
+//                    @Override
+//                    public void onUploadFailed(String eroMessage) {
+//                        Log.d(TAG, "onUploadFailed: " + eroMessage);
+////                        mHandler.sendEmptyMessageDelayed(FLAG_VIDEO_UPLOAD, 1000 * 10);
+////                        EventBus.getDefault().post(new TestDataMessage());
+//                        TestLogUtil.log("视频上传失败 10s后继续上传:" + eroMessage);
+//                    }
+//
+//                    @Override
+//                    public void onUploadSucceed(String msg) {
+//                        TestLogUtil.log("视频上传成功:" + msg);
+////                        EventBus.getDefault().post(new TestDataMessage("视频上传成功"));
+//                    }
+//                });
+                goHome();
+//                EventBus.getDefault().post(mediaBean);
                 break;
             case R.id.btn_send:
 //                EventBus.getDefault().post(new MediaBean(2));
-                if (mGson == null)
-                    mGson = new Gson();
-                JpushBase jpushBase = mGson.fromJson("{\"fileName\":\"x4lkr1y909jv78lnofofg8pvi1532681646138\",\"fileType\":2,\"flag\":5,\"obdId\":\"866275038851383\",\"uid\":\"olBG94sMevoxx0UZ0CwhVdBiaOCQ\",\"videoDuration\":1}", JpushBase.class);
-                Log.d(TAG, "jpushBase: "+jpushBase);
-//                sendCode();
+//                if (mGson == null)
+//                    mGson = new Gson();
+//                JpushBase jpushBase = mGson.fromJson("{\"fileName\":\"x4lkr1y909jv78lnofofg8pvi1532681646138\",\"fileType\":2,\"flag\":5,\"obdId\":\"866275038851383\",\"uid\":\"olBG94sMevoxx0UZ0CwhVdBiaOCQ\",\"videoDuration\":1}", JpushBase.class);
+//                Log.d(TAG, "jpushBase: "+jpushBase);
+                sendCode();
+//                String mVideoPath1 = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "CarFuture" + File.separator + "future.mp4";
+//                FileHttpUtil.build().videoUploadUtil(MyApplication.OBD_ID, "132", "4234", mVideoPath1, new FileHttpUtil.UploadFileListener() {
+//                    @Override
+//                    public void onUploadFailed(String eroMessage) {
+//                        Log.d(TAG, "onUploadFailed: " + eroMessage);
+////                        mHandler.sendEmptyMessageDelayed(FLAG_VIDEO_UPLOAD, 1000 * 10);
+////                        EventBus.getDefault().post(new TestDataMessage("视频上传失败 10s后继续上传:" + eroMessage));
+//                        TestLogUtil.log("视频上传失败 10s后继续上传:" + eroMessage);
+//                    }
+//
+//                    @Override
+//                    public void onUploadSucceed(String msg) {
+////                        EventBus.getDefault().post(new TestDataMessage("视频上传成功"));
+//                        TestLogUtil.log("视频上传成功:" + msg);
+//                    }
+//                });
                 break;
             case R.id.btn_clear:
-                mDatas.clear();
-                mObdDataAdapter.notifyDataSetChanged();
+//                String compressPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "CarFuture" + File.separator + "future.3gp";
+//                try {
+//                    videoCompress(compressPath);
+//                } catch (FFmpegCommandAlreadyRunningException e) {
+//                    e.printStackTrace();
+//                } catch (FFmpegNotSupportedException e) {
+//                    e.printStackTrace();
+//                }
+//                mDatas.clear();
+//                mObdDataAdapter.notifyDataSetChanged();
+                String apkPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "apps" + File.separator + "future_803_2.apk";
+                TestLogUtil.log("apkPath:" + apkPath);
+                if (new File(apkPath).exists())
+                    XiaoRuiUtils.silentAppInstall(this, apkPath);
+                else TestLogUtil.log(apkPath + "不存在");
+//                XiaoRuiUtils.tts(this,"测试tts语音播报");
                 break;
         }
     }
+
+
+//    private void videoCompress(String videoPath) throws FFmpegCommandAlreadyRunningException, FFmpegNotSupportedException {
+//        LocalMediaConfig.Buidler buidler = new LocalMediaConfig.Buidler();
+//        LocalMediaConfig config = buidler.setVideoPath(videoPath)
+//                .captureThumbnailsTime(1)
+//                .doH264Compress(new AutoVBRMode())
+//                .setFramerate(15)
+//                .build();
+//        OnlyCompressOverBean onlyCompressOverBean = new LocalMediaCompress(config).startCompress();
+
+//        try {
+//            String newVideoPath = SiliCompressor.with(this).compressVideo(videoPath,
+//                    new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), TAG).getPath());
+//            TestLogUtil.log("videoCompress: "+newVideoPath);
+//        } catch (URISyntaxException e) {
+//            e.printStackTrace();
+//        }
+//        String savePath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "CarFuture" + File.separator + "futureCompress.3gp";
+//        String[] commands = new String[]{"-threads", "1", "-i", videoPath, "-c:v", "libx264", "-crf", "30", "-preset", "superfast", "-y", "-acodec", "libmp3lame", savePath};
+//        String[] command = new String[]{"-i", videoPath};
+//        FFmpeg fFmpeg = FFmpeg.getInstance(this);
+//        fFmpeg.loadBinary(new FFmpegLoadBinaryResponseHandler() {
+//            @Override
+//            public void onFailure() {
+//                TestLogUtil.log("加载失败 onFailure: ");
+//
+//            }
+//
+//            @Override
+//            public void onSuccess() {
+//                TestLogUtil.log("加载成功 onSuccess: ");
+//
+//            }
+//
+//            @Override
+//            public void onStart() {
+//                TestLogUtil.log("加载开始 onStart: ");
+//
+//            }
+//
+//            @Override
+//            public void onFinish() {
+//                TestLogUtil.log("加载完成 onFinish: ");
+//
+//            }
+//        });
+//        fFmpeg.execute(commands, new FFmpegExecuteResponseHandler() {
+//            @Override
+//            public void onSuccess(String message) {
+//                TestLogUtil.log("压缩成功 onSuccess: " + message);
+//            }
+//
+//            @Override
+//            public void onProgress(String message) {
+//                TestLogUtil.log("压缩 onProgress: " + message);
+//            }
+//
+//            @Override
+//            public void onFailure(String message) {
+//                TestLogUtil.log("压缩失败 onFailure: " + message);
+//            }
+//
+//            @Override
+//            public void onStart() {
+//                TestLogUtil.log("压缩开始 onStart");
+//            }
+//
+//            @Override
+//            public void onFinish() {
+//                TestLogUtil.log("压缩完成 onFinish");
+//            }
+//        });
+//    }
 
     /**
      * 串口数据发送

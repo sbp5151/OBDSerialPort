@@ -8,26 +8,24 @@ import android.util.Log;
 
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.jld.obdserialport.MyApplication;
+import com.jld.obdserialport.event_msg.TestDataMessage;
 import com.jld.obdserialport.utils.Constant;
+import com.jld.obdserialport.utils.TestLogUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.Headers;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 
 public class OtherHttpUtil extends BaseHttpUtil {
@@ -105,13 +103,44 @@ public class OtherHttpUtil extends BaseHttpUtil {
         }
     }
 
+    public void deviceOnlineUpdate() {
+        JsonObject jo = new JsonObject();
+        jo.addProperty("obdId", MyApplication.OBD_ID);
+        RequestBody body = RequestBody.create(mJsonType, jo.toString());
+        Request request = new Request.Builder()
+                .url(Constant.URL_DEVICE_ONLINE)
+                .header("sign", getSign())
+                .post(body).build();
+        mOkHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+//                EventBus.getDefault().post(new TestDataMessage("在线更新失败" + e.toString()));
+                TestLogUtil.log("在线更新失败" + e.toString());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+
+                if (response.code() == 200) {
+//                    EventBus.getDefault().post(new TestDataMessage("在线更新成功"));
+                    TestLogUtil.log("在线更新成功" );
+                } else {
+                    ResponseBody errorBody = response.body();
+                    if (errorBody != null)
+                        TestLogUtil.log("在线更新失败" + response.body().toString() );
+//                        EventBus.getDefault().post(new TestDataMessage("在线更新失败" + response.body().toString()));
+                    else
+                        TestLogUtil.log("在线更新失败");
+//                        EventBus.getDefault().post(new TestDataMessage("在线更新失败"));
+                }
+            }
+        });
+    }
+
     public interface ApkCheckUpdateListener {
 
         public void onApkDownload(String downloadPath);
 
         public void onApkInstall(String installPath);
     }
-
-
-
 }

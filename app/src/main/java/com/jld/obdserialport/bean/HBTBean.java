@@ -3,8 +3,6 @@ package com.jld.obdserialport.bean;
 import android.util.Log;
 
 import com.jld.obdserialport.MyApplication;
-import com.jld.obdserialport.event_msg.OBDDataMessage;
-import com.jld.obdserialport.utils.Constant;
 
 /**
  * 驾驶习惯数据
@@ -36,7 +34,7 @@ public class HBTBean extends BaseBean {
             hisTopCarSpeed = Double.parseDouble(datas[7]);
             totalRapidlyAccelerateTimes = Integer.parseInt(datas[8]);
             totalSharpSlowdownTimes = Integer.parseInt(datas[9]);
-            obdId = MyApplication.OBD_DEFAULT_ID;
+            obdId = MyApplication.OBD_ID;
         } else {
             Log.e(TAG, "驾驶习惯数据 setData 数据大小异常:" + data);
         }
