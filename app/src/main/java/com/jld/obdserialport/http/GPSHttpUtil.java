@@ -13,6 +13,7 @@ import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class GPSHttpUtil extends BaseHttpUtil {
 
@@ -54,16 +55,15 @@ public class GPSHttpUtil extends BaseHttpUtil {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.code() == 200) {
-                    TestLogUtil.log("GPS数据上传成功 onResponse: " + response.body().string());
-                    Log.d(TAG, "GPS数据上传成功 onResponse: " + response.body().string());
-                } else {
-                    TestLogUtil.log("GPS数据上传成功 onResponse: " + response.body().string());
-                    Log.d(TAG, "GPS数据上传成功 onResponse: " + response.body().string());
+                ResponseBody responseBody = response.body();
+                if (response.code() == 200 && responseBody != null) {
+                    TestLogUtil.log("GPS数据上传成功 onResponse: " + responseBody.string());
+                    Log.d(TAG, "GPS数据上传成功 onResponse: " + responseBody.string());
+                } else if (responseBody != null) {
+                    TestLogUtil.log("GPS数据上传成功 onResponse: " + responseBody.string());
+                    Log.d(TAG, "GPS数据上传成功 onResponse: " + responseBody.string());
                 }
             }
         });
     }
-
-
 }

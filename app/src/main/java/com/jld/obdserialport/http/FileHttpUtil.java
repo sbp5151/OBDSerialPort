@@ -29,6 +29,7 @@ import okhttp3.MultipartBody;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class FileHttpUtil extends BaseHttpUtil {
 
@@ -118,7 +119,7 @@ public class FileHttpUtil extends BaseHttpUtil {
         File file = new File(filePath);
         TestLogUtil.log("相册上传 " + filePath);
 
-        if (!file.exists()){
+        if (!file.exists()) {
             TestLogUtil.log("相册文件不存在 " + filePath);
             return;
         }
@@ -147,9 +148,9 @@ public class FileHttpUtil extends BaseHttpUtil {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Log.d(TAG, "onResponse: " + request.body().toString());
-                if (response.code() == 200) {
-                    listener.onUploadSucceed(response.body().string());
+                ResponseBody responseBody = response.body();
+                if (response.code() == 200 && responseBody != null) {
+                    listener.onUploadSucceed(responseBody.string());
                 } else {
                     listener.onUploadFailed(response.message());
                 }
@@ -199,10 +200,11 @@ public class FileHttpUtil extends BaseHttpUtil {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
 //                EventBus.getDefault().post(new TestDataMessage("视频上传访问成功" + response.body().string()));
-                if (response.code() == 200) {
-                    listener.onUploadSucceed(response.body().string());
-                } else {
-                    listener.onUploadFailed(response.body().string());
+                ResponseBody responseBody = response.body();
+                if (responseBody != null && response.code() == 200) {
+                    listener.onUploadSucceed(responseBody.string());
+                } else if (responseBody != null) {
+                    listener.onUploadFailed(responseBody.string());
                 }
             }
         });

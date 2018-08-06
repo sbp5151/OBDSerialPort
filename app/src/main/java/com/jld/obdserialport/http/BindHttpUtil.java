@@ -13,6 +13,7 @@ import okhttp3.FormBody;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 import static com.jld.obdserialport.MyApplication.OBD_ID;
 
@@ -53,8 +54,9 @@ public class BindHttpUtil extends BaseHttpUtil {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.code() == 200) {
-                    callback.onResponse(tag, response.body().string());
+                ResponseBody responseBody = response.body();
+                if (responseBody!=null&&response.code() == 200) {
+                    callback.onResponse(tag, responseBody.string());
                     Log.d(TAG, "设备ID上传成功: " + response.message());
                 } else {
                     Log.d(TAG, "设备ID上传失败 onResponse: " + response.message());
@@ -92,8 +94,9 @@ public class BindHttpUtil extends BaseHttpUtil {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.code() == 200) {
-                    callback.onResponse(tag, response.body().string());
+                ResponseBody responseBody = response.body();
+                if (responseBody!=null&&response.code() == 200) {
+                    callback.onResponse(tag, responseBody.string());
                     Log.d(TAG, "上传设备绑定信息成功: " + response.message());
                 } else {
                     Log.d(TAG, "上传设备绑定信息失败 onResponse: " + response.message());
@@ -130,8 +133,9 @@ public class BindHttpUtil extends BaseHttpUtil {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.code() == 200) {
-                    callback.onResponse(tag, response.body().string());
+                ResponseBody responseBody = response.body();
+                if (responseBody!=null&&response.code() == 200) {
+                    callback.onResponse(tag, responseBody.string());
                     Log.d(TAG, "获取设备绑定信息成功: " + response.message());
                 } else {
                     Log.d(TAG, "获取设备绑定信息失败 onResponse: " + response.message());

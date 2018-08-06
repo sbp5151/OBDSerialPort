@@ -18,6 +18,7 @@ import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class OBDHttpUtil extends BaseHttpUtil {
 
@@ -57,8 +58,9 @@ public class OBDHttpUtil extends BaseHttpUtil {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.code() == 200) {
-                    callback.onResponse(tag, response.body().string());
+                ResponseBody responseBody = response.body();
+                if (responseBody!=null&&response.code() == 200) {
+                    callback.onResponse(tag, responseBody.string());
                     Log.d(TAG, "实时数据上传成功: " + response.message());
                     TestLogUtil.log("实时数据上传成功: " + response.message());
 
@@ -93,10 +95,11 @@ public class OBDHttpUtil extends BaseHttpUtil {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.code() == 200)
-                    Log.d(TAG, "自定义数据上传成功 onResponse: " + response.body().string());
+                ResponseBody responseBody = response.body();
+                if (responseBody!=null&&response.code() == 200)
+                    Log.d(TAG, "自定义数据上传成功 onResponse: " + responseBody.string());
                 else
-                    Log.d(TAG, "自定义数据上传失败 onResponse: " + response.body().string());
+                    Log.d(TAG, "自定义数据上传失败 onResponse: " + responseBody.string());
             }
         });
     }
@@ -127,13 +130,14 @@ public class OBDHttpUtil extends BaseHttpUtil {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.code() == 200){
-                    TestLogUtil.log("电池电压数据上传失败 onResponse :" + response.body().string());
-                    Log.d(TAG, "电池电压数据上传 onResponse: " + response.body().string());
+                ResponseBody responseBody = response.body();
+                if (responseBody!=null&&response.code() == 200){
+                    TestLogUtil.log("电池电压数据上传失败 onResponse :" + responseBody.string());
+                    Log.d(TAG, "电池电压数据上传 onResponse: " + responseBody.string());
                 }
                 else{
-                    TestLogUtil.log("电池电压数据上传成功 onResponse :" + response.body().string());
-                    Log.d(TAG, "电池电压数据上传 onResponse: " + response.body().string());
+                    TestLogUtil.log("电池电压数据上传成功 onResponse :" + responseBody.string());
+                    Log.d(TAG, "电池电压数据上传 onResponse: " + responseBody.string());
                 }
             }
         });
@@ -165,8 +169,9 @@ public class OBDHttpUtil extends BaseHttpUtil {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.code() == 200) {
-                    callback.onResponse(tag, response.body().string());
+                ResponseBody responseBody = response.body();
+                if (responseBody!=null&&response.code() == 200) {
+                    callback.onResponse(tag, responseBody.string());
                     TestLogUtil.log("驾驶习惯数据上传成功 :" +  response.message());
                     Log.d(TAG, "驾驶习惯数据上传成功:  " + response.message());
                 } else {
@@ -205,8 +210,9 @@ public class OBDHttpUtil extends BaseHttpUtil {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.code() == 200) {
-                    callback.onResponse(tag, response.body().string());
+                ResponseBody responseBody = response.body();
+                if (responseBody!=null&&response.code() == 200) {
+                    callback.onResponse(tag, responseBody.string());
                     TestLogUtil.log("本次数据上传成功 onFailure :" + response.message());
                     Log.d(TAG, "本次数据上传成功: " + response.message());
                 } else {
@@ -243,8 +249,9 @@ public class OBDHttpUtil extends BaseHttpUtil {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.code() == 200) {
-                    callback.onResponse(tag, response.body().string());
+                ResponseBody responseBody = response.body();
+                if (responseBody!=null&&response.code() == 200) {
+                    callback.onResponse(tag, responseBody.string());
                     TestLogUtil.log("点火熄火上传成功: " + response.message());
                     Log.d(TAG, "点火熄火上传成功: " + response.message());
                 } else {
