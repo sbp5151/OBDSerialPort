@@ -101,8 +101,8 @@ public class OBDReceiveRun extends BaseRun {
                     OBDHttpUtil.build().carStartOrStopPost(mStartOrStopBean, FLAG_OFF_POST, mMyCallback);
                     break;
                 case FLAG_REMAINING:
-                    mPortManage.addWriteData("AT047");
-                    mHandler.sendEmptyMessageDelayed(FLAG_REMAINING, 1000 * 60);
+//                    mPortManage.addWriteData("AT047");
+//                    mHandler.sendEmptyMessageDelayed(FLAG_REMAINING, 1000 * 60);
                     break;
                 case FLAG_BATTERY_UPLOAD://电池电压上传 ECU连接成功开始上传，每隔三分钟上传一次
                     if (mRtBean == null)
@@ -111,12 +111,11 @@ public class OBDReceiveRun extends BaseRun {
                         mBatteryBean = new BatteryBean();
                     mBatteryBean.setBatteryVoltage(Double.parseDouble(mRtBean.getBatteryVoltage()));
                     OBDHttpUtil.build().BatteryVoltageDataPost(mBatteryBean);
-                    mHandler.sendEmptyMessageDelayed(FLAG_BATTERY_UPLOAD, 1000 * 60 * 3);
                     break;
                 case FLAG_ENABLE_RT://激活实时数据 当系统进入休眠状态 每隔十分钟唤醒一次读取实时数据
-                    rtNum = 10;//休眠状态上传数据
-                    mPortManage.addWriteData("ATRON");
-                    mHandler.sendEmptyMessageDelayed(FLAG_ENABLE_RT, 1000 * 60 * 3);
+//                    rtNum = 10;//休眠状态上传数据
+//                    mPortManage.addWriteData("ATRON");
+//                    mHandler.sendEmptyMessageDelayed(FLAG_ENABLE_RT, 1000 * 60 * 3);
                     break;
             }
         }
@@ -154,11 +153,10 @@ public class OBDReceiveRun extends BaseRun {
                 rtDataParse(message);
             } else if (message.contains("System running")) {//汽车点火
             } else if (message.contains("System sleeping")) {//汽车熄火
-                mHandler.sendEmptyMessageDelayed(FLAG_ENABLE_RT, 1000 * 60 * 3);
+//                mHandler.sendEmptyMessageDelayed(FLAG_ENABLE_RT, 1000 * 60 * 3);
 //                mHandler.removeMessages(FLAG_REMAINING);//停止剩余油量上传
             } else if (message.contains("Connect ECU OK")) {
 //                mHandler.sendEmptyMessage(FLAG_REMAINING);//获取当前剩余油量
-                mHandler.sendEmptyMessageDelayed(FLAG_BATTERY_UPLOAD, 1000 * 10);//上传电池电量
                 mPortManage.addWriteData("ATHBT");//获取驾驶习惯数据
                 mPortManage.addWriteData("ATRON");//开启实时数据获取
             } else if (message.contains("-TT")) {//本次行程数据 系统休眠前获取一次
@@ -222,7 +220,7 @@ public class OBDReceiveRun extends BaseRun {
         Log.d(TAG, "判断汽车正在点火");
 //        mEventBus.post(new TestDataMessage("判断汽车正在点火"));
         TestLogUtil.log("判断汽车正在点火");
-
+        mHandler.sendEmptyMessage(FLAG_BATTERY_UPLOAD);//上传电池电量
         mEngineStatus = ENGINE_STATUS_START;
         mTTStartTime = mSimpleDateFormat.format(new Date());
         mHandler.sendEmptyMessage(FLAG_ON_POST);
@@ -232,7 +230,8 @@ public class OBDReceiveRun extends BaseRun {
         if (mEngineStatus == ENGINE_STATUS_STOP)
             return;
         Log.d(TAG, "判断汽车正在熄火");
-//        mEventBus.post(new TestDataMessage("判断汽车正在熄火"));
+        mHandler.sendEmptyMessage(FLAG_BATTERY_UPLOAD);//上传电池电量
+//      mEventBus.post(new TestDataMessage("判断汽车正在熄火"));
         TestLogUtil.log("判断汽车正在熄火");
         mEngineStatus = ENGINE_STATUS_STOP;
         mHandler.sendEmptyMessage(FLAG_OFF_POST);
@@ -262,7 +261,6 @@ public class OBDReceiveRun extends BaseRun {
 
     public void onDestroy() {
         mPortManage.addWriteData("ATROFF");
-        mHandler.removeMessages(FLAG_BATTERY_UPLOAD);
         mPortManage.disConnect();
         EventBus.getDefault().unregister(this);
         mHandler.removeMessages(FLAG_PORT_CONNECT);
