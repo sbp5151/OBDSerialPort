@@ -1,8 +1,6 @@
-package com.jld.obdserialport.bean;
+package com.jld.obdserialport.bean.request;
 
-import com.jld.obdserialport.utils.Constant;
-
-public class OnOrOffBean extends BaseBean {
+public class OnOrOffBean extends RequestBaseBean {
 
     private String engineState;//发动机状态
     private double longitude;//经度
@@ -10,6 +8,10 @@ public class OnOrOffBean extends BaseBean {
     private double fuelTankResidue;//剩余油量
     public static final String CAR_START = "点火";
     public static final String CAR_STOP = "熄火";
+
+    public OnOrOffBean() {
+        super();
+    }
 
     public OnOrOffBean(String engineState, double longitude, double latitude, double fuelTankResidue) {
         this.engineState = engineState;

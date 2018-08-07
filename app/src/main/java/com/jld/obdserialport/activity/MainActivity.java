@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.jld.obdserialport.MyApplication;
 import com.jld.obdserialport.R;
 import com.jld.obdserialport.SelfStartService;
 import com.jld.obdserialport.event_msg.DefaultMessage;
@@ -54,6 +55,7 @@ public class MainActivity extends BaseActivity {
         //启动后台服务
         Intent serviceIntent = new Intent(this, SelfStartService.class);
         startService(serviceIntent);
+        Log.d(TAG, "OBD_ID: "+ MyApplication.OBD_ID);
     }
 
     private void initView() {
@@ -129,7 +131,6 @@ public class MainActivity extends BaseActivity {
             IntentFilter intentFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
             MainActivity.this.registerReceiver(this, intentFilter);
         }
-
         @Override
         public void onReceive(Context context, Intent intent) {
             ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -148,7 +149,6 @@ public class MainActivity extends BaseActivity {
             }
         }
     }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();

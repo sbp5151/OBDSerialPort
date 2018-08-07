@@ -7,14 +7,13 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.jld.obdserialport.SerialPortIOManage;
-import com.jld.obdserialport.bean.BatteryBean;
-import com.jld.obdserialport.bean.HBTBean;
+import com.jld.obdserialport.bean.request.BatteryBean;
+import com.jld.obdserialport.bean.request.HBTBean;
 import com.jld.obdserialport.event_msg.OBDDataMessage;
-import com.jld.obdserialport.bean.ATBeanTest;
-import com.jld.obdserialport.bean.RTBean;
-import com.jld.obdserialport.bean.OnOrOffBean;
-import com.jld.obdserialport.bean.TTBean;
-import com.jld.obdserialport.event_msg.TestDataMessage;
+import com.jld.obdserialport.bean.request.ATBeanTest;
+import com.jld.obdserialport.bean.request.RTBean;
+import com.jld.obdserialport.bean.request.OnOrOffBean;
+import com.jld.obdserialport.bean.request.TTBean;
 import com.jld.obdserialport.http.BaseHttpUtil;
 import com.jld.obdserialport.http.OBDHttpUtil;
 import com.jld.obdserialport.utils.TestLogUtil;
@@ -24,9 +23,9 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.lang.ref.WeakReference;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.RecursiveTask;
 
 import static com.jld.obdserialport.utils.Constant.SERIAL_PORT_BAUD_RATE;
 import static com.jld.obdserialport.utils.Constant.SERIAL_PORT_PATH;
@@ -81,6 +80,7 @@ public class OBDReceiveRun extends BaseRun {
             switch (msg.what) {
                 case FLAG_PORT_CONNECT://串口连接
                     Log.d(TAG, "connect: 串口连接：" + SERIAL_PORT_PATH + " -- " + SERIAL_PORT_BAUD_RATE);
+                    TestLogUtil.log("connect: 串口连接：" + SERIAL_PORT_PATH + " -- " + SERIAL_PORT_BAUD_RATE);
                     mPortManage.connect(SERIAL_PORT_PATH, SERIAL_PORT_BAUD_RATE);
                     break;
                 case FLAG_RT_POST:
@@ -234,7 +234,6 @@ public class OBDReceiveRun extends BaseRun {
         Log.d(TAG, "判断汽车正在熄火");
 //        mEventBus.post(new TestDataMessage("判断汽车正在熄火"));
         TestLogUtil.log("判断汽车正在熄火");
-
         mEngineStatus = ENGINE_STATUS_STOP;
         mHandler.sendEmptyMessage(FLAG_OFF_POST);
     }

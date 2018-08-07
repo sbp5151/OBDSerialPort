@@ -11,7 +11,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.jld.obdserialport.MyApplication;
-import com.jld.obdserialport.bean.MediaBean;
+import com.jld.obdserialport.bean.response.JpushMediaBean;
 import com.jld.obdserialport.event_msg.MediaMessage;
 import com.jld.obdserialport.http.FileHttpUtil;
 import com.jld.obdserialport.utils.TestLogUtil;
@@ -94,14 +94,12 @@ public class MediaRun extends BaseRun {
                             mHandler.sendEmptyMessageDelayed(FLAG_VIDEO_UPLOAD, 1000 * 10);
 //                            mEventBus.post(new TestDataMessage("视频上传失败 10s后继续上传:" + eroMessage));
                             TestLogUtil.log("视频上传失败 10s后继续上传:" + eroMessage);
-
                         }
 
                         @Override
                         public void onUploadSucceed(String msg) {
 //                            mEventBus.post(new TestDataMessage("视频上传成功"));
                             TestLogUtil.log("视频上传成功:" + msg);
-
                         }
                     });
                     break;
@@ -136,7 +134,7 @@ public class MediaRun extends BaseRun {
     private String mVideoFileName;
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void mediaEvent(MediaBean message) {
+    public void mediaEvent(JpushMediaBean message) {
 //        mEventBus.post(new TestDataMessage("收到media：" + message));
         switch (message.getFileType()) {
             case MediaMessage.EVENT_MSG_PHOTO://拍照请求

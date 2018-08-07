@@ -11,16 +11,13 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.jld.obdserialport.bean.JpushBase;
-import com.jld.obdserialport.bean.LocationInfoBean;
-import com.jld.obdserialport.bean.MediaBean;
-import com.jld.obdserialport.bean.UserBean;
+import com.jld.obdserialport.bean.response.JpushBase;
+import com.jld.obdserialport.bean.response.JpushLocationBean;
+import com.jld.obdserialport.bean.response.JpushMediaBean;
+import com.jld.obdserialport.bean.response.UserBean;
 import com.jld.obdserialport.event_msg.DefaultMessage;
-import com.jld.obdserialport.event_msg.MediaMessage;
-import com.jld.obdserialport.event_msg.TestDataMessage;
 import com.jld.obdserialport.utils.Constant;
 import com.jld.obdserialport.utils.MapNaviUtils;
-import com.jld.obdserialport.utils.SharedName;
 import com.jld.obdserialport.utils.TestLogUtil;
 import com.jld.obdserialport.utils.XiaoRuiUtils;
 
@@ -58,7 +55,6 @@ public class JPushReceiver extends BroadcastReceiver {
             switch (msg.what) {
                 case FLAG_NAV:
                     String address = (String) msg.obj;
-
                     break;
             }
 
@@ -120,7 +116,7 @@ public class JPushReceiver extends BroadcastReceiver {
 //        EventBus.getDefault().post(new TestDataMessage(data));
         TestLogUtil.log(data);
         Log.d(TAG, "JpushData: " + data);
-        JpushBase bean = mGson.fromJson(data, MediaBean.class);
+        JpushBase bean = mGson.fromJson(data, JpushBase.class);
         UserBean userBean;
         switch (bean.getFlag()) {
             case FLAG_BIND://绑定
@@ -140,7 +136,7 @@ public class JPushReceiver extends BroadcastReceiver {
                 break;
             case FLAG_NAVIGATION://预约导航
             case FLAG_JIEREN://接人
-                LocationInfoBean location = mGson.fromJson(data, LocationInfoBean.class);
+                JpushLocationBean location = mGson.fromJson(data, JpushLocationBean.class);
                 String address = location.getAddress();
                 if (location.getFlag() == FLAG_NAVIGATION)
                     XiaoRuiUtils.tts(context, "预约导航发起成功，目的地为" + location.getAddress() + location.getSite());
@@ -169,7 +165,7 @@ public class JPushReceiver extends BroadcastReceiver {
 //                EventBus.getDefault().post(new TestDataMessage("录制 拍照申请"));
                 TestLogUtil.log("录制 拍照 申请");
 //              EventBus.getDefault().post(new TestDataMessage("录制 拍照申请"));
-                MediaBean mediaBean = mGson.fromJson(data, MediaBean.class);
+                JpushMediaBean mediaBean = mGson.fromJson(data, JpushMediaBean.class);
                 EventBus.getDefault().post(mediaBean);
 //                EventBus.getDefault().post(new MediaMessage(MediaMessage.EVENT_MSG_VIDEO));
                 break;

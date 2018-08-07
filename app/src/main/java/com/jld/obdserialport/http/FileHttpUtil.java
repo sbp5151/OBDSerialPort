@@ -62,6 +62,7 @@ public class FileHttpUtil extends BaseHttpUtil {
 
     public void fileDownload(final String fileUrl, final DownloadFileListener listener) {
         Log.d(TAG, "文件下载: " + fileUrl);
+        TestLogUtil.log("文件下载: " + fileUrl);
         Request request = new Request.Builder().url(fileUrl).build();
         mOkHttpClient.newCall(request).enqueue(new Callback() {
             @Override
@@ -148,11 +149,12 @@ public class FileHttpUtil extends BaseHttpUtil {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
+                Log.d(TAG, "onResponse: "+response);
                 ResponseBody responseBody = response.body();
                 if (response.code() == 200 && responseBody != null) {
                     listener.onUploadSucceed(responseBody.string());
                 } else {
-                    listener.onUploadFailed(response.message());
+                    listener.onUploadFailed(response.toString());
                 }
             }
         });
@@ -162,7 +164,6 @@ public class FileHttpUtil extends BaseHttpUtil {
 //        filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "CarFuture" + File.separator + "future.mp4";
         File file = new File(filePath);
         TestLogUtil.log("视频文件上传 " + filePath);
-
         if (!file.exists()) {
             Log.d(TAG, "文件不存在: " + filePath);
 //            EventBus.getDefault().post(new TestDataMessage("文件不存在: " + filePath));
@@ -200,11 +201,12 @@ public class FileHttpUtil extends BaseHttpUtil {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
 //                EventBus.getDefault().post(new TestDataMessage("视频上传访问成功" + response.body().string()));
+                Log.d(TAG, "onResponse: "+response);
                 ResponseBody responseBody = response.body();
                 if (responseBody != null && response.code() == 200) {
                     listener.onUploadSucceed(responseBody.string());
-                } else if (responseBody != null) {
-                    listener.onUploadFailed(responseBody.string());
+                } else {
+                    listener.onUploadFailed(response.toString());
                 }
             }
         });

@@ -1,15 +1,15 @@
-package com.jld.obdserialport.bean;
+package com.jld.obdserialport.bean.request;
 
-import android.content.Context;
-
-import com.jld.obdserialport.utils.Constant;
-
-public class GPSBean {
+public class GPSBean extends RequestBaseBean {
 
     private double direction;
     private double longitude;
     private double latitude;
     private String address;
+
+    public GPSBean() {
+        super();
+    }
 
     public String getAddress() {
         return address;

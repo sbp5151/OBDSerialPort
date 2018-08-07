@@ -1,16 +1,13 @@
-package com.jld.obdserialport.bean;
+package com.jld.obdserialport.bean.request;
 
 import android.util.Log;
-
-import com.jld.obdserialport.MyApplication;
 
 /**
  * 驾驶习惯数据
  */
-public class HBTBean extends BaseBean {
+public class HBTBean extends RequestBaseBean {
 
     private static final String TAG = "HBTBean";
-    private String obdId;//OBD编号
     private int totalIgnitionTimes;//总点火次数
     private double totalTravelTime;//累计行驶时间
     private double totalIdleTime;//累计怠速时间
@@ -20,6 +17,10 @@ public class HBTBean extends BaseBean {
     private double hisTopCarSpeed;//最高转速
     private int totalRapidlyAccelerateTimes;//累计急加速次数
     private int totalSharpSlowdownTimes;//累计急加速次数
+
+    public HBTBean() {
+        super();
+    }
 
     public void setData(String data) {
         Log.d(TAG, "HBTBean setData: " + data);
@@ -34,7 +35,6 @@ public class HBTBean extends BaseBean {
             hisTopCarSpeed = Double.parseDouble(datas[7]);
             totalRapidlyAccelerateTimes = Integer.parseInt(datas[8]);
             totalSharpSlowdownTimes = Integer.parseInt(datas[9]);
-            obdId = MyApplication.OBD_ID;
         } else {
             Log.e(TAG, "驾驶习惯数据 setData 数据大小异常:" + data);
         }

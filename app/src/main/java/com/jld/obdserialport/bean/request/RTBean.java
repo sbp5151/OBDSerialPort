@@ -1,13 +1,11 @@
-package com.jld.obdserialport.bean;
+package com.jld.obdserialport.bean.request;
 
 import android.util.Log;
-
-import com.jld.obdserialport.utils.Constant;
 
 /**
  * 车辆实时数据流
  */
-public class RTBean extends BaseBean {
+public class RTBean extends RequestBaseBean {
 
     public static final String TAG = "RTBean";
     private String mBatteryVoltage;//1电瓶电压
@@ -25,6 +23,10 @@ public class RTBean extends BaseBean {
     private String currentNumberOfFaultCodes;//13当前故障码数量
     private int rapidlyAccelerateTimes;//14本次急加速次数
     private int sharpSlowdownTimes;//15本次急减速次数
+
+    public RTBean() {
+        super();
+    }
 
     public boolean setData(String data) {
         String[] datas = data.split(",");

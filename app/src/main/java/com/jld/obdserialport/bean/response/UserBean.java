@@ -1,4 +1,4 @@
-package com.jld.obdserialport.bean;
+package com.jld.obdserialport.bean.response;
 
 public class UserBean {
 

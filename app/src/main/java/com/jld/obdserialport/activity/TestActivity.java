@@ -215,7 +215,7 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
 //                        EventBus.getDefault().post(new TestDataMessage("视频上传成功"));
 //                    }
 //                });
-//                MediaBean mediaBean = mGson.fromJson("{\"fileName\":\"g8s647g8a6hawj008fjiw9udi1532746474975\",\"fileType\":2,\"flag\":5,\"obdId\":\"866275038851383\",\"uid\":\"olBG94sMevoxx0UZ0CwhVdBiaOCQ\",\"videoDuration\":1}", MediaBean.class);
+//                JpushMediaBean mediaBean = mGson.fromJson("{\"fileName\":\"g8s647g8a6hawj008fjiw9udi1532746474975\",\"fileType\":2,\"flag\":5,\"obdId\":\"866275038851383\",\"uid\":\"olBG94sMevoxx0UZ0CwhVdBiaOCQ\",\"videoDuration\":1}", JpushMediaBean.class);
 //                Log.d(TAG, "mediaBean: "+mediaBean);
 //                String mVideoPath2 = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "CarFuture" + File.separator + "future.3gp";
 //                FileHttpUtil.build().videoUploadUtil(MyApplication.OBD_ID, "1323", "42344", mVideoPath2, new FileHttpUtil.UploadFileListener() {
@@ -233,11 +233,12 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
 ////                        EventBus.getDefault().post(new TestDataMessage("视频上传成功"));
 //                    }
 //                });
-                goHome();
+//                goHome();
+                finish();
 //                EventBus.getDefault().post(mediaBean);
                 break;
             case R.id.btn_send:
-//                EventBus.getDefault().post(new MediaBean(2));
+//                EventBus.getDefault().post(new JpushMediaBean(2));
 //                if (mGson == null)
 //                    mGson = new Gson();
 //                JpushBase jpushBase = mGson.fromJson("{\"fileName\":\"x4lkr1y909jv78lnofofg8pvi1532681646138\",\"fileType\":2,\"flag\":5,\"obdId\":\"866275038851383\",\"uid\":\"olBG94sMevoxx0UZ0CwhVdBiaOCQ\",\"videoDuration\":1}", JpushBase.class);
@@ -269,15 +270,15 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
 //                } catch (FFmpegNotSupportedException e) {
 //                    e.printStackTrace();
 //                }
-//                mDatas.clear();
-//                mObdDataAdapter.notifyDataSetChanged();
-                String apkPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "apps" + File.separator + "future_803_2.apk";
-                TestLogUtil.log("apkPath:" + apkPath);
-                if (new File(apkPath).exists())
-                    XiaoRuiUtils.silentAppInstall(this, apkPath);
-                else TestLogUtil.log(apkPath + "不存在");
-//                XiaoRuiUtils.tts(this,"测试tts语音播报");
-                break;
+                mDatas.clear();
+                mObdDataAdapter.notifyDataSetChanged();
+//                String apkPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "apps" + File.separator + "future_803_2.apk";
+//                TestLogUtil.log("apkPath:" + apkPath);
+//                if (new File(apkPath).exists())
+//                    XiaoRuiUtils.silentAppInstall(this, apkPath);
+//                else TestLogUtil.log(apkPath + "不存在");
+////                XiaoRuiUtils.tts(this,"测试tts语音播报");
+//                break;
         }
     }
 

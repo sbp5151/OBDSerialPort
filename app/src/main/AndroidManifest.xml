@@ -58,7 +58,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity android:name=".activity.TestActivity" />
+        <activity android:name=".activity.BaseActivity" />
         <service
             android:name=".SelfStartService"
             android:enabled="true"
@@ -78,8 +79,7 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".activity.TestActivity" />
-        <activity android:name=".activity.BaseActivity" />
+
         <!-- -  JPush -->
         <!-- <service -->
         <!-- android:name="cn.jpush.android.service.PushService" -->

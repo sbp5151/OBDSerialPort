@@ -2,12 +2,12 @@ package com.jld.obdserialport.http;
 
 import android.util.Log;
 
-import com.jld.obdserialport.bean.ATBeanTest;
-import com.jld.obdserialport.bean.BatteryBean;
-import com.jld.obdserialport.bean.HBTBean;
-import com.jld.obdserialport.bean.OnOrOffBean;
-import com.jld.obdserialport.bean.RTBean;
-import com.jld.obdserialport.bean.TTBean;
+import com.jld.obdserialport.bean.request.ATBeanTest;
+import com.jld.obdserialport.bean.request.BatteryBean;
+import com.jld.obdserialport.bean.request.HBTBean;
+import com.jld.obdserialport.bean.request.OnOrOffBean;
+import com.jld.obdserialport.bean.request.RTBean;
+import com.jld.obdserialport.bean.request.TTBean;
 import com.jld.obdserialport.utils.Constant;
 import com.jld.obdserialport.utils.TestLogUtil;
 
@@ -34,8 +34,10 @@ public class OBDHttpUtil extends BaseHttpUtil {
             mHttpUtil = new OBDHttpUtil();
         return mHttpUtil;
     }
+
     /**
      * 实时数据上传
+     *
      * @param rtBean
      */
     public void rtDataPost(RTBean rtBean, final int tag, final MyCallback callback) {
@@ -58,16 +60,17 @@ public class OBDHttpUtil extends BaseHttpUtil {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
+                Log.d(TAG, "onResponse: " + response);
                 ResponseBody responseBody = response.body();
-                if (responseBody!=null&&response.code() == 200) {
-                    callback.onResponse(tag, responseBody.string());
-                    Log.d(TAG, "实时数据上传成功: " + response.message());
-                    TestLogUtil.log("实时数据上传成功: " + response.message());
-
+                if (responseBody != null && response.code() == 200) {
+                    String bodyString = responseBody.string();
+                    callback.onResponse(tag, bodyString);
+                    Log.d(TAG, "实时数据上传成功: " + bodyString);
+                    TestLogUtil.log("实时数据上传成功: " + bodyString);
                 } else {
-                    Log.d(TAG, "实时数据上传失败 onResponse: " + response.message());
-                    TestLogUtil.log("实时数据上传失败 onResponse: " + response.message());
-                    callback.onFailure(tag, response.message());
+                    Log.d(TAG, "实时数据上传失败 onResponse: " + response);
+                    TestLogUtil.log("实时数据上传失败 onResponse: " + response);
+                    callback.onFailure(tag, response.toString());
                 }
             }
         });
@@ -96,10 +99,10 @@ public class OBDHttpUtil extends BaseHttpUtil {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody responseBody = response.body();
-                if (responseBody!=null&&response.code() == 200)
+                if (responseBody != null && response.code() == 200)
                     Log.d(TAG, "自定义数据上传成功 onResponse: " + responseBody.string());
                 else
-                    Log.d(TAG, "自定义数据上传失败 onResponse: " + responseBody.string());
+                    Log.d(TAG, "自定义数据上传失败 onResponse: " + response);
             }
         });
     }
@@ -131,13 +134,13 @@ public class OBDHttpUtil extends BaseHttpUtil {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody responseBody = response.body();
-                if (responseBody!=null&&response.code() == 200){
-                    TestLogUtil.log("电池电压数据上传失败 onResponse :" + responseBody.string());
-                    Log.d(TAG, "电池电压数据上传 onResponse: " + responseBody.string());
-                }
-                else{
-                    TestLogUtil.log("电池电压数据上传成功 onResponse :" + responseBody.string());
-                    Log.d(TAG, "电池电压数据上传 onResponse: " + responseBody.string());
+                if (responseBody != null && response.code() == 200) {
+                    String bodyString = responseBody.string();
+                    TestLogUtil.log("电池电压数据上传失败 onResponse :" + bodyString);
+                    Log.d(TAG, "电池电压数据上传 onResponse: " + bodyString);
+                } else {
+                    TestLogUtil.log("电池电压数据上传成功 onResponse :" + response);
+                    Log.d(TAG, "电池电压数据上传 onResponse: " + response);
                 }
             }
         });
@@ -170,14 +173,15 @@ public class OBDHttpUtil extends BaseHttpUtil {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody responseBody = response.body();
-                if (responseBody!=null&&response.code() == 200) {
-                    callback.onResponse(tag, responseBody.string());
-                    TestLogUtil.log("驾驶习惯数据上传成功 :" +  response.message());
-                    Log.d(TAG, "驾驶习惯数据上传成功:  " + response.message());
+                if (responseBody != null && response.code() == 200) {
+                    String bodyString = responseBody.string();
+                    callback.onResponse(tag, bodyString);
+                    TestLogUtil.log("驾驶习惯数据上传成功 :" + bodyString);
+                    Log.d(TAG, "驾驶习惯数据上传成功:  " + bodyString);
                 } else {
-                    Log.d(TAG, "驾驶习惯数据上传失败 onResponse:  " + response.message());
-                    Log.d(TAG, "驾驶习惯数据上传失败 onResponse: " + response.message());
-                    callback.onFailure(tag, response.message());
+                    Log.d(TAG, "驾驶习惯数据上传失败 onResponse:  " + response);
+                    Log.d(TAG, "驾驶习惯数据上传失败 onResponse: " + response);
+                    callback.onFailure(tag, response.toString());
                 }
             }
         });
@@ -211,14 +215,15 @@ public class OBDHttpUtil extends BaseHttpUtil {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody responseBody = response.body();
-                if (responseBody!=null&&response.code() == 200) {
-                    callback.onResponse(tag, responseBody.string());
-                    TestLogUtil.log("本次数据上传成功 onFailure :" + response.message());
-                    Log.d(TAG, "本次数据上传成功: " + response.message());
+                if (responseBody != null && response.code() == 200) {
+                    String bodyString = responseBody.string();
+                    callback.onResponse(tag, bodyString);
+                    TestLogUtil.log("本次数据上传成功 onFailure :" + bodyString);
+                    Log.d(TAG, "本次数据上传成功: " + bodyString);
                 } else {
-                    TestLogUtil.log("本次数据上传失败 onResponse :" + response.message());
-                    Log.d(TAG, "本次数据上传失败 onResponse: " + response.message());
-                    callback.onFailure(tag, response.message());
+                    TestLogUtil.log("本次数据上传失败 onResponse :" + response);
+                    Log.d(TAG, "本次数据上传失败 onResponse: " + response);
+                    callback.onFailure(tag, response.toString());
                 }
             }
         });
@@ -250,14 +255,15 @@ public class OBDHttpUtil extends BaseHttpUtil {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody responseBody = response.body();
-                if (responseBody!=null&&response.code() == 200) {
-                    callback.onResponse(tag, responseBody.string());
-                    TestLogUtil.log("点火熄火上传成功: " + response.message());
-                    Log.d(TAG, "点火熄火上传成功: " + response.message());
+                if (responseBody != null && response.code() == 200) {
+                    String bodyString = responseBody.string();
+                    callback.onResponse(tag, bodyString);
+                    TestLogUtil.log("点火熄火上传成功: " + bodyString);
+                    Log.d(TAG, "点火熄火上传成功: " + bodyString);
                 } else {
-                    TestLogUtil.log("点火熄火上传失败 onResponse: " + response.message());
-                    Log.d(TAG, "点火熄火上传失败 onResponse: " + response.message());
-                    callback.onFailure(tag, response.message());
+                    TestLogUtil.log("点火熄火上传失败 onResponse: " + response);
+                    Log.d(TAG, "点火熄火上传失败 onResponse: " + response);
+                    callback.onFailure(tag, response.toString());
                 }
             }
         });

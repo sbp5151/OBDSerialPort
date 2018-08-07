@@ -1,6 +1,8 @@
-package com.jld.obdserialport.bean;
+package com.jld.obdserialport.bean.response;
 
-public class MediaBean extends JpushBase {
+import com.jld.obdserialport.bean.response.JpushBase;
+
+public class JpushMediaBean extends JpushBase {
 
     private String fileName;
     private int fileType;
@@ -8,11 +10,11 @@ public class MediaBean extends JpushBase {
     private String uid;
     private int videoDuration;
 
-//    public MediaBean(int fileType) {
+//    public JpushMediaBean(int fileType) {
 //        this.fileType = fileType;
 //    }
 //
-//    public MediaBean(String obdId, String uid, String fileName, int fileType, int flag, int videoDuration) {
+//    public JpushMediaBean(String obdId, String uid, String fileName, int fileType, int flag, int videoDuration) {
 //        this.obdId = obdId;
 //        this.uid = uid;
 //        this.fileName = fileName;
@@ -42,7 +44,7 @@ public class MediaBean extends JpushBase {
 
     @Override
     public String toString() {
-        return "MediaBean{" +
+        return "JpushMediaBean{" +
                 "obdId='" + obdId + '\'' +
                 ", uid='" + uid + '\'' +
                 ", fileName='" + fileName + '\'' +

@@ -19,6 +19,7 @@ import com.jld.obdserialport.runnable.LocationReceiveRun;
 import com.jld.obdserialport.runnable.MediaRun;
 import com.jld.obdserialport.runnable.OBDReceiveRun;
 import com.jld.obdserialport.util.AppUtils;
+import com.jld.obdserialport.utils.TestLogUtil;
 import com.jld.obdserialport.utils.XiaoRuiUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -68,10 +69,12 @@ public class SelfStartService extends Service {
                     @Override
                     public void onDownloadFailed() {
                         Log.d(TAG, "onDownloadFailed");
+                        TestLogUtil.log("onDownloadFailed");
                     }
 
                     @Override
                     public void onDownloadSucceed() {
+                        TestLogUtil.log("onDownloadSucceed:" + saveFile);
                         Log.d(TAG, "onDownloadSucceed:" + saveFile);
 //                        AppUtils.installApp(saveFile);
                         if (saveFile.exists())
@@ -88,6 +91,7 @@ public class SelfStartService extends Service {
             @Override
             public void onApkInstall(String installPath) {
                 Log.d(TAG, "onApkInstall:" + installPath);
+                TestLogUtil.log("onApkInstall:" + installPath);
                 XiaoRuiUtils.silentAppInstall(SelfStartService.this, installPath);
             }
         });

@@ -1,4 +1,4 @@
-package com.jld.obdserialport.bean;
+package com.jld.obdserialport.bean.request;
 
 public class PIDBean {
 

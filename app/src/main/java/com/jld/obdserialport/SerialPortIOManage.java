@@ -9,6 +9,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.jld.obdserialport.event_msg.OBDDataMessage;
+import com.jld.obdserialport.utils.TestLogUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -67,9 +68,11 @@ public class SerialPortIOManage {
             mHandlerThread.start();
             mWriteHandler = new WriteHandler(mHandlerThread.getLooper(), this);
             Log.d(TAG, "串口连接成功");
+            TestLogUtil.log( "串口连接成功");
             mEventBus.post(new OBDDataMessage(OBDDataMessage.CONNECT_STATE_FLAG, true));
         } else {
             Log.d(TAG, "串口连接失败");
+            TestLogUtil.log( "串口连接失败");
             mEventBus.post(new OBDDataMessage(OBDDataMessage.CONNECT_STATE_FLAG, false));
             mIsConnect = false;
         }

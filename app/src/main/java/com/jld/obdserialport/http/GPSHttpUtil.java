@@ -2,7 +2,7 @@ package com.jld.obdserialport.http;
 
 import android.util.Log;
 
-import com.jld.obdserialport.bean.GPSBean;
+import com.jld.obdserialport.bean.request.GPSBean;
 import com.jld.obdserialport.utils.Constant;
 import com.jld.obdserialport.utils.TestLogUtil;
 
@@ -55,13 +55,15 @@ public class GPSHttpUtil extends BaseHttpUtil {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
+                Log.d(TAG, "onResponse: "+response);
                 ResponseBody responseBody = response.body();
-                if (response.code() == 200 && responseBody != null) {
-                    TestLogUtil.log("GPS数据上传成功 onResponse: " + responseBody.string());
-                    Log.d(TAG, "GPS数据上传成功 onResponse: " + responseBody.string());
-                } else if (responseBody != null) {
-                    TestLogUtil.log("GPS数据上传成功 onResponse: " + responseBody.string());
-                    Log.d(TAG, "GPS数据上传成功 onResponse: " + responseBody.string());
+                if (responseBody != null && response.code() == 200) {
+                    String bodyString = responseBody.string();
+                    TestLogUtil.log("GPS数据上传成功 onResponse: " +bodyString );
+                    Log.d(TAG, "GPS数据上传成功 onResponse: " + bodyString);
+                } else {
+                    TestLogUtil.log("GPS数据上传成功 onResponse: " + response.toString());
+                    Log.d(TAG, "GPS数据上传成功 onResponse: " + response.toString());
                 }
             }
         });

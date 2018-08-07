@@ -1,16 +1,12 @@
-package com.jld.obdserialport.bean;
+package com.jld.obdserialport.bean.request;
 
 import android.util.Log;
-
-import com.jld.obdserialport.utils.Constant;
-
-import java.util.Date;
 
 /**
  * 本次行程统计数据流
  * 每次熄火发送一次
  */
-public class TTBean extends BaseBean {
+public class TTBean extends RequestBaseBean {
 
     private static final String TAG = "TTBean";
     private double hotCarTimeLong;//本次热车时长
@@ -26,6 +22,9 @@ public class TTBean extends BaseBean {
     private String startTime;//本次行程开始时间
     private String endTime;//本次行程结束时间
 
+    public TTBean() {
+        super();
+    }
 
     public void setData(String data) {
         String[] datas = data.split(",");

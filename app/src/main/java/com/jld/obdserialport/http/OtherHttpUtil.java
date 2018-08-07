@@ -67,11 +67,10 @@ public class OtherHttpUtil extends BaseHttpUtil {
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    String rpString = response.body().string();
-                    Log.d(TAG, "APK检测更新访问成功：" + rpString);
-                    if (response.code() == 200) {
+                    ResponseBody responseBody = response.body();
+                    if (responseBody != null && response.code() == 200) {
                         try {
-                            JSONObject json = new JSONObject(rpString);
+                            JSONObject json = new JSONObject(responseBody.string());
                             if (json.getInt("flag") == 1) {
                                 String apkDownUrl = json.getString("apkDownUrl");
                                 if (!TextUtils.isEmpty(apkDownUrl)) {
@@ -95,7 +94,8 @@ public class OtherHttpUtil extends BaseHttpUtil {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                    }
+                    }else
+                        TestLogUtil.log("APK升级检测失败" + response.toString());
                 }
             });
         } catch (PackageManager.NameNotFoundException e) {
@@ -120,18 +120,11 @@ public class OtherHttpUtil extends BaseHttpUtil {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-
-                if (response.code() == 200) {
-//                    EventBus.getDefault().post(new TestDataMessage("在线更新成功"));
-                    TestLogUtil.log("在线更新成功" );
-                } else {
-                    ResponseBody errorBody = response.body();
-                    if (errorBody != null)
-                        TestLogUtil.log("在线更新失败" + response.body().toString() );
-//                        EventBus.getDefault().post(new TestDataMessage("在线更新失败" + response.body().toString()));
-                    else
-                        TestLogUtil.log("在线更新失败");
-//                        EventBus.getDefault().post(new TestDataMessage("在线更新失败"));
+                ResponseBody responseBody = response.body();
+                if (responseBody != null && response.code() == 200) {
+                    TestLogUtil.log("在线更新成功:" + responseBody.string());
+                } else{
+                    TestLogUtil.log("在线更新失败" + response.toString());
                 }
             }
         });

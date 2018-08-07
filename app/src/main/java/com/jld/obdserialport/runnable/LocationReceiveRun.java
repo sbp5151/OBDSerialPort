@@ -1,16 +1,6 @@
 package com.jld.obdserialport.runnable;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Build;
-import android.os.Bundle;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import com.amap.api.location.AMapLocation;
@@ -18,16 +8,12 @@ import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.location.AMapLocationQualityReport;
-import com.jld.obdserialport.bean.GPSBean;
-import com.jld.obdserialport.event_msg.DefaultMessage;
-import com.jld.obdserialport.event_msg.OBDDataMessage;
-import com.jld.obdserialport.event_msg.TestDataMessage;
+import com.jld.obdserialport.MyApplication;
+import com.jld.obdserialport.bean.request.GPSBean;
 import com.jld.obdserialport.http.GPSHttpUtil;
 import com.jld.obdserialport.utils.TestLogUtil;
 
 import org.greenrobot.eventbus.EventBus;
-
-import java.util.List;
 
 /**
  * 获取GPS信息
@@ -64,7 +50,6 @@ public class LocationReceiveRun extends BaseRun {
         @Override
         public void onLocationChanged(AMapLocation aMapLocation) {
             Log.d(TAG, "onLocationChanged: " + aMapLocation);
-            AMapLocationQualityReport locationQualityReport = aMapLocation.getLocationQualityReport();
 //            Log.d(TAG, "getAdviseMessage: " + locationQualityReport.getAdviseMessage());
 //            Log.d(TAG, "getGPSSatellites: " + locationQualityReport.getGPSSatellites());
 //            Log.d(TAG, "getGPSStatus: " + locationQualityReport.getGPSStatus());
@@ -74,11 +59,11 @@ public class LocationReceiveRun extends BaseRun {
                 if (mGpsBean == null)
                     mGpsBean = new GPSBean();
 //                mEventBus.post(new TestDataMessage(aMapLocation.getAddress() + " type:" + aMapLocation.getLocationType()));
-                TestLogUtil.log(aMapLocation.getAddress() + " type:" + aMapLocation.getLocationType()+" "+aMapLocation);
                 mGpsBean.setDirection(aMapLocation.getBearing());
                 mGpsBean.setLatitude(aMapLocation.getLatitude());
                 mGpsBean.setLongitude(aMapLocation.getLongitude());
                 mGpsBean.setAddress(aMapLocation.getAddress());
+                mGpsBean.setObdId(MyApplication.OBD_ID);
                 GPSHttpUtil.build().gpsDataPost(mGpsBean);
             }
         }

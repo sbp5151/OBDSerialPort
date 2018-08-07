@@ -1,13 +1,11 @@
-package com.jld.obdserialport.bean;
+package com.jld.obdserialport.bean.request;
 
 import android.util.Log;
-
-import com.jld.obdserialport.utils.Constant;
 
 /**
  * 单独数据读取
  */
-public class ATBeanTest {
+public class ATBeanTest extends RequestBaseBean {
     private static final String TAG = "ATBeanTest";
     private int currentNumberOfFaultCodes;//当前故障码数量(Times/次) 01
     private double engineLoad;//发动机负荷(%) 004
@@ -29,6 +27,10 @@ public class ATBeanTest {
     private double batteryVoltage = 100;// 电瓶电压(V) AT297
     private int rapidlyAccelerateTimes = 0;//本次急加速次数(Times/次)
     private int sharpSlowdownTimes = 0;//本次急减速次数(Times/次)
+
+    public ATBeanTest() {
+        super();
+    }
 
     public boolean setData(String data) {
         Log.d(TAG, "setData: " + data);

@@ -1,8 +1,6 @@
-package com.jld.obdserialport.bean;
+package com.jld.obdserialport.bean.response;
 
-import java.util.Date;
-
-public class LocationInfoBean extends JpushBase{
+public class JpushLocationBean extends JpushBase {
 
     private String phoneNumber;
     private String nickName;//微信昵称
@@ -47,7 +45,7 @@ public class LocationInfoBean extends JpushBase{
 
     @Override
     public String toString() {
-        return "LocationInfoBean{" +
+        return "JpushLocationBean{" +
                 "phoneNumber='" + phoneNumber + '\'' +
                 ", nickName='" + nickName + '\'' +
                 ", openId='" + openId + '\'' +

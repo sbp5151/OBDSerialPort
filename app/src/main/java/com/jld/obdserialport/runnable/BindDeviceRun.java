@@ -24,18 +24,15 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.jld.obdserialport.R;
-import com.jld.obdserialport.bean.BaseBean;
-import com.jld.obdserialport.bean.BindMsgBean;
+import com.jld.obdserialport.bean.response.ResponseBeanBase;
+import com.jld.obdserialport.bean.response.CheckBindBean;
 import com.jld.obdserialport.event_msg.DefaultMessage;
-import com.jld.obdserialport.event_msg.TestDataMessage;
 import com.jld.obdserialport.http.BaseHttpUtil;
 import com.jld.obdserialport.http.BindHttpUtil;
 import com.jld.obdserialport.utils.Constant;
 import com.jld.obdserialport.utils.SharedName;
 import com.jld.obdserialport.utils.TestLogUtil;
 import com.jld.obdserialport.utils.ZxingUtil;
-
-import junit.framework.Test;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -109,8 +106,6 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
                             BindDeviceRun.this);
                     break;
                 case MSG_UPLOAD_JPUSH_MEG:
-                    mySendMessage("上传JPush绑定信息...");
-                    Log.d(TAG, "上传JPush绑定信息...");
                     if (mSp.getBoolean(SharedName.DEVICE_IS_UPLOAD, false))
                         BindHttpUtil.build().jPushBindUpload(MSG_UPLOAD_JPUSH_MEG, JPUSH_DEVICE_ALIAS, mIccid, new HttpCallback());
                     else {
@@ -119,13 +114,9 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
                     }
                     break;
                 case MSG_REQUEST_BIND_MEG:
-                    mySendMessage("获取JPush绑定信息...");
-                    Log.d(TAG, "获取JPush绑定信息...");
                     BindHttpUtil.build().jPushBindRequest(MSG_REQUEST_BIND_MEG, new HttpCallback());
                     break;
                 case MSG_UPLOAD_DEVICE_ID:
-                    mySendMessage("上传设备ID...");
-                    Log.d(TAG, "上传设备ID...");
                     BindHttpUtil.build().uploadDeviceID(MSG_UPLOAD_DEVICE_ID, new HttpCallback());
                     break;
                 case MSG_TOAST:
@@ -279,11 +270,11 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
 
         @Override
         public void onResponse(int tag, String body) {
-            BaseBean baseBean;
+            ResponseBeanBase baseResponeBean;
             switch (tag) {
                 case MSG_UPLOAD_JPUSH_MEG:
-                    baseBean = mGson.fromJson(body, BaseBean.class);
-                    if (baseBean.getResult() == 0) {
+                    baseResponeBean = mGson.fromJson(body, ResponseBeanBase.class);
+                    if (baseResponeBean.getCode() == 0) {
                         Log.d(TAG, "JPush绑定信息上传成功 body=" + body);
                         mEventBus.post(new DefaultMessage(EVENT_MSG_SHOW_BIND_CODE, ""));//界面中显示二维码
                         mSp.edit().putBoolean(SharedName.JPUSH_MSG_IS_UPLOAD, true).apply();
@@ -294,13 +285,13 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
                     }
                     break;
                 case MSG_REQUEST_BIND_MEG:
-                    BindMsgBean bindMsgBean = mGson.fromJson(body, BindMsgBean.class);
-                    if (bindMsgBean.getResult() == 0) {
+                    CheckBindBean checkBindBean = mGson.fromJson(body, CheckBindBean.class);
+                    if (checkBindBean.getCode() == 0) {
                         Log.d(TAG, "获取JPush绑定信息成功  body=" + body);
-                        if (bindMsgBean.getIsBinding() == 0) {//未绑定
+                        if (checkBindBean.getIsBinding() == 0) {//未绑定
                             mHandler.sendEmptyMessage(MSG_SHOW_DIALOG_BIND_CODE);
                             mSp.edit().putBoolean(SharedName.DEVICE_IS_BIND, false).apply();
-                        } else if (bindMsgBean.getIsBinding() == 1) {//已绑定
+                        } else if (checkBindBean.getIsBinding() == 1) {//已绑定
 //                            mHandler.sendEmptyMessage(MSG_HIED_BIND_CODE);
                             mSp.edit().putBoolean(SharedName.DEVICE_IS_BIND, true).apply();
                         }
@@ -310,8 +301,8 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
                     }
                     break;
                 case MSG_UPLOAD_DEVICE_ID:
-                    baseBean = mGson.fromJson(body, BaseBean.class);
-                    if (baseBean.getResult() == 0) {
+                    baseResponeBean = mGson.fromJson(body, ResponseBeanBase.class);
+                    if (baseResponeBean.getCode() == 0) {
                         Log.d(TAG, "上传设备ID成功 body=" + body);
                         mSp.edit().putBoolean(SharedName.DEVICE_IS_UPLOAD, true).apply();
                     } else
