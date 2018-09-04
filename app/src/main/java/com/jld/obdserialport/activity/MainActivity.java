@@ -5,9 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -38,6 +41,7 @@ public class MainActivity extends BaseActivity {
     private SharedPreferences mSp;
     private long mLastChangeTime;
     private NetworkReceive mNetworkReceive;
+    String[] permissions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,15 +59,30 @@ public class MainActivity extends BaseActivity {
         //启动后台服务
         Intent serviceIntent = new Intent(this, SelfStartService.class);
         startService(serviceIntent);
-        Log.d(TAG, "OBD_ID: "+ MyApplication.OBD_ID);
+        Log.d(TAG, "OBD_ID: " + MyApplication.OBD_ID);
+        for (int i = 0; permissions!=null && i < permissions.length;i++){
+
+        }
     }
 
     private void initView() {
+        Intent intent = new Intent();
+        intent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
+        sendBroadcast(intent,null);
         mTvBindImei = findViewById(R.id.tv_bind_imei);
         mTvBindImei.setText(OBD_ID);
         mTvBindMessage = findViewById(R.id.tv_bind_message);
         mIvBindCode = findViewById(R.id.iv_bind_code);
-        mIvBindCode.setOnClickListener(new View.OnClickListener() {
+        TextView tv_version = findViewById(R.id.tv_version);
+        String versionName = "";
+        try {
+            versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (!TextUtils.isEmpty(versionName))
+            tv_version.setText("V" + versionName);
+        findViewById(R.id.ll_main).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mClickNum++;
@@ -78,6 +97,11 @@ public class MainActivity extends BaseActivity {
         mIvBindCode.setImageBitmap(ZxingUtil.createBitmap("http://www.futurevi.com/download.html?sn=" + OBD_ID));
     }
 
+    private void toSettings() {
+        Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
+        startActivity(intent);
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void obdEvent(DefaultMessage defaultMessage) {
         Log.d(TAG, "obdEvent: " + defaultMessage);
@@ -90,7 +114,8 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-//    //绑定状态
+
+    //    //绑定状态
 //    private void bindState() {
 //        String userName = mSp.getString(SharedName.BIND_USER_NAME, "");
 //        String userNameHint = getString(R.string.bind_user_name);
@@ -131,6 +156,7 @@ public class MainActivity extends BaseActivity {
             IntentFilter intentFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
             MainActivity.this.registerReceiver(this, intentFilter);
         }
+
         @Override
         public void onReceive(Context context, Intent intent) {
             ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -149,10 +175,12 @@ public class MainActivity extends BaseActivity {
             }
         }
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
         this.unregisterReceiver(mNetworkReceive);
     }
+
 }

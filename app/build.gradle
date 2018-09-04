@@ -7,7 +7,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 27
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         // 使用Cmake工具
@@ -64,8 +64,12 @@ dependencies {
     // 此处以JCore 1.1.9 版本为例。
     //    implementation files('libs/jcore-android-1.2.1.jar')
     //    implementation files('libs/jpush-android-3.1.3.jar')
-    implementation files('libs/AMap_Location_V4.1.0_20180619.jar')
+//    implementation files('libs/AMap_Location_V4.1.0_20180619.jar')
 
+    //3D地图so及jar
+//    implementation 'com.amap.api:3dmap:latest.integration'
+    //定位功能
+    implementation 'com.amap.api:location:latest.integration'
     //视频压缩
 //    implementation 'com.writingminds:FFmpegAndroid:0.3.2'
 }

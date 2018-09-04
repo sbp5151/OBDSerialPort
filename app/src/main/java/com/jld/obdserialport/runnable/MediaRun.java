@@ -94,12 +94,14 @@ public class MediaRun extends BaseRun {
                             mHandler.sendEmptyMessageDelayed(FLAG_VIDEO_UPLOAD, 1000 * 10);
 //                            mEventBus.post(new TestDataMessage("视频上传失败 10s后继续上传:" + eroMessage));
                             TestLogUtil.log("视频上传失败 10s后继续上传:" + eroMessage);
+
                         }
 
                         @Override
                         public void onUploadSucceed(String msg) {
 //                            mEventBus.post(new TestDataMessage("视频上传成功"));
                             TestLogUtil.log("视频上传成功:" + msg);
+
                         }
                     });
                     break;
@@ -146,7 +148,10 @@ public class MediaRun extends BaseRun {
                     mTakeFileName = message.getFileName();
 //                    mEventBus.post(new TestDataMessage("请求拍照"));
                     TestLogUtil.log("请求拍照");
-                    XiaoRuiUtils.takePic(mContext, 1, message.getFileName());
+                    if (message.getIsFront() == 2)
+                        XiaoRuiUtils.takePic(mContext, 2, message.getFileName());
+                    else
+                        XiaoRuiUtils.takePic(mContext, 1, message.getFileName());
                     mHandler.sendEmptyMessageDelayed(FLAG_TAKE_TIMEOUT, 1000 * 3);
                 }
                 break;
@@ -157,23 +162,34 @@ public class MediaRun extends BaseRun {
                     mVideoUid = message.getUid();
                     mVideoFileName = message.getFileName();
 //                    mEventBus.post(new TestDataMessage("录像请求"));
+                    int videoDuration = 0;
                     if (message.getVideoDuration() == 1) {
+                        videoDuration = 1000 * 10;
                         TestLogUtil.log("收到十秒视频录制请求");
                         XiaoRuiUtils.tts(mContext, "收到十秒视频录制请求");
-                        XiaoRuiUtils.takeVideo(mContext, 1000 * 10, 1, message.getFileName());
-                        mHandler.sendEmptyMessageDelayed(FLAG_VIDEO_TIMEOUT, 1000 * 15);
+//                        XiaoRuiUtils.takeVideo(mContext, 1000 * 10, 1, message.getFileName());
+//                        mHandler.sendEmptyMessageDelayed(FLAG_VIDEO_TIMEOUT, 1000 * 15);
                     } else if (message.getVideoDuration() == 2) {
+                        videoDuration = 1000 * 20;
                         TestLogUtil.log("收到二十秒视频录制请求");
                         XiaoRuiUtils.tts(mContext, "收到二十秒视频录制请求");
-                        XiaoRuiUtils.takeVideo(mContext, 1000 * 20, 1, message.getFileName());
-                        mHandler.sendEmptyMessageDelayed(FLAG_VIDEO_TIMEOUT, 1000 * 25);
+//                        XiaoRuiUtils.takeVideo(mContext, 1000 * 20, 1, message.getFileName());
+//                        mHandler.sendEmptyMessageDelayed(FLAG_VIDEO_TIMEOUT, 1000 * 25);
                     } else if (message.getVideoDuration() == 3) {
+                        videoDuration = 1000 * 30;
                         TestLogUtil.log("收到三十秒视频录制请求");
                         XiaoRuiUtils.tts(mContext, "收到三十秒视频录制请求");
-                        XiaoRuiUtils.takeVideo(mContext, 1000 * 30, 1, message.getFileName());
-                        mHandler.sendEmptyMessageDelayed(FLAG_VIDEO_TIMEOUT, 1000 * 35);
-                    } else
-                        mHandler.sendEmptyMessageDelayed(FLAG_VIDEO_TIMEOUT, 1000 * 10);
+//                        XiaoRuiUtils.takeVideo(mContext, 1000 * 30, 1, message.getFileName());
+//                        mHandler.sendEmptyMessageDelayed(FLAG_VIDEO_TIMEOUT, 1000 * 35);
+                    }
+                    if (videoDuration != 0 && message.getIsFront() == 2) {
+                        Toast.makeText(mContext, "后置拍照", Toast.LENGTH_SHORT).show();
+                        XiaoRuiUtils.takeVideo(mContext, videoDuration, 2, message.getFileName());
+                    } else if (videoDuration != 0) {
+                        Toast.makeText(mContext, "前置拍照", Toast.LENGTH_SHORT).show();
+                        XiaoRuiUtils.takeVideo(mContext, videoDuration, 1, message.getFileName());
+                    }
+                    mHandler.sendEmptyMessageDelayed(FLAG_VIDEO_TIMEOUT, videoDuration + 5000);
                 }
                 break;
         }

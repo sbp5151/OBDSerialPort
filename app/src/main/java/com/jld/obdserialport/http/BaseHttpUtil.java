@@ -20,8 +20,8 @@ public class BaseHttpUtil {
     BaseHttpUtil() {
         mOkHttpClient = new OkHttpClient.Builder()
                 .connectTimeout(15, TimeUnit.SECONDS)
-                .readTimeout(60*30, TimeUnit.SECONDS)
-                .writeTimeout(60*30, TimeUnit.SECONDS).build();
+                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS).build();
 
         mJsonType = MediaType.parse("application/json; charset=utf-8");
         mGson = new Gson();
@@ -40,7 +40,8 @@ public class BaseHttpUtil {
 
     public interface MyCallback {
         void onFailure(int tag, String errorMessage);
-
-        void onResponse(int tag, String body);
+    }  public interface MyCallback2 {
+        void onFailure(int tag, String errorMessage);
+        void onResponse(int tag,String body);
     }
 }

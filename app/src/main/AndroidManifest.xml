@@ -9,6 +9,8 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
+    <!-- 向SD卡写入数据权限 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <!-- AMap -->
     <!-- 用于进行网络定位 -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -46,9 +48,9 @@
         <!--android:name="com.amap.api.v2.apikey"-->
         <!--android:value="c6113430a8410ae4cc49da80ef7a9106" />-->
         <!-- 设置key 台式 -->
-         <meta-data
-         android:name="com.amap.api.v2.apikey"
-         android:value="93a95c39e9c939336f9a23bd483e4ce6" />
+        <meta-data
+            android:name="com.amap.api.v2.apikey"
+            android:value="93a95c39e9c939336f9a23bd483e4ce6" />
         <service android:name="com.amap.api.location.APSService" />
 
         <activity android:name=".activity.MainActivity">
@@ -60,11 +62,12 @@
         </activity>
         <activity android:name=".activity.TestActivity" />
         <activity android:name=".activity.BaseActivity" />
+
         <service
             android:name=".SelfStartService"
             android:enabled="true"
             android:exported="true">
-            <intent-filter>
+            <intent-filter android:priority="1000">
                 <action android:name="android.intent.action.SELF_START_SERVICE" />
             </intent-filter>
         </service>
@@ -113,8 +116,8 @@
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.android.rmt.ACTION_ACC_OFF"/>
-                <action android:name="com.android.rmt.ACTION_ACC_ON"/>
+                <action android:name="com.android.rmt.ACTION_ACC_OFF" />
+                <action android:name="com.android.rmt.ACTION_ACC_ON" />
             </intent-filter>
         </receiver>
     </application>

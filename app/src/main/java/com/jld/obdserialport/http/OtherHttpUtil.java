@@ -53,6 +53,7 @@ public class OtherHttpUtil extends BaseHttpUtil {
             JsonObject json = new JsonObject();
             json.addProperty("versionCode", versionName);
             Log.d(TAG, "checkApkUpdate json: " + json.toString());
+            TestLogUtil.log("checkApkUpdate json: " + json.toString());
             RequestBody requestBody = RequestBody.create(mJsonType, json.toString());
             final Request request = new Request.Builder()
                     .url(Constant.URL_CHECK_APK_UPDATE)
@@ -63,6 +64,8 @@ public class OtherHttpUtil extends BaseHttpUtil {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     Log.d(TAG, "APK检测更新访问失败：" + e.toString());
+                    TestLogUtil.log("APK检测更新访问失败：" + e.toString());
+                    updateListener.onUpdateFail();
                 }
 
                 @Override
@@ -71,10 +74,11 @@ public class OtherHttpUtil extends BaseHttpUtil {
                     if (responseBody != null && response.code() == 200) {
                         try {
                             JSONObject json = new JSONObject(responseBody.string());
+                            Log.d(TAG, "APK检测更新访问成功：" + json);
+                            TestLogUtil.log("APK检测更新访问成功：" + json);
                             if (json.getInt("flag") == 1) {
                                 String apkDownUrl = json.getString("apkDownUrl");
                                 if (!TextUtils.isEmpty(apkDownUrl)) {
-//                                fileDownload(apkDownUrl);
                                     File carFuture = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "CarFuture");
                                     if (carFuture.exists()) {
                                         String[] listName = carFuture.list();
@@ -94,8 +98,10 @@ public class OtherHttpUtil extends BaseHttpUtil {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                    }else
+                    } else{
+                        updateListener.onUpdateFail();
                         TestLogUtil.log("APK升级检测失败" + response.toString());
+                    }
                 }
             });
         } catch (PackageManager.NameNotFoundException e) {
@@ -123,7 +129,7 @@ public class OtherHttpUtil extends BaseHttpUtil {
                 ResponseBody responseBody = response.body();
                 if (responseBody != null && response.code() == 200) {
                     TestLogUtil.log("在线更新成功:" + responseBody.string());
-                } else{
+                } else {
                     TestLogUtil.log("在线更新失败" + response.toString());
                 }
             }
@@ -135,5 +141,7 @@ public class OtherHttpUtil extends BaseHttpUtil {
         public void onApkDownload(String downloadPath);
 
         public void onApkInstall(String installPath);
+
+        public void onUpdateFail();
     }
 }

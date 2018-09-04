@@ -63,8 +63,8 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
     private static final int MSG_TOAST = 0x05;
     //上传设备ID
     private static final int MSG_UPLOAD_DEVICE_ID = 0x06;
-    //    //隐藏绑定二维码
-//    private static final int MSG_HIED_BIND_CODE = 0x07;
+    //隐藏绑定二维码
+    //private static final int MSG_HIED_BIND_CODE = 0x07;
     //弹框显示绑定二维码
     private static final int MSG_SHOW_DIALOG_BIND_CODE = 0x08;
     //code倒计时
@@ -99,7 +99,7 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
                     break;
                 case MSG_SET_ALIAS:
                     Log.d(TAG, "设置JPush别名...");
-                    mySendMessage("设置JPush别名...");
+                    TestLogUtil.log("设置JPush别名...");
                     JPushInterface.setAliasAndTags(mContext.getApplicationContext(),
                             JPUSH_DEVICE_ALIAS,
                             null,
@@ -109,6 +109,7 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
                     if (mSp.getBoolean(SharedName.DEVICE_IS_UPLOAD, false))
                         BindHttpUtil.build().jPushBindUpload(MSG_UPLOAD_JPUSH_MEG, JPUSH_DEVICE_ALIAS, mIccid, new HttpCallback());
                     else {
+                        TestLogUtil.log("等待设备ID上传成功，5s后再上传Jpush绑定信息");
                         Log.d(TAG, "等待设备ID上传成功，5s后再上传Jpush绑定信息");
                         mHandler.sendEmptyMessageDelayed(MSG_UPLOAD_JPUSH_MEG, 1000 * 5);
                     }
@@ -213,11 +214,6 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
         mContext.unregisterReceiver(mSimStateReceive);
     }
 
-    private void mySendMessage(String message) {
-//        mEventBus.post(new TestDataMessage(message));
-        TestLogUtil.log(message);
-    }
-
     public void toast(String msg) {
         Message message = mHandler.obtainMessage();
         message.obj = msg;
@@ -229,37 +225,40 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
     public void gotResult(int code, String s, Set<String> set) {
         switch (code) {
             case 0:
-                mySendMessage("JPush别名设置成功");
+                TestLogUtil.log("JPush别名设置成功");
                 Log.i(TAG, "JPush别名设置成功");
                 mSp.edit().putBoolean(SharedName.JPUSH_SETALIAS_SUCCEED, true).apply();
                 mHandler.sendEmptyMessage(MSG_UPLOAD_JPUSH_MEG);
                 break;
             case 6002:
-                mySendMessage("JPush10s重复申请");
+                TestLogUtil.log("JPush10s重复申请");
                 Log.i(TAG, "JPush10s重复申请");
                 mHandler.sendEmptyMessageDelayed(MSG_SET_ALIAS, 1000 * 10);
                 break;
             default:
-                mySendMessage("JPush设置别名失败 errorCode:" + code);
+                TestLogUtil.log("JPush设置别名失败 errorCode:" + code);
                 Log.e(TAG, "JPush设置别名失败 errorCode:" + code);
         }
     }
 
-    class HttpCallback implements BaseHttpUtil.MyCallback {
+    class HttpCallback implements BaseHttpUtil.MyCallback2 {
 
         @Override
         public void onFailure(int tag, String errorMessage) {
 
             switch (tag) {
                 case MSG_UPLOAD_JPUSH_MEG:
+                    TestLogUtil.log("上传JPush绑定信息失败，5s后再次上传 errorMessage=" + errorMessage);
                     Log.d(TAG, "上传JPush绑定信息失败，5s后再次上传 errorMessage=" + errorMessage);
                     mHandler.sendEmptyMessageDelayed(MSG_UPLOAD_JPUSH_MEG, 1000 * 5);
                     break;
                 case MSG_REQUEST_BIND_MEG:
+                    TestLogUtil.log("获取JPush绑定信息失败，5s后再次获取 errorMessage=" + errorMessage);
                     Log.d(TAG, "获取JPush绑定信息失败，5s后再次获取 errorMessage=" + errorMessage);
                     mHandler.sendEmptyMessageDelayed(MSG_REQUEST_BIND_MEG, 1000 * 5);
                     break;
                 case MSG_UPLOAD_DEVICE_ID:
+                    TestLogUtil.log("上传设备ID失败，5s后再次上传 errorMessage=" + errorMessage);
                     Log.d(TAG, "上传设备ID失败，5s后再次上传 errorMessage=" + errorMessage);
                     mHandler.sendEmptyMessageDelayed(MSG_UPLOAD_DEVICE_ID, 1000 * 5);
                     break;
@@ -270,16 +269,18 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
 
         @Override
         public void onResponse(int tag, String body) {
-            ResponseBeanBase baseResponeBean;
+            ResponseBeanBase baseResponseBean;
             switch (tag) {
                 case MSG_UPLOAD_JPUSH_MEG:
-                    baseResponeBean = mGson.fromJson(body, ResponseBeanBase.class);
-                    if (baseResponeBean.getCode() == 0) {
+                    baseResponseBean = mGson.fromJson(body, ResponseBeanBase.class);
+                    if (baseResponseBean.getCode() == 0) {
+                        TestLogUtil.log("JPush绑定信息上传成功 body=" + body);
                         Log.d(TAG, "JPush绑定信息上传成功 body=" + body);
                         mEventBus.post(new DefaultMessage(EVENT_MSG_SHOW_BIND_CODE, ""));//界面中显示二维码
                         mSp.edit().putBoolean(SharedName.JPUSH_MSG_IS_UPLOAD, true).apply();
                         mHandler.sendEmptyMessage(MSG_REQUEST_BIND_MEG);//获取绑定信息
                     } else {
+                        TestLogUtil.log("JPush绑定信息上传失败 5s后再次上传 msg=" + body);
                         Log.d(TAG, "JPush绑定信息上传失败 5s后再次上传 msg=" + body);
                         mHandler.sendEmptyMessageDelayed(MSG_UPLOAD_JPUSH_MEG, 1000 * 5);
                     }
@@ -287,6 +288,7 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
                 case MSG_REQUEST_BIND_MEG:
                     CheckBindBean checkBindBean = mGson.fromJson(body, CheckBindBean.class);
                     if (checkBindBean.getCode() == 0) {
+                        TestLogUtil.log("获取JPush绑定信息成功  body=" + body);
                         Log.d(TAG, "获取JPush绑定信息成功  body=" + body);
                         if (checkBindBean.getIsBinding() == 0) {//未绑定
                             mHandler.sendEmptyMessage(MSG_SHOW_DIALOG_BIND_CODE);
@@ -296,17 +298,21 @@ public class BindDeviceRun extends BaseRun implements TagAliasCallback {
                             mSp.edit().putBoolean(SharedName.DEVICE_IS_BIND, true).apply();
                         }
                     } else {
+                        TestLogUtil.log("获取JPush绑定信息失败 5s后再次获取 msg=" + body);
                         Log.d(TAG, "获取JPush绑定信息失败 5s后再次获取 msg=" + body);
                         mHandler.sendEmptyMessageDelayed(MSG_REQUEST_BIND_MEG, 1000 * 5);
                     }
                     break;
                 case MSG_UPLOAD_DEVICE_ID:
-                    baseResponeBean = mGson.fromJson(body, ResponseBeanBase.class);
-                    if (baseResponeBean.getCode() == 0) {
+                    baseResponseBean = mGson.fromJson(body, ResponseBeanBase.class);
+                    if (baseResponseBean.getCode() == 0) {
+                        TestLogUtil.log("上传设备ID成功 body=" + body);
                         Log.d(TAG, "上传设备ID成功 body=" + body);
                         mSp.edit().putBoolean(SharedName.DEVICE_IS_UPLOAD, true).apply();
-                    } else
+                    } else {
                         Log.d(TAG, "上传设备ID失败 msg=" + body);
+                        TestLogUtil.log("上传设备ID失败 msg=" + body);
+                    }
                     break;
             }
         }

@@ -2,6 +2,8 @@ package com.jld.obdserialport.bean.request;
 
 import android.util.Log;
 
+import com.jld.obdserialport.utils.TestLogUtil;
+
 /**
  * 本次行程统计数据流
  * 每次熄火发送一次
@@ -28,20 +30,28 @@ public class TTBean extends RequestBaseBean {
 
     public void setData(String data) {
         String[] datas = data.split(",");
-        if (datas.length == 11) {
-            hotCarTimeLong = Double.parseDouble(datas[1]);
-            idleSpeedTimeLong = Double.parseDouble(datas[2]);
-            drivingTimeLong = Double.parseDouble(datas[3]);
-            mileage = Double.parseDouble(datas[4]);
-            idleSpeedFuelConsumption = Double.parseDouble(datas[5]);
-            drivingFuelConsumption = Double.parseDouble(datas[6]);
-            topTurnSpeed = Double.parseDouble(datas[7]);
-            topCarSpeed = Double.parseDouble(datas[8]);
-            rapidlyAccelerateTimes = Integer.parseInt(datas[9]);
-            sharpSlowdownTimes = Integer.parseInt(datas[10]);
-        } else {
-            Log.e(TAG, "本次行程统计数据流 setData 数据大小异常:" + data);
+        int ttIndex = -1;
+        for (int i = 0; i < datas.length; i++) {
+            Log.d(TAG, "setData: " + datas[i]);
+            TestLogUtil.log("setData: " + datas[i]);
+            if (datas[i].contains("TT"))
+                ttIndex = i;
         }
+        Log.d(TAG, "ttIndex: " + ttIndex);
+        TestLogUtil.log("ttIndex：" + ttIndex);
+        if (ttIndex >= 0 && datas.length > ttIndex + 10) {
+            hotCarTimeLong = Double.parseDouble(datas[ttIndex + 1]);
+            idleSpeedTimeLong = Double.parseDouble(datas[ttIndex + 2]);
+            drivingTimeLong = Double.parseDouble(datas[ttIndex + 3]);
+            mileage = Double.parseDouble(datas[ttIndex + 4]);
+            idleSpeedFuelConsumption = Double.parseDouble(datas[ttIndex + 5]);
+            drivingFuelConsumption = Double.parseDouble(datas[ttIndex + 6]);
+            topTurnSpeed = Double.parseDouble(datas[ttIndex + 7]);
+            topCarSpeed = Double.parseDouble(datas[ttIndex + 8]);
+            rapidlyAccelerateTimes = Integer.parseInt(datas[ttIndex + 9]);
+            sharpSlowdownTimes = Integer.parseInt(datas[ttIndex + 10]);
+        } else
+            TestLogUtil.log("TT数据异常：" + data);
     }
 
     public void setStartTime(String startTime) {
@@ -54,5 +64,23 @@ public class TTBean extends RequestBaseBean {
 
     public double getTravelMileage() {
         return mileage;
+    }
+
+    @Override
+    public String toString() {
+        return "TTBean{" +
+                "hotCarTimeLong=" + hotCarTimeLong +
+                ", idleSpeedTimeLong=" + idleSpeedTimeLong +
+                ", drivingTimeLong=" + drivingTimeLong +
+                ", mileage=" + mileage +
+                ", idleSpeedFuelConsumption=" + idleSpeedFuelConsumption +
+                ", drivingFuelConsumption=" + drivingFuelConsumption +
+                ", topTurnSpeed=" + topTurnSpeed +
+                ", topCarSpeed=" + topCarSpeed +
+                ", rapidlyAccelerateTimes=" + rapidlyAccelerateTimes +
+                ", sharpSlowdownTimes=" + sharpSlowdownTimes +
+                ", startTime='" + startTime + '\'' +
+                ", endTime='" + endTime + '\'' +
+                '}';
     }
 }

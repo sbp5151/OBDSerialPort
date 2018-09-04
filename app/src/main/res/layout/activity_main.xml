@@ -34,11 +34,13 @@
         android:background="@drawable/shape_bind_back">
 
         <LinearLayout
+            android:id="@+id/ll_main"
             android:layout_width="260dp"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:gravity="center"
             android:paddingTop="30dp"
+ 
             android:orientation="vertical">
 
             <ImageView
@@ -64,5 +66,15 @@
                 android:gravity="center"
                 android:textSize="23dp" />
         </LinearLayout>
+        <TextView
+            android:id="@+id/tv_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:textSize="16dp"
+            android:padding="10dp"
+            />
     </RelativeLayout>
+
 </LinearLayout>

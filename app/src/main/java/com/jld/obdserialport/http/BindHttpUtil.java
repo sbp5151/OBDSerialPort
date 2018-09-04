@@ -38,7 +38,7 @@ public class BindHttpUtil extends BaseHttpUtil {
     /**
      * 设备ID上传
      */
-    public void uploadDeviceID(final int tag, final MyCallback callback) {
+    public void uploadDeviceID(final int tag, final MyCallback2 callback) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("deviceID", OBD_ID);
         Log.d(TAG, "设备ID上传: " + jsonObject);
@@ -53,8 +53,6 @@ public class BindHttpUtil extends BaseHttpUtil {
             @Override
             public void onFailure(Call call, IOException e) {
                 callback.onFailure(tag, e.getMessage());
-                Log.d(TAG, "设备ID上传失败 onFailure: " + e.getMessage());
-                TestLogUtil.log("设备ID上传失败 onFailure: " + e.getMessage());
             }
 
             @Override
@@ -64,10 +62,7 @@ public class BindHttpUtil extends BaseHttpUtil {
                 if (responseBody != null && response.code() == 200) {
                     String bodyString = responseBody.string();
                     callback.onResponse(tag, bodyString);
-                    Log.d(TAG, "设备ID上传成功: " + bodyString);
-                    TestLogUtil.log("设备ID上传成功 " + bodyString);
                 } else {
-                    TestLogUtil.log("设备ID上传失败 onResponse: " + response.toString());
                     callback.onFailure(tag, response.toString());
                 }
             }
@@ -81,7 +76,7 @@ public class BindHttpUtil extends BaseHttpUtil {
      * @param alias
      * @param callback
      */
-    public void jPushBindUpload(final int tag, String alias, String iccid, final MyCallback callback) {
+    public void jPushBindUpload(final int tag, String alias, String iccid, final MyCallback2 callback) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("deviceID", OBD_ID);
         jsonObject.addProperty("jPushAlias", alias);
@@ -98,7 +93,6 @@ public class BindHttpUtil extends BaseHttpUtil {
             @Override
             public void onFailure(Call call, IOException e) {
                 callback.onFailure(tag, e.getMessage());
-                Log.d(TAG, "上传设备绑定信息失败 onFailure: " + e.getMessage());
             }
 
             @Override
@@ -108,11 +102,7 @@ public class BindHttpUtil extends BaseHttpUtil {
                 if (responseBody != null && response.code() == 200) {
                     String bodyString = responseBody.string();
                     callback.onResponse(tag, bodyString);
-                    Log.d(TAG, "上传设备绑定信息成功: " + bodyString);
-                    TestLogUtil.log("上传设备绑定信息成功: " + bodyString);
                 } else {
-                    Log.d(TAG, "上传设备绑定信息失败 onResponse: " + response.toString());
-                    TestLogUtil.log("上传设备绑定信息失败 onResponse:: " + response.toString());
                     callback.onFailure(tag, response.toString());
                 }
             }
@@ -125,7 +115,7 @@ public class BindHttpUtil extends BaseHttpUtil {
      * @param tag
      * @param callback
      */
-    public void jPushBindRequest(final int tag, final MyCallback callback) {
+    public void jPushBindRequest(final int tag, final MyCallback2 callback) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("deviceID", OBD_ID);
         RequestBody body = RequestBody.create(mJsonType, jsonObject.toString());
@@ -140,8 +130,6 @@ public class BindHttpUtil extends BaseHttpUtil {
             @Override
             public void onFailure(Call call, IOException e) {
                 callback.onFailure(tag, e.getMessage());
-                Log.d(TAG, "获取设备绑定信息失败 onFailure: " + e.getMessage());
-                TestLogUtil.log("获取设备绑定信息失败 onFailure:：" + e.getMessage());
             }
 
             @Override
@@ -150,12 +138,8 @@ public class BindHttpUtil extends BaseHttpUtil {
                 Log.d(TAG, "onResponse: " + response);
                 if (responseBody != null && response.code() == 200) {
                     String bodyString = responseBody.string();
-                    TestLogUtil.log("获取设备绑定信息成功: " +bodyString);
                     callback.onResponse(tag, bodyString);
-                    Log.d(TAG, "获取设备绑定信息成功: " + bodyString);
                 } else {
-                    TestLogUtil.log("获取设备绑定信息失败 onResponse: " + response.message());
-                    Log.d(TAG, "获取设备绑定信息失败 onResponse: " + response.message());
                     callback.onFailure(tag, response.message());
                 }
             }

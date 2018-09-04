@@ -12,6 +12,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.TimeUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -24,6 +25,8 @@ import com.google.gson.Gson;
 import com.jld.obdserialport.MyApplication;
 import com.jld.obdserialport.R;
 import com.jld.obdserialport.SelfStartService;
+import com.jld.obdserialport.event_msg.AccMessage;
+import com.jld.obdserialport.event_msg.OBDDataMessage;
 import com.jld.obdserialport.event_msg.TestDataMessage;
 import com.jld.obdserialport.http.FileHttpUtil;
 import com.jld.obdserialport.utils.TestLogUtil;
@@ -85,7 +88,7 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     private synchronized void addData(String data) {
-        mDatas.add(data);
+        mDatas.add(data + com.jld.obdserialport.util.TimeUtils.getNowString());
         mObdDataAdapter.notifyDataSetChanged();
         if (isVisBottom(mRecyclerView))
             mRecyclerView.scrollToPosition(mObdDataAdapter.getItemCount() - 1);
@@ -150,17 +153,16 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
         mRecyclerView.setAdapter(mObdDataAdapter);
     }
 
+//        <item>ALL</item>
+//        <item>ONOFF</item>
+//        <item>GPS</item>
+//        <item>RT</item>
+//        <item>TT</item>
+//        <item>HBT</item>
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        switch (position) {
-//            case 6:
-//            case 9:
-//                mEtCode.setText("=");
-//                break;
-//            default:
-//                mEtCode.setText("");
-//                break;
-        }
+        Log.d(TAG, "onItemSelected: "+position);
+        mObdDataAdapter.mDataFilter = position;
     }
 
     @Override
@@ -238,12 +240,15 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
 //                EventBus.getDefault().post(mediaBean);
                 break;
             case R.id.btn_send:
+                EventBus.getDefault().post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG,
+                        "T527,ACC OFF<RPM>.\n$OBD-TT,132,312,312,43,43124,14,231,321,12,432,321312,43,4"));
+//                mMyBinder.sendData("AT500");
 //                EventBus.getDefault().post(new JpushMediaBean(2));
 //                if (mGson == null)
 //                    mGson = new Gson();
 //                JpushBase jpushBase = mGson.fromJson("{\"fileName\":\"x4lkr1y909jv78lnofofg8pvi1532681646138\",\"fileType\":2,\"flag\":5,\"obdId\":\"866275038851383\",\"uid\":\"olBG94sMevoxx0UZ0CwhVdBiaOCQ\",\"videoDuration\":1}", JpushBase.class);
 //                Log.d(TAG, "jpushBase: "+jpushBase);
-                sendCode();
+//                  sendCode();
 //                String mVideoPath1 = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "CarFuture" + File.separator + "future.mp4";
 //                FileHttpUtil.build().videoUploadUtil(MyApplication.OBD_ID, "132", "4234", mVideoPath1, new FileHttpUtil.UploadFileListener() {
 //                    @Override
@@ -260,6 +265,7 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
 //                        TestLogUtil.log("视频上传成功:" + msg);
 //                    }
 //                });
+              //  EventBus.getDefault().post(new AccMessage(AccMessage.EVENT_FLAG_ACC_ON));
                 break;
             case R.id.btn_clear:
 //                String compressPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "CarFuture" + File.separator + "future.3gp";
@@ -278,7 +284,7 @@ public class TestActivity extends BaseActivity implements View.OnClickListener, 
 //                    XiaoRuiUtils.silentAppInstall(this, apkPath);
 //                else TestLogUtil.log(apkPath + "不存在");
 ////                XiaoRuiUtils.tts(this,"测试tts语音播报");
-//                break;
+                break;
         }
     }
 

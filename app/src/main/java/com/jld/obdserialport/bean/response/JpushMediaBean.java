@@ -4,13 +4,14 @@ import com.jld.obdserialport.bean.response.JpushBase;
 
 public class JpushMediaBean extends JpushBase {
 
-    private String fileName;
-    private int fileType;
     private String obdId;
     private String uid;
+    private String fileName;
+    private int fileType;
+    private int isFront;
     private int videoDuration;
 
-//    public JpushMediaBean(int fileType) {
+    //    public JpushMediaBean(int fileType) {
 //        this.fileType = fileType;
 //    }
 //
@@ -42,6 +43,10 @@ public class JpushMediaBean extends JpushBase {
         return videoDuration;
     }
 
+    public int getIsFront() {
+        return isFront;
+    }
+
     @Override
     public String toString() {
         return "JpushMediaBean{" +
@@ -49,7 +54,9 @@ public class JpushMediaBean extends JpushBase {
                 ", uid='" + uid + '\'' +
                 ", fileName='" + fileName + '\'' +
                 ", fileType=" + fileType +
+                ", isFront=" + isFront +
                 ", videoDuration=" + videoDuration +
+                ", flag=" + flag +
                 '}';
     }
 }

@@ -9,15 +9,14 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.jld.obdserialport.event_msg.OBDDataMessage;
+import com.jld.obdserialport.runnable.LogRecordRun;
 import com.jld.obdserialport.utils.TestLogUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
@@ -71,6 +70,7 @@ public class SerialPortIOManage {
             TestLogUtil.log( "串口连接成功");
             mEventBus.post(new OBDDataMessage(OBDDataMessage.CONNECT_STATE_FLAG, true));
         } else {
+            LogRecordRun.getInstance().writeLog("串口连接失败");
             Log.d(TAG, "串口连接失败");
             TestLogUtil.log( "串口连接失败");
             mEventBus.post(new OBDDataMessage(OBDDataMessage.CONNECT_STATE_FLAG, false));
@@ -152,6 +152,7 @@ public class SerialPortIOManage {
                     int read = mInputStream.read(mBuffer);
                     String readData = new String(mBuffer, 0, read, "UTF-8");
                     Log.d(TAG, "数据读取：" + readData);
+                    LogRecordRun.getInstance().writeLog(readData);
                     mEventBus.post(new OBDDataMessage(OBDDataMessage.CONTENT_FLAG, readData));
                     mWriteHandler.removeMessages(FEEDBACK_TIMEOUT_FLAG);
                 } catch (IOException e) {
@@ -165,6 +166,7 @@ public class SerialPortIOManage {
      * 断开连接
      */
     public void disConnect() {
+        LogRecordRun.getInstance().onDestroy();
         mIsLoopRead = false;
         mIsLoopWrite = false;
         if (!mIsConnect)

@@ -8,7 +8,7 @@ import android.util.Log;
 public class RTBean extends RequestBaseBean {
 
     public static final String TAG = "RTBean";
-    private String mBatteryVoltage;//1电瓶电压
+    private double batteryVoltage;//1电瓶电压
     private String engineSpeed;//2发动机转速（动力）
     private String carSpeed;//3行驶车速
     private String throttleOpening;//4节气门开度
@@ -31,7 +31,7 @@ public class RTBean extends RequestBaseBean {
     public boolean setData(String data) {
         String[] datas = data.split(",");
         if (datas.length == 16) {
-            mBatteryVoltage = datas[1];
+            batteryVoltage = Double.parseDouble(datas[1]);
             engineSpeed = datas[2];
             carSpeed = datas[3];
             throttleOpening = datas[4];
@@ -57,14 +57,14 @@ public class RTBean extends RequestBaseBean {
         return engineSpeed;
     }
 
-    public String getBatteryVoltage() {
-        return mBatteryVoltage;
+    public double getBatteryVoltage() {
+        return batteryVoltage;
     }
 
     @Override
     public String toString() {
         return "RTBean{" +
-                "mBatteryVoltage='" + mBatteryVoltage + '\'' +
+                "batteryVoltage='" + batteryVoltage + '\'' +
                 ", engineSpeed='" + engineSpeed + '\'' +
                 ", carSpeed='" + carSpeed + '\'' +
                 ", throttleOpening='" + throttleOpening + '\'' +

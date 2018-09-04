@@ -2,12 +2,15 @@ package com.jld.obdserialport.utils;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
+import static com.jld.obdserialport.http.FileHttpUtil.TAG;
 import static com.jld.obdserialport.runnable.MediaRun.PHOTO_REQUEST_ACTION;
 import static com.jld.obdserialport.runnable.MediaRun.VIDEO_REQUEST_ACTION;
 
 public class XiaoRuiUtils {
 
+    public static final String TAG = "XiaoRuiUtils";
     private static Intent ttsIntent;
     private static Intent naviIntent;
     private static Intent videoIntent;
@@ -48,6 +51,7 @@ public class XiaoRuiUtils {
     }
 
     public static void silentAppInstall(Context context,String appPath) {
+        Log.d(TAG, "silentAppInstall: "+appPath);
         Intent intent = new Intent("com.rmt.action.SILENT_INSTALL");
         intent.putExtra("apk_path", appPath);
         context.sendBroadcast(intent);

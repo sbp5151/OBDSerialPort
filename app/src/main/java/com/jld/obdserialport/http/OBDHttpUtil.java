@@ -8,6 +8,7 @@ import com.jld.obdserialport.bean.request.HBTBean;
 import com.jld.obdserialport.bean.request.OnOrOffBean;
 import com.jld.obdserialport.bean.request.RTBean;
 import com.jld.obdserialport.bean.request.TTBean;
+import com.jld.obdserialport.runnable.LogRecordRun;
 import com.jld.obdserialport.utils.Constant;
 import com.jld.obdserialport.utils.TestLogUtil;
 
@@ -40,7 +41,7 @@ public class OBDHttpUtil extends BaseHttpUtil {
      *
      * @param rtBean
      */
-    public void rtDataPost(RTBean rtBean, final int tag, final MyCallback callback) {
+    public void rtDataPost(RTBean rtBean, final int tag) {
         String rtJson = mGson.toJson(rtBean);
         Log.d(TAG, "实时数据上传: " + rtJson);
         TestLogUtil.log("实时数据上传: " + rtJson);
@@ -53,7 +54,6 @@ public class OBDHttpUtil extends BaseHttpUtil {
         mOkHttpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                callback.onFailure(tag, e.getMessage());
                 Log.d(TAG, "实时数据上传失败 onFailure: " + e.getMessage());
                 TestLogUtil.log("实时数据上传失败 onFailure: " + e.getMessage());
             }
@@ -64,13 +64,11 @@ public class OBDHttpUtil extends BaseHttpUtil {
                 ResponseBody responseBody = response.body();
                 if (responseBody != null && response.code() == 200) {
                     String bodyString = responseBody.string();
-                    callback.onResponse(tag, bodyString);
                     Log.d(TAG, "实时数据上传成功: " + bodyString);
                     TestLogUtil.log("实时数据上传成功: " + bodyString);
                 } else {
                     Log.d(TAG, "实时数据上传失败 onResponse: " + response);
                     TestLogUtil.log("实时数据上传失败 onResponse: " + response);
-                    callback.onFailure(tag, response.toString());
                 }
             }
         });
@@ -175,7 +173,6 @@ public class OBDHttpUtil extends BaseHttpUtil {
                 ResponseBody responseBody = response.body();
                 if (responseBody != null && response.code() == 200) {
                     String bodyString = responseBody.string();
-                    callback.onResponse(tag, bodyString);
                     TestLogUtil.log("驾驶习惯数据上传成功 :" + bodyString);
                     Log.d(TAG, "驾驶习惯数据上传成功:  " + bodyString);
                 } else {
@@ -217,7 +214,6 @@ public class OBDHttpUtil extends BaseHttpUtil {
                 ResponseBody responseBody = response.body();
                 if (responseBody != null && response.code() == 200) {
                     String bodyString = responseBody.string();
-                    callback.onResponse(tag, bodyString);
                     TestLogUtil.log("本次数据上传成功 onFailure :" + bodyString);
                     Log.d(TAG, "本次数据上传成功: " + bodyString);
                 } else {
@@ -234,10 +230,11 @@ public class OBDHttpUtil extends BaseHttpUtil {
      *
      * @param bean
      */
-    public void carStartOrStopPost(OnOrOffBean bean, final int tag, final MyCallback callback) {
+    public void carStartOrStopPost(final OnOrOffBean bean, final int tag, final MyCallback callback) {
         String startOrStopJson = mGson.toJson(bean);
         TestLogUtil.log("点火熄火上传: " + startOrStopJson);
         Log.d(TAG, "点火熄火上传: " + startOrStopJson);
+        LogRecordRun.getInstance().writeLog("---------------"+bean.getEngineState()+"上传....");
         RequestBody body = RequestBody.create(mJsonType, startOrStopJson);
         Request build = new Request.Builder()
                 .url(Constant.URL_CAR_ONOFF_POST)
@@ -248,6 +245,7 @@ public class OBDHttpUtil extends BaseHttpUtil {
             @Override
             public void onFailure(Call call, IOException e) {
                 callback.onFailure(tag, e.getMessage());
+                LogRecordRun.getInstance().writeLog("---------------"+bean.getEngineState()+"上传失败");
                 TestLogUtil.log("点火熄火上传失败 onFailure: " + e.getMessage());
                 Log.d(TAG, "点火熄火上传失败 onFailure: " + e.getMessage());
             }
@@ -256,11 +254,12 @@ public class OBDHttpUtil extends BaseHttpUtil {
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody responseBody = response.body();
                 if (responseBody != null && response.code() == 200) {
+                    LogRecordRun.getInstance().writeLog("---------------"+bean.getEngineState()+"上传成功");
                     String bodyString = responseBody.string();
-                    callback.onResponse(tag, bodyString);
                     TestLogUtil.log("点火熄火上传成功: " + bodyString);
                     Log.d(TAG, "点火熄火上传成功: " + bodyString);
                 } else {
+                    LogRecordRun.getInstance().writeLog("---------------"+bean.getEngineState()+"上传失败");
                     TestLogUtil.log("点火熄火上传失败 onResponse: " + response);
                     Log.d(TAG, "点火熄火上传失败 onResponse: " + response);
                     callback.onFailure(tag, response.toString());

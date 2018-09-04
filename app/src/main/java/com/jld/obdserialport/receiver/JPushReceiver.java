@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -155,6 +156,8 @@ public class JPushReceiver extends BroadcastReceiver {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+//                Intent intent = context.getPackageManager().getLaunchIntentForPackage("com.android.settings");
+//                context.startActivity(intent);
                 if (MapNaviUtils.isGdAutoMapInstalled()) {
                     MapNaviUtils.openAutoMap(context, location.getLatitude(),
                             location.getLongitude(), location.getSite());
@@ -163,7 +166,7 @@ public class JPushReceiver extends BroadcastReceiver {
                 break;
             case FLAG_MEDIA_REQUEST://录制 拍照申请
 //                EventBus.getDefault().post(new TestDataMessage("录制 拍照申请"));
-                TestLogUtil.log("录制 拍照 申请");
+                TestLogUtil.log("录制 拍照 申请:"+data);
 //              EventBus.getDefault().post(new TestDataMessage("录制 拍照申请"));
                 JpushMediaBean mediaBean = mGson.fromJson(data, JpushMediaBean.class);
                 EventBus.getDefault().post(mediaBean);

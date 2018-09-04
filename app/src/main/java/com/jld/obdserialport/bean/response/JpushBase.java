@@ -2,7 +2,7 @@ package com.jld.obdserialport.bean.response;
 
 public class JpushBase {
 
-    private int flag;
+    protected int flag;
 
     public int getFlag() {
         return flag;

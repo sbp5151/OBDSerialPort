@@ -14,4 +14,8 @@ public class SharedName {
     public static final String BIND_USER_NAME = "userName";
     //sim卡iccid号
     public static final String SIM_ICCID = "simIccid";
+    //汽车点火时间
+    public static final String CAR_START_TIME = "car_start_time";
+    //ACC状态
+    public static final String ACC_START = "acc_start";
 }

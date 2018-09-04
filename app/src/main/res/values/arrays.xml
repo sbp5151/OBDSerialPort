@@ -11,12 +11,12 @@
         <item>设置波特率</item>
     </string-array>
     <string-array name="ATCode">
-        <item>ATRON</item>
-        <item>ATROFF</item>
-        <item>ATHBT</item>
-        <item>ATPIDON</item>
-        <item>ATPIDOFF</item>
-        <item>ATSLEEP</item>
+        <item>ALL</item>
+        <item>ONOFF</item>
+        <item>GPS</item>
+        <item>RT</item>
+        <item>TT</item>
+        <item>HBT</item>
     </string-array>
     <string-array name="PIDCode">
         <item>ATPID=01</item>
