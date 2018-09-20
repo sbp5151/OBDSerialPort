@@ -62,7 +62,7 @@ public class LocationReceiveRun extends BaseRun {
         @Override
         public void onLocationChanged(AMapLocation aMapLocation) {
             Log.d(TAG, "onLocationChanged: " + aMapLocation);
-            TestLogUtil.log("定位精度: " + aMapLocation.getAccuracy());
+            TestLogUtil.log("定位精度: " + aMapLocation.getAccuracy()+"     定位错误代码: " + aMapLocation.getErrorCode());
 //            switch (aMapLocation.getGpsAccuracyStatus()) {
 //                case AMapLocation.GPS_ACCURACY_BAD:
 //                    TestLogUtil.log("GPS信号弱");
@@ -76,7 +76,7 @@ public class LocationReceiveRun extends BaseRun {
 //            }
 //            TestLogUtil.log("卫星数量: " + aMapLocation.getSatellites());
             if (aMapLocation.getErrorCode() == 0 && aMapLocation.getLocationType() == AMapLocation.LOCATION_TYPE_GPS
-                    && aMapLocation.getAccuracy() < 5) {
+                    && aMapLocation.getAccuracy() < 10) {
                 if (mGpsBean == null)
                     mGpsBean = new GPSBean();
 //                mEventBus.post(new TestDataMessage(aMapLocation.getAddress() + " type:" + aMapLocation.getLocationType()));
